@@ -13,6 +13,7 @@ RUN npm install -g ts-node-dev
 
 # Copia todo el código
 COPY . .
+COPY ./src/assets /app/src/assets
 
 EXPOSE 3000
 

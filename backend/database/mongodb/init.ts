@@ -180,7 +180,7 @@ export const seedDatabase = async () => {
         price: 1299000,
         category: 'Computadores',
         stock: 10,
-        images: ['https://example.com/pc1.jpg'],
+        images: ['http://localhost:3000/assets/images/pc.png'],
         components: {
           procesator: 'AMD Ryzen 7 5800X',
           mother_board: 'MSI B550 Tomahawk',
@@ -207,7 +207,7 @@ export const seedDatabase = async () => {
         price: 499000,
         category: 'Computadores',
         stock: 25,
-        images: ['https://example.com/pc2.jpg'],
+        images: ['http://localhost:3000/assets/images/pc.png'],
         components: {
           procesator: 'Intel Core i5-11400',
           mother_board: 'ASUS Prime B560M-A',
@@ -228,7 +228,7 @@ export const seedDatabase = async () => {
         price: 2499000,
         category: 'Computadores',
         stock: 5,
-        images: ['https://example.com/pc3.jpg'],
+        images: ['http://localhost:3000/assets/images/pc.png'],
         components: {
           procesator: 'AMD Ryzen 9 5950X',
           mother_board: 'ASUS ROG Crosshair VIII',

@@ -288,31 +288,6 @@ export default function LoginForm() {
         </div>
       </div>
 
-      {/* API Info */}
-      <div style={{
-        textAlign: 'center',
-        padding: '14px',
-        background: '#F9FAFB',
-        borderRadius: '10px',
-        border: '1px solid #E5E7EB'
-      }}>
-        <p style={{
-          fontSize: '13px',
-          color: '#6B7280',
-          margin: 0,
-          fontWeight: '500'
-        }}>
-          API: <span style={{
-            fontFamily: 'monospace',
-            color: '#6366F1',
-            fontWeight: '600',
-            background: 'white',
-            padding: '4px 8px',
-            borderRadius: '6px',
-            border: '1px solid #E5E7EB'
-          }}>http://localhost:3000</span>
-        </p>
-      </div>
     </form>
   );
 }

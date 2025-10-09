@@ -103,7 +103,7 @@ export const AnalyticsPage: React.FC = () => {
                             {/* 🛑 CABECERA DE TABLA Y BOTÓN CSV */}
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                                 <h2 className="text-xl font-semibold text-gray-800">
-                                    Resultados Tabulares ({products.length} productos)
+                                    Resultados ({products.length} productos)
                                 </h2>
                                 {/* 🛑 BOTÓN DE EXPORTAR CSV */}
                                 <button 

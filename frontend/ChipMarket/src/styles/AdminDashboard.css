@@ -1,0 +1,113 @@
+.admin-dashboard {
+  min-height: 100vh;
+  background-color: #f9fafb;
+}
+
+/* Header del Dashboard */
+.admin-dashboard__header {
+  background-color: #ffffff;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.admin-dashboard__header-content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.admin-dashboard__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.admin-dashboard__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 0.25rem 0;
+}
+
+.admin-dashboard__subtitle {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.admin-dashboard__user-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background-color: #dbeafe;
+  color: #1e40af;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Tabs de navegación */
+.admin-dashboard__tabs {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.admin-dashboard__tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+  background-color: transparent;
+  color: #6b7280;
+}
+
+.admin-dashboard__tab:hover {
+  background-color: #f3f4f6;
+}
+
+.admin-dashboard__tab--active {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+.admin-dashboard__tab-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Contenido del Dashboard */
+.admin-dashboard__content {
+  padding: 2rem 1rem;
+}
+
+.admin-dashboard__placeholder {
+  max-width: 1280px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  padding: 2rem;
+  text-align: center;
+}
+
+.admin-dashboard__placeholder-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.admin-dashboard__placeholder-text {
+  color: #6b7280;
+}

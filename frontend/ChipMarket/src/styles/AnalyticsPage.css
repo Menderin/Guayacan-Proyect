@@ -1,0 +1,88 @@
+/* src/styles/AnalyticsPage.css */
+
+/* Contenedor principal de la tabla para dar un marco y esquinas redondeadas */
+.analytics-table-container {
+    overflow-x: auto; /* Permite desplazamiento horizontal si la tabla es muy ancha */
+    border: 1px solid #ccc;
+    border-radius: 8px; /* Esquinas redondeadas */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Sombra ligera */
+    display: inline-block; 
+}
+
+/* Estilo para la tabla en sí */
+.product-results-table {
+    /*width: 100%;*/
+    border-collapse: collapse; /* Elimina el espacio entre celdas */
+    table-layout: auto; 
+}
+/* src/styles/AnalyticsPage.css */
+
+.analytics-main-view {
+    margin-left: 10px; /* Ajusta este valor (10px, 20px, etc.) según tu gusto */
+}
+
+/* Estilo de la cabecera */
+.product-results-table thead {
+    background-color: #f7f7f7; /* Fondo gris claro */
+}
+
+/* Estilo de las celdas de la cabecera (th) */
+.product-results-table th {
+    padding: 8px ; /* Espaciado interno */
+    text-align: center;
+    font-size: 13px;
+    color: #4b5563;
+    text-transform: uppercase;
+    border-bottom: 2px solid #ddd; /* Línea de separación */
+}
+
+/* Estilo de las celdas de datos (td) */
+.product-results-table td {
+    padding: 6px ; /* Espaciado interno */
+    text-align: left;
+    font-size: 13px;
+    color: #374151;
+    border-bottom: 1px solid #eee; /* Línea separadora de filas */
+}
+
+/* Efecto hover en las filas */
+.product-results-table tbody tr:hover {
+    background-color: #f0f8ff; /* Azul muy claro al pasar el mouse */
+    cursor: default;
+}
+
+/* NUEVA REGLA: Forzar el ancho de la columna Nombre */
+.product-results-table td:nth-child(2) { /* nth-child(2) selecciona la segunda columna, que es 'Nombre' */
+    max-width: 150px; /* Establecemos un ancho máximo, por ejemplo 150px */
+    white-space: normal; /* Asegura que el texto se rompa */
+}
+
+/* Estilo para el estado 'En Stock' */
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-in-stock {
+    background-color: #d1fae5; /* Verde muy claro */
+    color: #065f46; /* Verde oscuro */
+}
+
+.status-out-stock {
+    background-color: #fee2e2; /* Rojo muy claro */
+    color: #991b1b; /* Rojo oscuro */
+}
+
+.filter-panel-container {
+    /* Puedes ajustar este ancho si el panel de filtros es muy estrecho */
+    /* width: 250px; */ 
+    
+    /* CLAVE: Añade un margen a la izquierda para separarlo del borde */
+    margin-left: 20px; 
+    
+    /* Si estás usando un Flexbox, a veces es mejor usar padding en el contenedor padre, 
+       pero el margen en el hijo es más directo para este caso.
+    */
+}

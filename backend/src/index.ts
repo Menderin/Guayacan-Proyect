@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth.routes";
 import searchRoutes from "./routes/search.routes";
+import productRoutes from "./routes/productRoutes";
 import { connectMongoDB, seedDatabase } from "../database/mongodb/init";
 import pool from "../database/postgres/config";
 import path from 'path';
@@ -31,6 +32,9 @@ app.get("/", (req: Request, res: Response) => {
     version: "1.0.0",
   });
 });
+
+//gestionarProductos
+app.use("/api/productos", productRoutes);
 
 // Ruta de health check
 app.get("/health", async (req: Request, res: Response) => {

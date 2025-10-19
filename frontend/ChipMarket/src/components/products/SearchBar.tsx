@@ -1,6 +1,8 @@
 import React from 'react';
 import { Search } from 'lucide-react';
 
+import '../../styles/ProductSearchPage.css';
+
 interface SearchBarProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;

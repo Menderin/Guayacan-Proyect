@@ -3,6 +3,8 @@ import { Package, DollarSign } from 'lucide-react';
 import type { Product } from '../../types/product.types';
 import '../../styles/ProductCard.css';
 
+import '../../styles/ProductSearchPage.css';
+
 interface ProductCardProps {
   product: Product;
   viewMode: 'grid' | 'list';

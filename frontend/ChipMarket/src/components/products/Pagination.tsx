@@ -2,6 +2,8 @@ import React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Pagination as PaginationType } from '../../types/product.types';
 
+import '../../styles/ProductSearchPage.css';
+
 interface PaginationProps {
   pagination: PaginationType;
   onPageChange: (page: number) => void;

@@ -1,5 +1,6 @@
 import React from 'react';
 import type { SearchFilters, AvailableFilters } from '../../types/product.types';
+import '../../styles/FilterPanel.css';
 
 interface FilterPanelProps {
   filters: SearchFilters;
@@ -14,30 +15,55 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   onFilterChange,
   onClearFilters
 }) => {
+  // Contar filtros activos
+  const countActiveFilters = (): number => {
+    let count = 0;
+    if (filters.category) count++;
+    if (filters.minPrice) count++;
+    if (filters.maxPrice) count++;
+    if (filters.inStock) count++;
+    if (filters.garantee) count++;
+    if (filters.procesator) count++;
+    if (filters.gpu) count++;
+    if (filters.ram) count++;
+    return count;
+  };
+
+  const activeFiltersCount = countActiveFilters();
+
   return (
-    <div className="w-64 flex-shrink-0">
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sticky top-24">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-lg">Filtros</h3>
+    <div className="filter-panel-wrapper">
+      <div className="filter-panel">
+        
+        {/* Header */}
+        <div className="filter-panel__header">
+          <h3 className="filter-panel__title">
+            Filtros
+            {activeFiltersCount > 0 && (
+              <span className="filter-panel__active-count">{activeFiltersCount}</span>
+            )}
+          </h3>
           <button
             onClick={onClearFilters}
-            className="text-sm text-blue-600 hover:text-blue-700"
+            className="filter-panel__clear-btn"
           >
             Limpiar
           </button>
         </div>
 
-        <div className="space-y-4">
+        {/* Filters */}
+        <div className="filter-panel__filters">
+          
           {/* Categoría */}
           {availableFilters?.categories && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="filter-group">
+              <label className="filter-group__label">
                 Categoría
               </label>
               <select
                 value={filters.category}
                 onChange={(e) => onFilterChange('category', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                className="filter-select"
               >
                 <option value="">Todas</option>
                 {availableFilters.categories.map((cat) => (
@@ -48,51 +74,51 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           )}
 
           {/* Rango de precio */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="filter-group">
+            <label className="filter-group__label">
               Precio
             </label>
-            <div className="flex gap-2">
+            <div className="filter-price-range">
               <input
                 type="number"
-                placeholder="Mín"
+                placeholder="Mínimo"
                 value={filters.minPrice}
                 onChange={(e) => onFilterChange('minPrice', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                className="filter-input"
               />
               <input
                 type="number"
-                placeholder="Máx"
+                placeholder="Máximo"
                 value={filters.maxPrice}
                 onChange={(e) => onFilterChange('maxPrice', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                className="filter-input"
               />
             </div>
           </div>
 
           {/* Stock */}
-          <div>
-            <label className="flex items-center gap-2">
+          <div className="filter-group">
+            <label className="filter-checkbox-wrapper">
               <input
                 type="checkbox"
                 checked={filters.inStock}
                 onChange={(e) => onFilterChange('inStock', e.target.checked)}
-                className="w-4 h-4 text-blue-600 rounded"
+                className="filter-checkbox"
               />
-              <span className="text-sm text-gray-700">Solo en stock</span>
+              <span className="filter-checkbox-label">Solo en stock</span>
             </label>
           </div>
 
           {/* Garantía */}
           {availableFilters?.garantees && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="filter-group">
+              <label className="filter-group__label">
                 Garantía
               </label>
               <select
                 value={filters.garantee}
                 onChange={(e) => onFilterChange('garantee', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                className="filter-select"
               >
                 <option value="">Todas</option>
                 {availableFilters.garantees.map((g) => (
@@ -103,8 +129,8 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           )}
 
           {/* Procesador */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="filter-group">
+            <label className="filter-group__label">
               Procesador
             </label>
             <input
@@ -112,13 +138,13 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
               placeholder="ej: Intel i7"
               value={filters.procesator}
               onChange={(e) => onFilterChange('procesator', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              className="filter-input"
             />
           </div>
 
           {/* GPU */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="filter-group">
+            <label className="filter-group__label">
               GPU
             </label>
             <input
@@ -126,13 +152,13 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
               placeholder="ej: RTX 3060"
               value={filters.gpu}
               onChange={(e) => onFilterChange('gpu', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              className="filter-input"
             />
           </div>
 
           {/* RAM */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="filter-group">
+            <label className="filter-group__label">
               RAM
             </label>
             <input
@@ -140,7 +166,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
               placeholder="ej: 16GB"
               value={filters.ram}
               onChange={(e) => onFilterChange('ram', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              className="filter-input"
             />
           </div>
         </div>

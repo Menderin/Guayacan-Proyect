@@ -4,9 +4,12 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/auth.routes";
 import searchRoutes from "./routes/search.routes";
 import productRoutes from "./routes/productRoutes";
+import orderRoutes from "./routes/order.routes";
+import userRoutes from "./routes/user.routes";
 import { connectMongoDB, seedDatabase } from "../database/mongodb/init";
 import pool from "../database/postgres/config";
 import path from 'path';
+import e from "express";
 
 // Cargar variables de entorno
 dotenv.config();
@@ -30,6 +33,13 @@ app.get("/", (req: Request, res: Response) => {
     success: true,
     message: "API de Guayacan funcionando correctamente",
     version: "1.0.0",
+    endpoints: {
+      auth: "/api/auth",
+      search: "/api/search",
+      products: "/api/productos",
+      orders: "/api/orders",
+      users: "/api/users"
+    }
   });
 });
 
@@ -58,6 +68,10 @@ app.get("/health", async (req: Request, res: Response) => {
     });
   }
 });
+
+
+app.use("/api/orders", orderRoutes);
+app.use("/api/users", userRoutes);
 
 // Manejo de rutas no encontradas
 app.use("*", (req: Request, res: Response) => {

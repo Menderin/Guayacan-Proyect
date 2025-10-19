@@ -1,88 +1,520 @@
-/* src/styles/AnalyticsPage.css */
+/* ===================================
+   ANALYTICS PAGE STYLES
+   =================================== */
 
-/* Contenedor principal de la tabla para dar un marco y esquinas redondeadas */
-.analytics-table-container {
-    overflow-x: auto; /* Permite desplazamiento horizontal si la tabla es muy ancha */
-    border: 1px solid #ccc;
-    border-radius: 8px; /* Esquinas redondeadas */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Sombra ligera */
-    display: inline-block; 
+/* Main Container */
+.analytics-dashboard-content {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  animation: fadeIn 0.5s ease-out;
 }
 
-/* Estilo para la tabla en sí */
-.product-results-table {
-    /*width: 100%;*/
-    border-collapse: collapse; /* Elimina el espacio entre celdas */
-    table-layout: auto; 
-}
-/* src/styles/AnalyticsPage.css */
-
-.analytics-main-view {
-    margin-left: 10px; /* Ajusta este valor (10px, 20px, etc.) según tu gusto */
+.analytics-dashboard-content > .flex {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
 }
 
-/* Estilo de la cabecera */
-.product-results-table thead {
-    background-color: #f7f7f7; /* Fondo gris claro */
-}
+/* ===================================
+   FILTER SIDEBAR
+   =================================== */
 
-/* Estilo de las celdas de la cabecera (th) */
-.product-results-table th {
-    padding: 8px ; /* Espaciado interno */
-    text-align: center;
-    font-size: 13px;
-    color: #4b5563;
-    text-transform: uppercase;
-    border-bottom: 2px solid #ddd; /* Línea de separación */
-}
-
-/* Estilo de las celdas de datos (td) */
-.product-results-table td {
-    padding: 6px ; /* Espaciado interno */
-    text-align: left;
-    font-size: 13px;
-    color: #374151;
-    border-bottom: 1px solid #eee; /* Línea separadora de filas */
-}
-
-/* Efecto hover en las filas */
-.product-results-table tbody tr:hover {
-    background-color: #f0f8ff; /* Azul muy claro al pasar el mouse */
-    cursor: default;
-}
-
-/* NUEVA REGLA: Forzar el ancho de la columna Nombre */
-.product-results-table td:nth-child(2) { /* nth-child(2) selecciona la segunda columna, que es 'Nombre' */
-    max-width: 150px; /* Establecemos un ancho máximo, por ejemplo 150px */
-    white-space: normal; /* Asegura que el texto se rompa */
-}
-
-/* Estilo para el estado 'En Stock' */
-.status-badge {
-    padding: 4px 8px;
-    border-radius: 16px;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.status-in-stock {
-    background-color: #d1fae5; /* Verde muy claro */
-    color: #065f46; /* Verde oscuro */
-}
-
-.status-out-stock {
-    background-color: #fee2e2; /* Rojo muy claro */
-    color: #991b1b; /* Rojo oscuro */
+.filter-sidebar-wrapper {
+  width: 280px;
+  position: sticky;
+  top: 2rem;
+  animation: slideInLeft 0.5s ease-out;
 }
 
 .filter-panel-container {
-    /* Puedes ajustar este ancho si el panel de filtros es muy estrecho */
-    /* width: 250px; */ 
-    
-    /* CLAVE: Añade un margen a la izquierda para separarlo del borde */
-    margin-left: 20px; 
-    
-    /* Si estás usando un Flexbox, a veces es mejor usar padding en el contenedor padre, 
-       pero el margen en el hijo es más directo para este caso.
-    */
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  border: 2px solid #e0f2fe;
+  transition: all 0.3s ease;
+}
+
+.filter-panel-container:hover {
+  box-shadow: 0 12px 40px rgba(14, 165, 233, 0.15);
+  border-color: #0ea5e9;
+}
+
+/* ===================================
+   MAIN CONTENT AREA
+   =================================== */
+
+.analytics-main-content {
+  display: flex;
+  gap: 1.5rem;
+  flex-grow: 1;
+}
+
+.analytics-main-view {
+  flex: 1 1 65%;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.analytics-chart-view {
+  flex: 0 0 35%;
+  animation: fadeInUp 0.7s ease-out;
+}
+
+/* ===================================
+   TABLE CONTAINER
+   =================================== */
+
+.analytics-table-section {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  min-height: 500px;
+  border: 2px solid #f0f9ff;
+  transition: all 0.3s ease;
+}
+
+.analytics-table-section:hover {
+  box-shadow: 0 12px 40px rgba(14, 165, 233, 0.12);
+}
+
+.analytics-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 3px solid #e0f2fe;
+}
+
+.analytics-table-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0c4a6e;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.analytics-table-title::before {
+  content: '📊';
+  font-size: 1.75rem;
+}
+
+.analytics-export-btn {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.analytics-export-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+.analytics-export-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.analytics-export-btn::after {
+  content: '📥';
+}
+
+/* ===================================
+   TABLE STYLES
+   =================================== */
+
+.analytics-table-container {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 600px;
+  border-radius: 12px;
+  border: 2px solid #f0f9ff;
+}
+
+.product-results-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.875rem;
+}
+
+.product-results-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: linear-gradient(135deg, #0c4a6e 0%, #075985 100%);
+}
+
+.product-results-table thead th {
+  padding: 1rem 1.25rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 3px solid #0ea5e9;
+  white-space: nowrap;
+}
+
+.product-results-table thead th:first-child {
+  border-top-left-radius: 12px;
+}
+
+.product-results-table thead th:last-child {
+  border-top-right-radius: 12px;
+}
+
+.product-results-table tbody tr {
+  transition: all 0.2s ease;
+  border-bottom: 1px solid #f0f9ff;
+}
+
+.product-results-table tbody tr:hover {
+  background: linear-gradient(90deg, #f0f9ff 0%, #e0f2fe 50%, #f0f9ff 100%);
+  transform: scale(1.01);
+}
+
+.product-results-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.product-results-table tbody td {
+  padding: 1rem 1.25rem;
+  color: #334155;
+  vertical-align: middle;
+}
+
+.product-results-table tbody td:first-child {
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  color: #0c4a6e;
+  background: #f0f9ff;
+}
+
+/* ===================================
+   STATUS BADGES
+   =================================== */
+
+.status-badge {
+  display: inline-block;
+  padding: 0.375rem 0.875rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 2px solid transparent;
+}
+
+.status-in-stock {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  color: #065f46;
+  border-color: #34d399;
+}
+
+.status-out-stock {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #991b1b;
+  border-color: #f87171;
+}
+
+/* ===================================
+   CHART SECTION
+   =================================== */
+
+.analytics-chart-section {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  height: 500px;
+  border: 2px solid #fef3c7;
+  transition: all 0.3s ease;
+}
+
+.analytics-chart-section:hover {
+  box-shadow: 0 12px 40px rgba(245, 158, 11, 0.15);
+  border-color: #fbbf24;
+}
+
+.analytics-chart-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #78350f;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 3px solid #fef3c7;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.analytics-chart-title::before {
+  content: '📈';
+  font-size: 1.5rem;
+}
+
+/* ===================================
+   LOADING & ERROR STATES
+   =================================== */
+
+.analytics-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.analytics-state__message {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.analytics-state__message--loading {
+  color: #0ea5e9;
+}
+
+.analytics-state__message--loading::before {
+  content: '⏳';
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 1rem;
+  animation: pulse 2s infinite;
+}
+
+.analytics-state__message--error {
+  color: #dc2626;
+}
+
+.analytics-state__message--error::before {
+  content: '❌';
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.analytics-empty {
+  padding: 3rem 2rem;
+  text-align: center;
+  font-style: italic;
+  color: #64748b;
+}
+
+.analytics-empty::before {
+  content: '📊';
+  font-size: 4rem;
+  display: block;
+  margin-bottom: 1rem;
+  opacity: 0.3;
+  filter: grayscale(1);
+}
+
+/* ===================================
+   PRICE COLUMN HIGHLIGHT
+   =================================== */
+
+.product-results-table tbody td[style*="color: #065f46"] {
+  font-weight: 700;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-left: 3px solid #10b981;
+  border-right: 3px solid #10b981;
+}
+
+/* ===================================
+   SCROLLBAR CUSTOMIZATION
+   =================================== */
+
+.analytics-table-container::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.analytics-table-container::-webkit-scrollbar-track {
+  background: #f0f9ff;
+  border-radius: 5px;
+}
+
+.analytics-table-container::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #0ea5e9 0%, #0284c7 100%);
+  border-radius: 5px;
+}
+
+.analytics-table-container::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #0284c7 0%, #0369a1 100%);
+}
+
+.analytics-table-container::-webkit-scrollbar-corner {
+  background: #f0f9ff;
+}
+
+/* ===================================
+   ANIMATIONS
+   =================================== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.95);
+  }
+}
+
+/* ===================================
+   RESPONSIVE DESIGN
+   =================================== */
+
+@media (max-width: 1280px) {
+  .analytics-main-content {
+    flex-direction: column;
+  }
+
+  .analytics-main-view,
+  .analytics-chart-view {
+    flex: 1 1 100%;
+  }
+
+  .analytics-chart-section {
+    height: 400px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .analytics-dashboard-content > .flex {
+    flex-direction: column;
+  }
+
+  .filter-sidebar-wrapper {
+    width: 100%;
+    position: relative;
+    top: 0;
+  }
+
+  .analytics-table-container {
+    max-height: 500px;
+  }
+}
+
+@media (max-width: 768px) {
+  .analytics-dashboard-content {
+    padding: 1rem;
+  }
+
+  .analytics-table-section,
+  .analytics-chart-section {
+    padding: 1.5rem;
+  }
+
+  .analytics-table-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .analytics-export-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .product-results-table {
+    font-size: 0.75rem;
+  }
+
+  .product-results-table thead th,
+  .product-results-table tbody td {
+    padding: 0.75rem 0.625rem;
+  }
+
+  .analytics-table-title {
+    font-size: 1.25rem;
+  }
+
+  .analytics-chart-title {
+    font-size: 1.125rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .analytics-dashboard-content {
+    padding: 0.75rem;
+  }
+
+  .analytics-table-section,
+  .analytics-chart-section {
+    padding: 1rem;
+  }
+
+  .product-results-table {
+    font-size: 0.6875rem;
+  }
+
+  .product-results-table thead th,
+  .product-results-table tbody td {
+    padding: 0.5rem 0.375rem;
+  }
+
+  .analytics-table-container {
+    overflow-x: scroll;
+  }
+
+  .product-results-table {
+    min-width: 800px;
+  }
+
+  .status-badge {
+    font-size: 0.6875rem;
+    padding: 0.25rem 0.625rem;
+  }
 }

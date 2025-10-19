@@ -1,20 +1,25 @@
 // src/pages/AdminDashboard.tsx
 
 import React, { useState } from 'react';
-import { Search, Grid, Filter } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import { ProductSearchPage } from './ProductSearchPage';
-import { AnalyticsPage } from './AnalyticsPage'; // Asegúrate de que este import esté aquí
+import { Search, Barcode, Users, ShoppingBasket, BadgeDollarSign, LogOut } from 'lucide-react';
+import { useAuth } from '../context/AuthContext'; // Asegúrate de que este import esté aquí
+//Importacion de componentes
+import { ProductManagement } from '../components/adminDashboard/ProductManegement';
+import { UserManagement } from '../components/adminDashboard/UserManegements';
+
 import '../styles/AdminDashboard.css';
 
 export const AdminDashboard: React.FC = () => {
-    const [activeTab, setActiveTab] = useState('search');
-    const { user } = useAuth();
+    const [activeTab, setActiveTab] = useState('home');
+    const { user, logout } = useAuth();
 
     const tabs = [
-        { id: 'search', name: 'Buscar Productos', icon: Search },
-        { id: 'analytics', name: 'Análisis', icon: Grid },
-        { id: 'settings', name: 'Configuración', icon: Filter }
+        { id: 'home', name: 'Inicio', icon: Search },
+        { id: 'products', name: 'Gestionar Productos', icon: Barcode },
+        { id: 'users', name: 'Gestionar Usuarios', icon: Users },
+        { id: 'orders', name: 'Gestionar Órdenes/Pedidos', icon: ShoppingBasket },
+        { id: 'payments', name: 'Gestionar Pagos', icon: BadgeDollarSign },
+        { id: 'logout', name: 'Cerrar Sesión', icon: LogOut },
     ];
 
     return (
@@ -53,14 +58,7 @@ export const AdminDashboard: React.FC = () => {
 
             {/* Bloque de Contenido - Modificado */}
             <div>
-                {/* 1. Muestra la página de búsqueda sin filtros en su UI */}
-                {activeTab === 'search' && <ProductSearchPage />}
-                
-                {/* 2. Muestra la nueva página de Análisis (que ahora contiene el FilterPanel) */}
-                {activeTab === 'analytics' && <AnalyticsPage />}
-                
-                {/* 3. El placeholder de Configuración se mantiene igual */}
-                {activeTab === 'settings' && (
+                {activeTab === 'home' && (
                     <div className="admin-dashboard__content">
                         <div className="admin-dashboard__placeholder">
                             <h2 className="admin-dashboard__placeholder-title">Configuración</h2>
@@ -70,6 +68,52 @@ export const AdminDashboard: React.FC = () => {
                         </div>
                     </div>
                 )}
+
+                {activeTab === 'products' && <ProductManagement />}
+                
+                {activeTab === 'users' && <UserManagement />}
+
+                {activeTab === 'orders' && (
+                    <div className="admin-dashboard__content">
+                        <div className="admin-dashboard__placeholder">
+                            <h2 className="admin-dashboard__placeholder-title">Configuración</h2>
+                            <p className="admin-dashboard__placeholder-text">
+                                Sección de configuración en desarrollo
+                            </p>
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'payments' && (
+                    <div className="admin-dashboard__content">
+                        <div className="admin-dashboard__placeholder">
+                            <h2 className="admin-dashboard__placeholder-title">Configuración</h2>
+                            <p className="admin-dashboard__placeholder-text">
+                                Sección de configuración en desarrollo
+                            </p>
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'logout' && (
+                    <div className="admin-dashboard__content">
+                        <div className="admin-dashboard__placeholder">
+                            <h2 className="admin-dashboard__placeholder-title">Cerrar Sesión</h2>
+                            <p className="admin-dashboard__placeholder-text">
+                                Necesitas confirmar para cerrar sesión.
+                            </p>
+                            <button
+                                type="button"
+                                className="admin-dashboard__logout-button"
+                                onClick={logout}
+                            >
+                                Confirmar Cerrar Sesión
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+
             </div>
         </div>
     );

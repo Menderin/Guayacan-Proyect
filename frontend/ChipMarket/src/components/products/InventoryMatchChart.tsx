@@ -4,6 +4,8 @@ import React from 'react';
 import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 
+import '../../styles/ProductSearchPage.css';
+
 // 1. Registrar los elementos necesarios para el gráfico Doughnut/Pie
 ChartJS.register(ArcElement, Tooltip, Legend);
 

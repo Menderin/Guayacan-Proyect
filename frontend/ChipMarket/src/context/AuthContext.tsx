@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useState, type ReactNode } from 'react';
+// src/context/AuthContext.tsx
+
+import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 
 interface User {
   id: number;
@@ -38,10 +40,35 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const API_URL = 'http://localhost:3000/api/auth';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string>('');
+  // Inicializar desde localStorage
+  const [user, setUser] = useState<User | null>(() => {
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+  
+  const [token, setToken] = useState<string>(() => {
+    return localStorage.getItem('token') || '';
+  });
+  
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<Message | null>(null);
+
+  // Efecto para persistir user y token en localStorage
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('user');
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (token) {
+      localStorage.setItem('token', token);
+    } else {
+      localStorage.removeItem('token');
+    }
+  }, [token]);
 
   const login = async (email: string, password: string) => {
     setLoading(true);
@@ -100,10 +127,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     setUser(null);
     setToken('');
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
     setMessage({ type: 'success', text: 'Sesión cerrada exitosamente' });
   };
 
   const getProfile = async () => {
+    if (!token) {
+      setMessage({ type: 'error', text: 'No hay sesión activa' });
+      return;
+    }
+
     setLoading(true);
     setMessage(null);
 
@@ -122,6 +156,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(data.data.user);
       } else {
         setMessage({ type: 'error', text: data.message });
+        // Si el token es inválido, cerrar sesión
+        if (response.status === 401) {
+          logout();
+        }
       }
     } catch {
       setMessage({ type: 'error', text: 'Error al obtener el perfil' });

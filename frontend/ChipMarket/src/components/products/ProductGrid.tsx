@@ -4,6 +4,8 @@ import { ProductCard } from './ProductCard';
 import { Pagination } from './Pagination';
 import type { Product, Pagination as PaginationType } from '../../types/product.types';
 
+import '../../styles/ProductSearchPage.css';
+
 interface ProductGridProps {
   products: Product[];
   loading: boolean;

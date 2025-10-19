@@ -2,13 +2,13 @@
 
 import React from 'react'; // Solo necesitamos React
 // Importamos el hook que ahora contiene toda la lógica:
-import { useProductSearch } from '../hooks/useProductSearch'; 
+import { useProductSearch } from '../../../hooks/useProductSearch'; 
 // Importamos los componentes visuales que se quedan
-import { SearchHeader } from '../components/products/SearchHeader';
+import { SearchHeader } from '../../../components/products/SearchHeader';
 // ELIMINAMOS: import { FilterPanel } from '../components/products/FilterPanel';
-import { ProductGrid } from '../components/products/ProductGrid'; 
+import { ProductGrid } from '../../../components/products/ProductGrid'; 
 // ELIMINAMOS los imports de tipos de datos, ya que están en el hook
-import '../styles/ProductSearchPage.css';
+import '../../../styles/ProductSearchPage.css';
 
 // ELIMINAMOS: const API_URL = 'http://localhost:3000/api';
 

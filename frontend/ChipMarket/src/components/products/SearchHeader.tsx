@@ -4,6 +4,8 @@ import React from 'react';
 import { Filter, Grid, List } from 'lucide-react'; // Puedes eliminar 'Filter', 'Grid', y 'List' si no los usas en otro lado
 import { SearchBar } from './SearchBar';
 
+import '../../styles/ProductSearchPage.css';
+
 interface SearchHeaderProps {
     searchQuery: string;
     setSearchQuery: (query: string) => void;

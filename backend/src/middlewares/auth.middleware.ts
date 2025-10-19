@@ -94,3 +94,14 @@ export const isAdminOrOwner = (userIdParam: string = 'id') => {
     });
   };
 };
+
+export const isClient = (req: IAuthRequest, res: Response, next: NextFunction): void => {
+  if (req.user?.role !== 2) {
+    res.status(403).json({
+      success: false,
+      message: 'Acceso denegado. Solo para clientes',
+    });
+    return;
+  }
+  next();
+};

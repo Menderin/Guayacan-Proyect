@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { User, Role } from '../models';
 import { ApiResponse } from '../utils/response.utils';
+import { Op } from 'sequelize';
 
 export const getProfile = async (req: Request & { user?: { userId: number } }, res: Response) => {
   try {
@@ -64,5 +65,34 @@ export const getUserById = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error:', error);
     return ApiResponse.error(res, 'Error al obtener usuario', 500);
+  }
+};
+
+
+export const searchUsersByName = async (req: Request, res: Response) => {
+  try {
+    const nameQuery = req.query.name as string;
+    
+    if (!nameQuery) {
+      return ApiResponse.error(res, 'Parámetro de búsqueda "name" es requerido', 400);
+    }
+
+    const users = await User.findAll({
+      where: {
+        name: { [Op.like]: `%${nameQuery}%` }, // 👈 Corregido
+        id_role: 2
+      }, 
+      attributes: ['id', 'name', 'email', 'created_at'],
+      include: [{
+        model: Role, 
+        as: 'role',
+        attributes: ['role_name']
+      }]
+    });
+
+    return ApiResponse.success(res, users, 'Usuarios encontrados');
+  } catch (error) {
+    console.error('Error:', error);
+    return ApiResponse.error(res, 'Error al buscar usuarios', 500);
   }
 };

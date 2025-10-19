@@ -7,60 +7,62 @@ export class SearchController {
    * GET /api/search?q=gaming&category=laptops&minPrice=500&maxPrice=2000&page=1&limit=20
    */
   static async search(req: Request, res: Response): Promise<void> {
-    try {
-      const {
-        q = '',
-        category,
-        minPrice,
-        maxPrice,
-        inStock,
-        garantee,
-        procesator,
-        gpu,
-        ram,
-        page = '1',
-        limit = '20',
-        sortBy = 'relevance',
-        sortOrder = 'desc'
-      } = req.query;
+  try {
+    const {
+      q = '',
+      sku, // 👈 Nuevo parámetro para búsqueda específica por SKU
+      category,
+      minPrice,
+      maxPrice,
+      inStock,
+      garantee,
+      procesator,
+      gpu,
+      ram,
+      page = '1',
+      limit = '20',
+      sortBy = 'relevance',
+      sortOrder = 'desc'
+    } = req.query;
 
-      const filters = {
-        category: category as string,
-        minPrice: minPrice ? parseFloat(minPrice as string) : undefined,
-        maxPrice: maxPrice ? parseFloat(maxPrice as string) : undefined,
-        inStock: inStock === 'true',
-        garantee: garantee as string,
-        procesator: procesator as string,
-        gpu: gpu as string,
-        ram: ram as string
-      };
+    const filters = {
+      category: category as string,
+      minPrice: minPrice ? parseFloat(minPrice as string) : undefined,
+      maxPrice: maxPrice ? parseFloat(maxPrice as string) : undefined,
+      inStock: inStock === 'true',
+      garantee: garantee as string,
+      procesator: procesator as string,
+      gpu: gpu as string,
+      ram: ram as string,
+      sku: sku as string // 👈 Agregar SKU a los filtros
+    };
 
-      const options = {
-        page: parseInt(page as string),
-        limit: parseInt(limit as string),
-        sortBy: sortBy as 'price' | 'name' | 'createdAt' | 'relevance',
-        sortOrder: sortOrder as 'asc' | 'desc'
-      };
+    const options = {
+      page: parseInt(page as string),
+      limit: parseInt(limit as string),
+      sortBy: sortBy as 'price' | 'name' | 'createdAt' | 'relevance',
+      sortOrder: sortOrder as 'asc' | 'desc'
+    };
 
-      const result = await ProductSearchService.searchProducts(
-        q as string,
-        filters,
-        options
-      );
+    const result = await ProductSearchService.searchProducts(
+      q as string,
+      filters,
+      options
+    );
 
-      res.status(200).json({
-        success: true,
-        data: result
-      });
-    } catch (error) {
-      console.error('Error en búsqueda:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Error al realizar la búsqueda',
-        error: error instanceof Error ? error.message : 'Error desconocido'
-      });
-    }
+    res.status(200).json({
+      success: true,
+      data: result
+    });
+  } catch (error) {
+    console.error('Error en búsqueda:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al realizar la búsqueda',
+      error: error instanceof Error ? error.message : 'Error desconocido'
+    });
   }
+}
 
   /**
    * Sugerencias de autocompletado

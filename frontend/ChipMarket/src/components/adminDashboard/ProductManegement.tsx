@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 // import { ProductListPage } from './ProductListPage';
 // import { AddProductPage } from './AddProductPage';
 
+import { ProductListPage } from '../../pages/Admin/Product/ProductListPage';
 import {ProductSearchPage} from '../../pages/Admin/Product/ProductSearchPage';
 import { AnalyticsPage } from '../../pages/Admin/Product/AnalyticsPage';
 
@@ -51,11 +52,7 @@ export const ProductManagement: React.FC = () => {
             <main className="product-content">
                 {/* Aquí se renderiza el contenido según el tab activo */}
                 {activeProductTab === 'list' && (
-                    <div>
-                        <h2>Lista de Productos</h2>
-                        <p>Aquí irá tu componente para mostrar y paginar todos los productos.</p>
-                        {/* Ejemplo: <ProductListPage /> */}
-                    </div>
+                    <ProductListPage />
                 )}
                 {activeProductTab === 'search' && (
                     <ProductSearchPage />

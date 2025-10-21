@@ -1,9 +1,9 @@
 // src/components/products/SearchHeader.tsx
 
 import React from 'react';
-import { Grid, List } from 'lucide-react'; // Puedes eliminar 'Filter', 'Grid', y 'List' si no los usas en otro lado
+import { Grid, List } from 'lucide-react';
 import { SearchBar } from './SearchBar';
-
+import '../../styles/SearchHeader.css';
 
 interface SearchHeaderProps {
     searchQuery: string;
@@ -29,9 +29,7 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
     showSuggestions,
     setShowSuggestions,
     onSuggestionClick,
-    //showFilters,
-    //setShowFilters,
-     viewMode,
+    viewMode,
     setViewMode,
     sortBy,
     setSortBy,
@@ -39,9 +37,11 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
     setSortOrder
 }) => {
     return (
-        <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
-            <div className="max-w-7xl mx-auto px-4 py-4">
-                <div className="flex items-center gap-4">
+        <div className="search-header-container">
+            <div className="search-header-content">
+                
+                {/* Top Bar: SearchBar + View Mode */}
+                <div className="search-header-topbar">
                     <SearchBar
                         searchQuery={searchQuery}
                         setSearchQuery={setSearchQuery}
@@ -51,65 +51,57 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
                         onSuggestionClick={onSuggestionClick}
                     />
 
-                    {/* ❌ ESTE BLOQUE ES EL BOTÓN "FILTROS" Y DEBE ELIMINARSE ❌ */}
-                    {/*
-                    <button
-                        onClick={() => setShowFilters(!showFilters)}
-                        className="flex items-center gap-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50"
-                    >
-                        <Filter className="w-5 h-5" />
-                        Filtros
-                    </button>
-                   */ }
-
-                    {/* ❌ ESTE BLOQUE ES EL CONTROL DE VISTA (GRID/LIST) Y DEBE ELIMINARSE ❌ */}
-                    {
-                    <div className="flex gap-2">
+                    {/* View Mode Toggle */}
+                    <div className="view-mode-toggle">
                         <button
                             onClick={() => setViewMode('grid')}
-                            className={`p-3 border rounded-lg ${
-                                viewMode === 'grid'
-                                    ? 'bg-blue-50 border-blue-500 text-blue-600'
-                                    : 'border-gray-300 hover:bg-gray-50'
+                            className={`view-mode-btn ${
+                                viewMode === 'grid' ? 'view-mode-btn--active' : ''
                             }`}
+                            aria-label="Vista de cuadrícula"
                         >
-                            <Grid className="w-5 h-5" />
+                            <Grid />
                         </button>
                         <button
                             onClick={() => setViewMode('list')}
-                            className={`p-3 border rounded-lg ${
-                                viewMode === 'list'
-                                    ? 'bg-blue-50 border-blue-500 text-blue-600'
-                                    : 'border-gray-300 hover:bg-gray-50'
+                            className={`view-mode-btn ${
+                                viewMode === 'list' ? 'view-mode-btn--active' : ''
                             }`}
+                            aria-label="Vista de lista"
                         >
-                            <List className="w-5 h-5" />
+                            <List />
                         </button>
                     </div>
-                    }
                 </div>
 
-                {/* Barra de ordenamiento - ESTE BLOQUE SE MANTIENE */}
-                <div className="flex items-center gap-4 mt-4">
-                    <span className="text-sm text-gray-600">Ordenar por:</span>
-                    <select
-                        value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value)}
-                        className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                    >
-                        <option value="relevance">Relevancia</option>
-                        <option value="price">Precio</option>
-                        <option value="name">Nombre</option>
-                        <option value="createdAt">Más recientes</option>
-                    </select>
-                    <select
-                        value={sortOrder}
-                        onChange={(e) => setSortOrder(e.target.value)}
-                        className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                    >
-                        <option value="asc">Ascendente</option>
-                        <option value="desc">Descendente</option>
-                    </select>
+                {/* Sort Bar */}
+                <div className="search-header-sortbar">
+                    <span className="search-header-sortbar__label">Ordenar por:</span>
+                    <div className="search-header-sortbar__controls">
+                        <select
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value)}
+                            className="sort-select"
+                            aria-label="Criterio de ordenamiento"
+                        >
+                            <option value="relevance">Relevancia</option>
+                            <option value="price">Precio</option>
+                            <option value="name">Nombre</option>
+                            <option value="createdAt">Más recientes</option>
+                        </select>
+                        <select
+                            value={sortOrder}
+                            onChange={(e) => setSortOrder(e.target.value)}
+                            className="sort-select"
+                            aria-label="Orden"
+                        >
+                            <option value="asc">Ascendente</option>
+                            <option value="desc">Descendente</option>
+                        </select>
+                        <div className={`sort-direction-indicator sort-direction-indicator--${sortOrder}`}>
+                            {sortOrder === 'asc' ? 'Ascendente' : 'Descendente'}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

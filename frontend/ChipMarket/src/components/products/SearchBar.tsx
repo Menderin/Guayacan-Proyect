@@ -1,7 +1,6 @@
 import React from 'react';
-import { Search } from 'lucide-react';
-
-import '../../styles/ProductSearchPage.css';
+import { Search, X } from 'lucide-react';
+import '../../styles/SearchBar.css';
 
 interface SearchBarProps {
   searchQuery: string;
@@ -20,32 +19,49 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   setShowSuggestions,
   onSuggestionClick
 }) => {
+  const handleClear = () => {
+    setSearchQuery('');
+    setShowSuggestions(false);
+  };
+
   return (
-    <div className="flex-1 relative">
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+    <div className="search-bar-container">
+      <div className="search-bar-wrapper">
+        <Search className="search-bar-icon" />
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
           placeholder="Buscar productos por nombre, categoría o componentes..."
-          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="search-bar-input"
         />
+        {searchQuery && (
+          <button
+            onClick={handleClear}
+            className="search-bar-clear-btn"
+            aria-label="Limpiar búsqueda"
+          >
+            <X size={16} />
+          </button>
+        )}
       </div>
 
       {showSuggestions && suggestions.length > 0 && (
-        <div className="absolute top-full mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-20">
-          {suggestions.map((suggestion, index) => (
-            <button
-              key={index}
-              onClick={() => onSuggestionClick(suggestion)}
-              className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-2"
-            >
-              <Search className="w-4 h-4 text-gray-400" />
-              <span>{suggestion}</span>
-            </button>
-          ))}
+        <div className="search-suggestions-dropdown">
+          <ul className="search-suggestions-list">
+            {suggestions.map((suggestion, index) => (
+              <li key={index}>
+                <button
+                  onClick={() => onSuggestionClick(suggestion)}
+                  className="search-suggestion-item"
+                >
+                  <Search className="search-suggestion-icon" />
+                  <span className="search-suggestion-text">{suggestion}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>

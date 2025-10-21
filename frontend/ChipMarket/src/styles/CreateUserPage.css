@@ -1,0 +1,283 @@
+/* src/styles/CreateUserPage.css */
+
+.create-user-page {
+  padding: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Header */
+.create-user-header {
+  margin-bottom: 2rem;
+}
+
+.create-user-header__title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #111827;
+  margin: 0 0 0.5rem 0;
+}
+
+.create-user-header__subtitle {
+  font-size: 1rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Form Container */
+.create-user-form-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 1024px) {
+  .create-user-form-container {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+/* Form */
+.create-user-form {
+  background-color: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 1rem;
+  padding: 2rem;
+}
+
+.create-user-form__message {
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.create-user-form__message-icon {
+  font-size: 1.25rem;
+}
+
+.create-user-form__message--success {
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 2px solid #10b981;
+}
+
+.create-user-form__message--error {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 2px solid #ef4444;
+}
+
+.create-user-form__field {
+  margin-bottom: 1.5rem;
+}
+
+.create-user-form__label {
+  display: block;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.create-user-form__required {
+  color: #dc2626;
+}
+
+.create-user-form__input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.create-user-form__input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.create-user-form__input--error {
+  border-color: #ef4444;
+}
+
+.create-user-form__input--error:focus {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.create-user-form__input:disabled {
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.create-user-form__error {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #dc2626;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
+.create-user-form__hint {
+  display: block;
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  line-height: 1.4;
+}
+
+.create-user-form__info {
+  background-color: #eff6ff;
+  border: 2px solid #bfdbfe;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.create-user-form__info-text {
+  color: #1e40af;
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.create-user-form__buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.create-user-form__reset-btn,
+.create-user-form__submit-btn {
+  flex: 1;
+  padding: 0.875rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.create-user-form__reset-btn {
+  background-color: #f3f4f6;
+  color: #374151;
+  border: 2px solid #d1d5db;
+}
+
+.create-user-form__reset-btn:hover:not(:disabled) {
+  background-color: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+.create-user-form__submit-btn {
+  background-color: #10b981;
+  color: white;
+  border: 2px solid #10b981;
+}
+
+.create-user-form__submit-btn:hover:not(:disabled) {
+  background-color: #059669;
+  border-color: #059669;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+}
+
+.create-user-form__reset-btn:disabled,
+.create-user-form__submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.create-user-form__spinner {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Help Section */
+.create-user-help {
+  background-color: #f9fafb;
+  border: 2px solid #e5e7eb;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  height: fit-content;
+}
+
+.create-user-help__title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 1rem 0;
+}
+
+.create-user-help__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.create-user-help__list li {
+  padding: 0.75rem 0;
+  color: #4b5563;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  border-bottom: 1px solid #e5e7eb;
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.create-user-help__list li:last-child {
+  border-bottom: none;
+}
+
+.create-user-help__list li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: #10b981;
+  font-weight: bold;
+  font-size: 1.25rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .create-user-page {
+    padding: 1rem;
+  }
+
+  .create-user-form {
+    padding: 1.5rem;
+  }
+
+  .create-user-form__buttons {
+    flex-direction: column;
+  }
+
+  .create-user-help {
+    margin-top: 1.5rem;
+  }
+}

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Search, Barcode, Users, ShoppingBasket, BadgeDollarSign, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext'; // Asegúrate de que este import esté aquí
 //Importacion de componentes
+import { Home } from '..//components/adminDashboard/Home';
 import { ProductManagement } from '../components/adminDashboard/ProductManegement';
 import { UserManagement } from '../components/adminDashboard/UserManegements';
 
@@ -58,16 +59,7 @@ export const AdminDashboard: React.FC = () => {
 
             {/* Bloque de Contenido - Modificado */}
             <div>
-                {activeTab === 'home' && (
-                    <div className="admin-dashboard__content">
-                        <div className="admin-dashboard__placeholder">
-                            <h2 className="admin-dashboard__placeholder-title">Configuración</h2>
-                            <p className="admin-dashboard__placeholder-text">
-                                Sección de configuración en desarrollo
-                            </p>
-                        </div>
-                    </div>
-                )}
+                {activeTab === 'home' && <Home />}
 
                 {activeTab === 'products' && <ProductManagement />}
                 

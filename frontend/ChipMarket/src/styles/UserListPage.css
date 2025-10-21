@@ -1,27 +1,29 @@
 /* ===================================
-   USER LIST PAGE STYLES
+   USER LIST PAGE STYLES - UNIFIED
    =================================== */
 
-/* Container Principal */
+/* ========== Container ========== */
 .user-list-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  animation: fadeIn 0.3s ease-in;
+}
+
+/* ========== Header ========== */
+.user-list-header {
   background: white;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
   animation: fadeInScale 0.4s ease-out;
 }
 
-/* ===================================
-   HEADER
-   =================================== */
-
-.user-list-header {
+.user-list-header__content {
   padding: 1.5rem 2rem;
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
   border-bottom: 2px solid #e2e8f0;
-}
-
-.user-list-header__content {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -32,6 +34,7 @@
   font-size: 1.5rem;
   font-weight: 700;
   color: #1e293b;
+  margin: 0;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -45,12 +48,12 @@
 .user-list-header__reload-btn {
   padding: 0.625rem 1.25rem;
   font-size: 0.875rem;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  color: white;
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  color: #475569;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 600;
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
 }
@@ -64,23 +67,24 @@
   transform: translateY(0);
 }
 
-/* ===================================
-   USER LIST
-   =================================== */
-
+/* ========== User List ========== */
 .user-list {
   list-style: none;
-  margin: 0;
   padding: 0;
-  max-height: calc(100vh - 250px);
-  overflow-y: auto;
+  margin: 0;
+  display: grid;
+  gap: 1.5rem;
 }
 
 .user-list__item {
-  padding: 1.75rem 2rem;
-  border-bottom: 1px solid #f1f5f9;
+  background: white;
+  border-radius: 16px;
+  padding: 1.75rem;
   transition: all 0.3s ease;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f1f5f9;
   position: relative;
+  overflow: hidden;
 }
 
 .user-list__item::before {
@@ -97,6 +101,8 @@
 }
 
 .user-list__item:hover {
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
   background: linear-gradient(90deg, #f0f9ff 0%, #e0f2fe 100%);
   border-color: #bfdbfe;
 }
@@ -105,21 +111,14 @@
   transform: scaleX(1);
 }
 
-.user-list__item:last-child {
-  border-bottom: none;
-}
-
 .user-list__content {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: 1fr auto;
   gap: 2rem;
+  align-items: flex-start;
 }
 
-/* ===================================
-   USER INFO
-   =================================== */
-
+/* ========== User Info ========== */
 .user-info {
   flex: 1;
 }
@@ -129,11 +128,12 @@
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .user-info__name {
-  font-size: 1.125rem;
-  font-weight: 600;
+  font-size: 1.25rem;
+  font-weight: 700;
   color: #0f172a;
   margin: 0;
 }
@@ -161,8 +161,8 @@
 
 .user-info__email {
   font-size: 0.875rem;
-  color: #475569;
-  margin-bottom: 0.5rem;
+  color: #64748b;
+  margin: 0 0 0.5rem 0;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -175,6 +175,7 @@
 .user-info__date {
   font-size: 0.8125rem;
   color: #94a3b8;
+  margin: 0;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -184,24 +185,23 @@
   content: '📅';
 }
 
-/* ===================================
-   USER ACTIONS
-   =================================== */
-
+/* ========== User Actions ========== */
 .user-actions {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 0.75rem;
+  min-width: 150px;
 }
 
 .user-actions__id {
   font-size: 0.8125rem;
   color: #94a3b8;
-  font-weight: 500;
-  padding: 0.25rem 0.625rem;
-  background: #f1f5f9;
+  font-weight: 600;
+  padding: 0.375rem 0.75rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   border-radius: 6px;
+  border: 1px solid #e2e8f0;
 }
 
 .user-actions__orders-btn {
@@ -231,10 +231,7 @@
   content: '📦 ';
 }
 
-/* ===================================
-   ESTADOS: LOADING, ERROR, EMPTY
-   =================================== */
-
+/* ========== States ========== */
 .user-list-state {
   background: white;
   border-radius: 16px;
@@ -248,6 +245,10 @@
   font-size: 1.125rem;
   color: #64748b;
   margin-bottom: 1.5rem;
+}
+
+.user-list-state__message--loading {
+  color: #3b82f6;
 }
 
 .user-list-state__message--loading::before {
@@ -288,14 +289,20 @@
   content: '🔄 ';
 }
 
+/* ========== Empty State ========== */
 .user-list-empty {
+  background: white;
+  border-radius: 16px;
   padding: 3rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
   text-align: center;
+  border: 2px dashed #cbd5e1;
 }
 
 .user-list-empty__message {
-  color: #94a3b8;
   font-size: 1.125rem;
+  color: #94a3b8;
+  margin-bottom: 1.5rem;
 }
 
 .user-list-empty__message::before {
@@ -306,10 +313,25 @@
   opacity: 0.5;
 }
 
-/* ===================================
-   ANIMATIONS
-   =================================== */
+/* ========== Scrollbar ========== */
+.user-list::-webkit-scrollbar {
+  width: 10px;
+}
 
+.user-list::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+
+.user-list::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%);
+  border-radius: 5px;
+}
+
+.user-list::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #94a3b8 0%, #64748b 100%);
+}
+
+/* ========== Animations ========== */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -330,43 +352,29 @@
   }
 }
 
-/* ===================================
-   SCROLLBAR PERSONALIZADO
-   =================================== */
+/* ========== Responsive ========== */
+@media (max-width: 1024px) {
+  .user-list__content {
+    grid-template-columns: 1fr;
+  }
 
-.user-list::-webkit-scrollbar {
-  width: 10px;
+  .user-actions {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-top: 1rem;
+  }
 }
-
-.user-list::-webkit-scrollbar-track {
-  background: #f8fafc;
-}
-
-.user-list::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%);
-  border-radius: 5px;
-}
-
-.user-list::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #94a3b8 0%, #64748b 100%);
-}
-
-/* ===================================
-   RESPONSIVE
-   =================================== */
 
 @media (max-width: 768px) {
-  .user-list-header {
-    padding: 1.25rem 1.5rem;
+  .user-list-container {
+    padding: 1.5rem;
   }
 
   .user-list-header__content {
     flex-direction: column;
     align-items: flex-start;
-  }
-
-  .user-list-header__title {
-    font-size: 1.25rem;
   }
 
   .user-list-header__reload-btn {
@@ -377,35 +385,23 @@
   .user-list__item {
     padding: 1.5rem 1.25rem;
   }
-
-  .user-list__content {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .user-actions {
-    width: 100%;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .user-actions__orders-btn {
-    flex: 1;
-  }
 }
 
-@media (max-width: 480px) {
-  .user-list-header {
+@media (max-width: 640px) {
+  .user-list-container {
     padding: 1rem;
   }
 
+  .user-list-header__content {
+    padding: 1.25rem 1.5rem;
+  }
+
   .user-list-header__title {
-    font-size: 1.125rem;
+    font-size: 1.25rem;
   }
 
   .user-list__item {
-    padding: 1.25rem 1rem;
+    padding: 1.5rem 1.25rem;
   }
 
   .user-info__name {
@@ -419,5 +415,14 @@
 
   .user-list-state {
     padding: 2rem 1.5rem;
+  }
+
+  .user-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .user-actions__orders-btn {
+    width: 100%;
   }
 }

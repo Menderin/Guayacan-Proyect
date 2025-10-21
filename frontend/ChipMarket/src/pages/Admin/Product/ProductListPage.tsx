@@ -190,7 +190,7 @@ export const ProductListPage: React.FC = () => {
       <div className="product-list-header">
         <div className="product-list-header__content">
           <h2 className="product-list-header__title">
-            Productos: {totalProducts} total
+            Total de productos: {totalProducts} total
           </h2>
           <div className="product-list-header__actions">
             <button
@@ -198,9 +198,6 @@ export const ProductListPage: React.FC = () => {
               className="product-list-header__reload-btn"
             >
               🔄 Recargar
-            </button>
-            <button className="product-list-header__add-btn">
-              ➕ Agregar Producto
             </button>
           </div>
         </div>
@@ -269,12 +266,6 @@ export const ProductListPage: React.FC = () => {
                       className="product-actions__detail-btn"
                     >
                       Ver Detalles
-                    </button>
-                    <button className="product-actions__edit-btn">
-                      ✏️ Editar
-                    </button>
-                    <button className="product-actions__delete-btn">
-                      🗑️ Eliminar
                     </button>
                   </div>
                 </div>

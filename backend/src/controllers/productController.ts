@@ -181,3 +181,25 @@ export const eliminarProducto = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const obtenerProductosConPocoStock = async (req: Request, res: Response) => {
+  try {
+    const threshold = parseInt(req.query.threshold as string) || 5;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    
+    const result = await productService.obtenerProductosConPocoStock(threshold, page, limit);
+    
+    res.json({
+      success: true,
+      data: result.productos,
+      pagination: result.pagination
+    });
+  } catch (error) {
+    console.error('Error al obtener productos con poco stock:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al obtener productos con poco stock'
+    });
+  }
+};

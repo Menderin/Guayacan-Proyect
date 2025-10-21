@@ -66,88 +66,88 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode }) =
   };
 
   return (
-    <div className={`product-card ${viewMode === 'list' ? 'product-card--list' : ''}`}>
-      <div className="product-card__image-wrapper">
+    <div className={`card ${viewMode === 'list' ? 'card--list' : ''}`}>
+      <div className="card__image-wrapper">
         {imageUrl && !imageError ? (
           <>
             {imageLoading && (
-              <div className="product-card__placeholder">
-                <div className="product-card__loading-spinner" />
+              <div className="card__placeholder">
+                <div className="card__loading-spinner" />
               </div>
             )}
             <img
               src={imageUrl}
               alt={product.name}
-              className="product-card__image"
+              className="card__image"
               onError={handleImageError}
               onLoad={handleImageLoad}
               style={{ display: imageLoading ? 'none' : 'block' }}
             />
           </>
         ) : (
-          <div className="product-card__placeholder">
-            <Package className="product-card__placeholder-icon" />
+          <div className="card__placeholder">
+            <Package className="card__placeholder-icon" />
             {imageError && (
-              <p className="product-card__error-text">Imagen no disponible</p>
+              <p className="card__error-text">Imagen no disponible</p>
             )}
           </div>
         )}
       </div>
 
-      <div className="product-card__content">
-        <div className="product-card__header">
-          <h3 className="product-card__title">{product.name}</h3>
+      <div className="card__content">
+        <div className="card__header">
+          <h3 className="card__title">{product.name}</h3>
           <span
-            className={`product-card__badge ${
+            className={`card__badge ${
               product.stock > 0
-                ? 'product-card__badge--in-stock'
-                : 'product-card__badge--out-of-stock'
+                ? 'card__badge--in-stock'
+                : 'card__badge--out-of-stock'
             }`}
           >
             {product.stock > 0 ? 'En stock' : 'Agotado'}
           </span>
         </div>
 
-        <p className="product-card__category">{product.category}</p>
-        <p className="product-card__sku">SKU: {product.sku}</p>
+        <p className="card__category">{product.category}</p>
+        <p className="card__sku">SKU: {product.sku}</p>
 
         {product.components && (
-          <div className="product-card__components">
+          <div className="card__components">
             {product.components.procesator && (
-              <p className="product-card__component">
-                <span className="product-card__component-label">CPU:</span>{' '}
+              <p className="card__component">
+                <span className="card__component-label">CPU:</span>{' '}
                 {product.components.procesator}
               </p>
             )}
             {product.components.gpu && (
-              <p className="product-card__component">
-                <span className="product-card__component-label">GPU:</span>{' '}
+              <p className="card__component">
+                <span className="card__component-label">GPU:</span>{' '}
                 {product.components.gpu}
               </p>
             )}
             {product.components.ram && (
-              <p className="product-card__component">
-                <span className="product-card__component-label">RAM:</span>{' '}
+              <p className="card__component">
+                <span className="card__component-label">RAM:</span>{' '}
                 {product.components.ram}
               </p>
             )}
           </div>
         )}
 
-        <div className="product-card__footer">
-          <div className="product-card__price-wrapper">
-            <DollarSign className="product-card__price-icon" />
-            <span className="product-card__price">
+        <div className="card__footer">
+          <div className="card__price-wrapper">
+            <DollarSign className="card__price-icon" />
+            <span className="card__price">
               {product.price.toLocaleString('es-CL')}
             </span>
           </div>
           {product.garantee && (
-            <span className="product-card__guarantee">{product.garantee}</span>
+            <span className="card__guarantee">{product.garantee}</span>
           )}
         </div>
 
         {product.score && (
-          <div className="product-card__score">
+          <div className="card__score">
             Relevancia: {product.score.toFixed(2)}
           </div>
         )}

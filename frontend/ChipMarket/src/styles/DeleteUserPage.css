@@ -1,0 +1,340 @@
+/* src/styles/DeleteUserPage.css */
+
+.delete-user-page {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Header */
+.delete-user-header {
+  margin-bottom: 2rem;
+}
+
+.delete-user-header__title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #111827;
+  margin: 0 0 0.5rem 0;
+}
+
+.delete-user-header__subtitle {
+  font-size: 1rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Mensajes */
+.delete-user-message {
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.delete-user-message__icon {
+  font-size: 1.25rem;
+}
+
+.delete-user-message--success {
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 2px solid #10b981;
+}
+
+.delete-user-message--error {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 2px solid #ef4444;
+}
+
+/* Búsqueda */
+.delete-user-search {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.delete-user-search__input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 2px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+}
+
+.delete-user-search__input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.delete-user-search__count {
+  color: #6b7280;
+  font-size: 0.95rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Advertencia */
+.delete-user-warning {
+  display: flex;
+  gap: 1rem;
+  background-color: #fef3c7;
+  border: 2px solid #f59e0b;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.delete-user-warning__icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.delete-user-warning__title {
+  font-weight: 700;
+  color: #92400e;
+  margin: 0 0 0.25rem 0;
+}
+
+.delete-user-warning__text {
+  color: #78350f;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* Tabla */
+.delete-user-list {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.delete-user-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.delete-user-table__head {
+  background-color: #f9fafb;
+}
+
+.delete-user-table__header {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.delete-user-table__body {
+  background-color: white;
+}
+
+.delete-user-table__row {
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color 0.2s;
+}
+
+.delete-user-table__row:hover {
+  background-color: #fef2f2;
+}
+
+.delete-user-table__cell {
+  padding: 1rem;
+  color: #6b7280;
+}
+
+.delete-user-table__cell--name {
+  font-weight: 600;
+  color: #111827;
+}
+
+.delete-user-table__role-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background-color: #dbeafe;
+  color: #1e40af;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.delete-user-table__delete-btn {
+  padding: 0.5rem 1rem;
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 2px solid #ef4444;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.delete-user-table__delete-btn:hover {
+  background-color: #fecaca;
+  transform: translateY(-1px);
+}
+
+/* Estados */
+.delete-user-state,
+.delete-user-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.delete-user-state__message,
+.delete-user-empty__message {
+  font-size: 1.125rem;
+  color: #6b7280;
+}
+
+/* Modal */
+.delete-user-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.delete-user-modal__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.delete-user-modal__content {
+  position: relative;
+  background-color: white;
+  border-radius: 1rem;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.delete-user-modal__header {
+  padding: 1.5rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.delete-user-modal__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #dc2626;
+}
+
+.delete-user-modal__body {
+  padding: 1.5rem;
+}
+
+.delete-user-modal__text {
+  font-size: 1.125rem;
+  color: #374151;
+  margin: 0 0 1.5rem 0;
+}
+
+.delete-user-modal__info {
+  background-color: #f9fafb;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.delete-user-modal__info p {
+  margin: 0.5rem 0;
+  color: #4b5563;
+}
+
+.delete-user-modal__warning {
+  color: #dc2626;
+  font-size: 0.95rem;
+  margin: 0;
+  font-weight: 500;
+}
+
+.delete-user-modal__footer {
+  padding: 1.5rem;
+  border-top: 2px solid #e5e7eb;
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.delete-user-modal__cancel-btn,
+.delete-user-modal__confirm-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.delete-user-modal__cancel-btn {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.delete-user-modal__cancel-btn:hover:not(:disabled) {
+  background-color: #e5e7eb;
+}
+
+.delete-user-modal__confirm-btn {
+  background-color: #dc2626;
+  color: white;
+}
+
+.delete-user-modal__confirm-btn:hover:not(:disabled) {
+  background-color: #b91c1c;
+}
+
+.delete-user-modal__cancel-btn:disabled,
+.delete-user-modal__confirm-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .delete-user-page {
+    padding: 1rem;
+  }
+
+  .delete-user-search {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .delete-user-table {
+    font-size: 0.875rem;
+  }
+
+  .delete-user-table__header,
+  .delete-user-table__cell {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .delete-user-modal__content {
+    max-width: 100%;
+  }
+}

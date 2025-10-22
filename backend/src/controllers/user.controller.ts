@@ -97,7 +97,6 @@ export const searchUsersByName = async (req: Request, res: Response) => {
   }
 };
 
-// 👇 Agregar esta función al final del archivo
 export const createUser = async (req: Request, res: Response) => {
   try {
     const { name, email, password } = req.body;
@@ -161,5 +160,46 @@ export const createUser = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error al crear usuario:', error);
     return ApiResponse.error(res, 'Error al crear usuario', 500);
+  }
+};
+
+// 👇 Agregar al final de user.controller.ts
+export const deleteUser = async (req: Request, res: Response) => {
+  try {
+    const userId = parseInt(req.params.id, 10);
+
+    if (isNaN(userId)) {
+      return ApiResponse.error(res, 'ID de usuario inválido', 400);
+    }
+
+    // Verificar que el usuario existe
+    const user = await User.findByPk(userId, {
+      attributes: ['id', 'name', 'email', 'id_role']
+    });
+
+    if (!user) {
+      return ApiResponse.error(res, 'Usuario no encontrado', 404);
+    }
+
+    // ⚠️ IMPORTANTE: No permitir eliminar administradores
+    if (user.id_role === 1) {
+      return ApiResponse.error(res, 'No se pueden eliminar usuarios administradores', 403);
+    }
+
+    // Eliminar el usuario
+    await user.destroy();
+
+    console.log(`✅ Usuario ${userId} eliminado exitosamente`);
+    
+    return ApiResponse.success(
+      res, 
+      { id: userId, name: user.name, email: user.email }, 
+      'Usuario eliminado exitosamente',
+      200
+    );
+
+  } catch (error) {
+    console.error('Error al eliminar usuario:', error);
+    return ApiResponse.error(res, 'Error al eliminar usuario', 500);
   }
 };

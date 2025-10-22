@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { UserListPage } from '../../pages/Admin/Users/UserListPage';
 import { UserSearchPage } from '../../pages/Admin/Users/UserSearchPage';
-import { CreateUserPage } from '../../pages/Admin/Users/CreateUserPage'; // 👈 AGREGAR ESTA LÍNEA
+import { CreateUserPage } from '../../pages/Admin/Users/CreateUserPage';
+import { DeleteUserPage } from '../../pages/Admin/Users/DeleteUserPage';
 import { Search, Users, UserPlus, UserPen, UserX} from 'lucide-react';
 
 import '../../styles/AdminDashboard.css';
@@ -54,12 +55,7 @@ export const UserManagement: React.FC = () => {
                     </div>
                 )}
 
-                {activeUserTab === 'delete' && (
-                    <div className="admin-dashboard__placeholder">
-                        <h2>Eliminar Usuario</h2>
-                        <p>Aquí irá la interfaz para buscar y eliminar un usuario.</p>
-                    </div>
-                )}
+                {activeUserTab === 'delete' && <DeleteUserPage />}
             </main>
         </div>
     );

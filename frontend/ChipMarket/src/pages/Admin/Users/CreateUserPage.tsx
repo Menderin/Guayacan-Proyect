@@ -1,5 +1,5 @@
 // src/pages/Admin/Users/CreateUserPage.tsx
-import React from 'react';
+import React, { useState } from 'react'; // 👈 Asegúrate de importar useState
 import { useCreateUser } from '../../../hooks/useCreateUser';
 import { useUsers } from '../../../context/UserContext';
 import '../../../styles/CreateUserPage.css';
@@ -17,12 +17,15 @@ export const CreateUserPage: React.FC = () => {
     resetForm
   } = useCreateUser();
 
+  // 👇 NUEVO: Estado para mostrar/ocultar contraseña
+  const [showPassword, setShowPassword] = useState(false);
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const success = await handleSubmit();
     if (success) {
-      // Recargar la lista de usuarios después de crear uno nuevo
       await fetchUsers();
+      setShowPassword(false); // 👈 Ocultar contraseña después de crear
     }
   };
 
@@ -37,7 +40,6 @@ export const CreateUserPage: React.FC = () => {
 
       <div className="create-user-form-container">
         <form onSubmit={onSubmit} className="create-user-form">
-          {/* Mensajes de éxito/error */}
           {successMessage && (
             <div className="create-user-form__message create-user-form__message--success">
               <span className="create-user-form__message-icon">✓</span>
@@ -90,20 +92,30 @@ export const CreateUserPage: React.FC = () => {
             )}
           </div>
 
-          {/* Campo Contraseña */}
+          {/* Campo Contraseña - CON TOGGLE */}
           <div className="create-user-form__field">
             <label htmlFor="password" className="create-user-form__label">
               Contraseña <span className="create-user-form__required">*</span>
             </label>
-            <input
-              id="password"
-              type="password"
-              value={formData.password}
-              onChange={(e) => handleChange('password', e.target.value)}
-              className={`create-user-form__input ${errors.password ? 'create-user-form__input--error' : ''}`}
-              placeholder="Mínimo 8 caracteres"
-              disabled={loading}
-            />
+            <div className="create-user-form__password-wrapper">
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'} // 👈 CAMBIO AQUÍ
+                value={formData.password}
+                onChange={(e) => handleChange('password', e.target.value)}
+                className={`create-user-form__input ${errors.password ? 'create-user-form__input--error' : ''}`}
+                placeholder="Mínimo 8 caracteres"
+                disabled={loading}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="create-user-form__password-toggle"
+                disabled={loading}
+              >
+                {showPassword ? '🙈' : '👁️'}
+              </button>
+            </div>
             {errors.password ? (
               <span className="create-user-form__error">{errors.password}</span>
             ) : (
@@ -124,7 +136,10 @@ export const CreateUserPage: React.FC = () => {
           <div className="create-user-form__buttons">
             <button
               type="button"
-              onClick={resetForm}
+              onClick={() => {
+                resetForm();
+                setShowPassword(false); // 👈 Ocultar al limpiar
+              }}
               className="create-user-form__reset-btn"
               disabled={loading}
             >

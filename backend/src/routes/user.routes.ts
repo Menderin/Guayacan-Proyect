@@ -3,7 +3,7 @@ import {
     getProfile, 
     getAllUsers,
     searchUsersByName,
-    editUser
+    editUser,
     createUser,
     deleteUser 
 } from '../controllers/user.controller';

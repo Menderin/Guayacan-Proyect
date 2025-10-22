@@ -32,7 +32,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
   try {
     const users = await User.findAll({
       where: {
-        id_role: 2  // 👈 Filtra solo usuarios con role_id = 2
+        id_role: 2
       },
       attributes: ['id', 'name', 'email', 'created_at'],
       include: [{
@@ -69,7 +69,6 @@ export const getUserById = async (req: Request, res: Response) => {
   }
 };
 
-
 export const searchUsersByName = async (req: Request, res: Response) => {
   try {
     const nameQuery = req.query.name as string;
@@ -80,7 +79,7 @@ export const searchUsersByName = async (req: Request, res: Response) => {
 
     const users = await User.findAll({
       where: {
-        name: { [Op.like]: `%${nameQuery}%` }, // 👈 Corregido
+        name: { [Op.like]: `%${nameQuery}%` },
         id_role: 2
       }, 
       attributes: ['id', 'name', 'email', 'created_at'],
@@ -97,8 +96,6 @@ export const searchUsersByName = async (req: Request, res: Response) => {
     return ApiResponse.error(res, 'Error al buscar usuarios', 500);
   }
 };
-
-
 
 export const editUser = async (req: Request & { user?: { userId: number } }, res: Response) => {
   try {
@@ -164,6 +161,29 @@ export const editUser = async (req: Request & { user?: { userId: number } }, res
 
     // Obtener usuario actualizado usando Sequelize para mantener consistencia
     const updatedUser = await User.findByPk(userId, {
+      attributes: ['id', 'name', 'email'],
+      include: [{
+        model: Role,
+        as: 'role',
+        attributes: ['role_name', 'description']
+      }]
+    });
+
+    return ApiResponse.success(res, updatedUser, 'Usuario actualizado exitosamente');
+  } catch (error) {
+    console.error('Error al actualizar usuario:', error);
+    
+    // Manejo de errores específicos
+    if (error instanceof Error) {
+      if (error.message.includes('crypt') || error.message.includes('gen_salt')) {
+        return ApiResponse.error(res, 'Error al procesar la contraseña. Asegúrese de que pgcrypto esté habilitado', 500);
+      }
+    }
+    
+    return ApiResponse.error(res, 'Error al actualizar usuario', 500);
+  }
+};
+
 export const createUser = async (req: Request, res: Response) => {
   try {
     const { name, email, password } = req.body;
@@ -200,7 +220,7 @@ export const createUser = async (req: Request, res: Response) => {
     // Importar sequelize dinámicamente para usar query raw
     const { sequelize } = require('../config/database');
 
-    // Insertar usuario usando pgcrypto (igual que en auth.service)
+    // Insertar usuario usando pgcrypto
     const result = await sequelize.query(
       `INSERT INTO users (name, email, password, id_role) 
        VALUES (:name, :email, crypt(:password, gen_salt('bf')), 2) 
@@ -219,22 +239,6 @@ export const createUser = async (req: Request, res: Response) => {
       include: [{
         model: Role,
         as: 'role',
-        attributes: ['role_name', 'description']
-      }]
-    });
-
-    return ApiResponse.success(res, updatedUser, 'Usuario actualizado exitosamente');
-  } catch (error) {
-    console.error('Error al actualizar usuario:', error);
-    
-    // Manejo de errores específicos
-    if (error instanceof Error) {
-      if (error.message.includes('crypt') || error.message.includes('gen_salt')) {
-        return ApiResponse.error(res, 'Error al procesar la contraseña. Asegúrese de que pgcrypto esté habilitado', 500);
-      }
-    }
-    
-    return ApiResponse.error(res, 'Error al actualizar usuario', 500);
         attributes: ['role_name']
       }]
     });
@@ -246,7 +250,6 @@ export const createUser = async (req: Request, res: Response) => {
   }
 };
 
-// 👇 Agregar al final de user.controller.ts
 export const deleteUser = async (req: Request, res: Response) => {
   try {
     const userId = parseInt(req.params.id, 10);

@@ -60,6 +60,9 @@ export const UserSearchPage: React.FC = () => {
         setSortOrder={setSortOrder}
       />
 
+      {/* ESPACIADOR - Compensa la altura del header fijo */}
+      <div className="search-header-spacer"></div>
+
       {/* Grid de resultados */}
       <div className="max-w-7xl mx-auto px-4 py-6">
         <UserGrid

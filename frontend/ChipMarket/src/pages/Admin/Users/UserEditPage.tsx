@@ -2,27 +2,21 @@
 
 import React, { useState } from 'react';
 import { useUserSearch } from '../../../hooks/useUserSearch';
-import type { User } from '../../../types/user.types'; // Tipo User ya no UserApiResponse
+import type { User } from '../../../types/user.types';
 import { EditUserModal } from '../../../components/users/EditUserModal';
-// 1. Importa el nuevo componente Toast
 import { ToastNotification } from '../../../components/common/ToastNotification'; 
-
-// ¡Importamos el CSS que funciona!
 import '../../../styles/UserListPage.css'; 
 
 export const UserEditPage: React.FC = () => {
-    // Seguimos usando tu hook para la lógica
+    // ⬅️ CAMBIO CLAVE: Pasar loadAllOnMount: true
     const {
         users,
         loading,
         error,
-        refetchUsers // Usaremos esto para el botón de recarga
-    } = useUserSearch();
+        refetchUsers
+    } = useUserSearch({ loadAllOnMount: true });
 
-    // Lógica para el Modal
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
-
-    // 2. Nuevo estado para el mensaje del Toast
     const [toastMessage, setToastMessage] = useState<string | null>(null);
 
     const handleEditClick = (user: User) => {
@@ -33,19 +27,14 @@ export const UserEditPage: React.FC = () => {
         setSelectedUser(null);
     };
 
-    // 3. Modificamos handleUserUpdated
     const handleUserUpdated = (updatedUser: User) => {
-        // Cerramos el modal
         setSelectedUser(null);
-        // Recargamos los datos de la lista
         if (refetchUsers) {
             refetchUsers();
         }
-        // ¡Mostramos el toast!
         setToastMessage('Usuario actualizado exitosamente');
     };
 
-    // Copiamos la función de formato de fecha
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         return date.toLocaleDateString('es-ES', {
@@ -55,7 +44,6 @@ export const UserEditPage: React.FC = () => {
         });
     };
 
-    // Copiamos los estados de Loading y Error
     if (loading) {
         return (
             <div className="user-list-state">
@@ -82,10 +70,8 @@ export const UserEditPage: React.FC = () => {
         );
     }
 
-    // Copiamos y adaptamos el HTML principal
     return (
         <>
-            {/* 4. Renderizamos el Toast aquí */}
             {toastMessage && (
                 <ToastNotification 
                     message={toastMessage} 
@@ -94,18 +80,20 @@ export const UserEditPage: React.FC = () => {
             )}
         
             <div className="user-list-container">
-                {/* Header Adaptado */}
                 <div className="user-list-header">
                     <div className="user-list-header__content">
                         <h2 className="user-list-header__title user-list-header__title--edit">
                             Editar Usuarios: {users.length}
                         </h2>
-                        {/* El header de "Editar" no necesita botón de recarga,
-                            pero puedes añadirlo si quieres con onClick={refetchUsers} */}
+                        <button
+                            onClick={refetchUsers}
+                            className="user-list-header__reload-btn"
+                        >
+                            🔄 Recargar
+                        </button>
                     </div>
                 </div>
 
-                {/* Lista de usuarios Adaptada */}
                 {users.length > 0 ? (
                     <ul className="user-list">
                         {users.map(user => (
@@ -134,11 +122,8 @@ export const UserEditPage: React.FC = () => {
                                         </p>
                                     </div>
                                     
-                                    {/* AQUÍ ESTÁ EL CAMBIO MÁS IMPORTANTE (Botones) */}
                                     <div className="user-actions">
                                         <span className="user-actions__id">ID: {user.id}</span>
-                                        
-                                        {/* Usamos una nueva clase CSS que definiremos */}
                                         <button
                                             onClick={() => handleEditClick(user)}
                                             className="user-actions__edit-btn"
@@ -146,7 +131,6 @@ export const UserEditPage: React.FC = () => {
                                             Editar
                                         </button>
                                     </div>
-
                                 </div>
                             </li>
                         ))}
@@ -160,7 +144,6 @@ export const UserEditPage: React.FC = () => {
                 )}
             </div>
 
-            {/* Renderizamos el Modal al final */}
             {selectedUser && (
                 <EditUserModal
                     user={selectedUser}

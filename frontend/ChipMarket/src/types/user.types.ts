@@ -15,3 +15,13 @@ export interface UserApiResponse {
   message: string;
   data: User[];
 }
+
+// ⬅️ Agregar la interfaz Pagination
+export interface Pagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+}

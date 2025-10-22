@@ -49,17 +49,18 @@
 
 .analytics-main-content {
   display: flex;
+  flex-direction: column;
   gap: 1.5rem;
   flex-grow: 1;
 }
 
 .analytics-main-view {
-  flex: 1 1 65%;
+  flex: 1 1 100%;
   animation: fadeInUp 0.6s ease-out;
 }
 
 .analytics-chart-view {
-  flex: 0 0 35%;
+  flex: 0 0 100%;
   animation: fadeInUp 0.7s ease-out;
 }
 

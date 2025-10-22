@@ -5,7 +5,7 @@ import { Loader2, User as UserIcon } from 'lucide-react';
 import { UserCard } from './UserCard';
 import { Pagination } from '../products/Pagination'; // Reutilizamos el componente de paginación
 import type { User } from '../../types/user.types';
-import type { Pagination as PaginationType } from '../../types/product.types';
+import type { Pagination as PaginationType } from '../../types/user.types';
 
 interface UserGridProps {
   users: User[];
@@ -64,22 +64,6 @@ export const UserGrid: React.FC<UserGridProps> = ({
             // Vista Lista (Tabla)
             <div className="bg-white rounded-xl shadow-lg overflow-hidden">
               <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
-                      Usuario
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
-                      Email
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
-                      Rol
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
-                      Fecha de Registro
-                    </th>
-                  </tr>
-                </thead>
                 <tbody className="divide-y divide-gray-200">
                   {users.map((user) => (
                     <UserCard key={user.id} user={user} viewMode={viewMode} />

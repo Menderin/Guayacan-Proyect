@@ -8,8 +8,8 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   border-bottom: 3px solid #334155;
   position: fixed;
-  top: 140px; /* Ajustar según la altura del header del dashboard */
-  left: 250px; /* Ancho del sidebar */
+  top: 148px; /* Ajustar según la altura del header del dashboard */
+  left: 280px; /* Ancho del sidebar */
   right: 0;
   z-index: 100;
   animation: slideDown 0.4s ease-out;

@@ -1,12 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { UserListPage } from '../../pages/Admin/Users/UserListPage'; // ← Correcto
+import { UserListPage } from '../../pages/Admin/Users/UserListPage';
 import { UserSearchPage } from '../../pages/Admin/Users/UserSearchPage';
+import { CreateUserPage } from '../../pages/Admin/Users/CreateUserPage';
+import { DeleteUserPage } from '../../pages/Admin/Users/DeleteUserPage';
 import { Search, Users, UserPlus, UserPen, UserX} from 'lucide-react';
 
 import '../../styles/AdminDashboard.css';
-import '../../styles/Management.css'; // Puedes reusar los estilos que ya creamos
+import '../../styles/Management.css';
 
 export const UserManagement: React.FC = () => {
     const [activeUserTab, setActiveUserTab] = useState('list');
@@ -40,17 +42,11 @@ export const UserManagement: React.FC = () => {
             </aside>
 
             <main className="product-content">
-                {/* ✅ CORRECTO: Sin props */}
                 {activeUserTab === 'list' && <UserListPage />}
 
                 {activeUserTab === 'search' && <UserSearchPage />}
 
-                {activeUserTab === 'add' && (
-                    <div className="admin-dashboard__placeholder">
-                        <h2>Agregar Nuevo Usuario</h2>
-                        <p>Aquí irá el formulario para crear un usuario nuevo.</p>
-                    </div>
-                )}
+                {activeUserTab === 'add' && <CreateUserPage />}
 
                 {activeUserTab === 'edit' && (
                     <div className="admin-dashboard__placeholder">
@@ -59,12 +55,7 @@ export const UserManagement: React.FC = () => {
                     </div>
                 )}
 
-                {activeUserTab === 'delete' && (
-                    <div className="admin-dashboard__placeholder">
-                        <h2>Eliminar Usuario</h2>
-                        <p>Aquí irá la interfaz para buscar y eliminar un usuario.</p>
-                    </div>
-                )}
+                {activeUserTab === 'delete' && <DeleteUserPage />}
             </main>
         </div>
     );

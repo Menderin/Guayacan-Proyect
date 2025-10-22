@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { UserListPage } from '../../pages/Admin/Users/UserListPage'; // ← Correcto
 import { UserSearchPage } from '../../pages/Admin/Users/UserSearchPage';
+import { UserEditPage } from '../../pages/Admin/Users/UserEditPage';
 import { Search, Users, UserPlus, UserPen, UserX} from 'lucide-react';
 
 import '../../styles/AdminDashboard.css';
@@ -52,12 +53,7 @@ export const UserManagement: React.FC = () => {
                     </div>
                 )}
 
-                {activeUserTab === 'edit' && (
-                    <div className="admin-dashboard__placeholder">
-                        <h2>Editar Usuario</h2>
-                        <p>Aquí irá la interfaz para seleccionar y editar un usuario existente.</p>
-                    </div>
-                )}
+                {activeUserTab === 'edit' && <UserEditPage />}
 
                 {activeUserTab === 'delete' && (
                     <div className="admin-dashboard__placeholder">

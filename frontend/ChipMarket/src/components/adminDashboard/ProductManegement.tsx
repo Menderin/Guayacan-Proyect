@@ -13,6 +13,9 @@ import { AnalyticsPage } from '../../pages/Admin/Product/AnalyticsPage';
 // Importa los estilos
 import '../../styles/AdminDashboard.css'; // Puedes reusar los estilos que ya creamos
 import '../../styles/Management.css';
+import { AddProductPage } from '../../pages/Admin/Product/AddProductPage';
+import { EditProductPage } from '../../pages/Admin/Product/EditProductPage';
+import { DeleteProductPage } from '../../pages/Admin/Product/DeleteProductPage';
 
 export const ProductManagement: React.FC = () => {
     const [activeProductTab, setActiveProductTab] = useState('list');
@@ -58,23 +61,13 @@ export const ProductManagement: React.FC = () => {
                     <ProductSearchPage />
                 )}
                 {activeProductTab === 'add' && (
-                    <div>
-                        <h2>Agregar Nuevo Producto</h2>
-                        <p>Aquí irá el formulario para crear un producto nuevo.</p>
-                        {/* Ejemplo: <AddProductPage /> */}
-                    </div>
+                    <AddProductPage/>
                 )}
                 {activeProductTab === 'edit' && (
-                    <div>
-                        <h2>Editar Producto</h2>
-                        <p>Aquí irá la interfaz para seleccionar y editar un producto existente.</p>
-                    </div>
+                    <EditProductPage />
                 )}
                 {activeProductTab === 'delete' && (
-                    <div>
-                        <h2>Eliminar Producto</h2>
-                        <p>Aquí irá la interfaz para buscar y eliminar un producto.</p>
-                    </div>
+                    <DeleteProductPage />
                 )}
                 {activeProductTab === 'analytics' && (
                     <AnalyticsPage />

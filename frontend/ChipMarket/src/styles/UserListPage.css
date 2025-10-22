@@ -416,6 +416,46 @@
   .user-list-state {
     padding: 2rem 1.5rem;
   }
+}
+/* src/styles/UserListPage.css */
+
+/* ... (todos tus estilos existentes) ... */
+
+/* ===================================
+   NUEVOS ESTILOS PARA EL BOTÓN EDITAR
+   =================================== */
+
+.user-actions__edit-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  /* Hacámoslo de color Naranja/Amarillo */
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+  white-space: nowrap;
+}
+
+.user-actions__edit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+}
+
+.user-actions__edit-btn:active {
+  transform: translateY(0);
+}
+
+.user-actions__edit-btn::before {
+  content: '✏️ ';
+}
+
+.user-list-header__title--edit::before {
+  content: '✏️'; /* Esto sobreescribe el ícono '👥' */
+  font-size: 1.5rem; /* Aseguramos que tenga el mismo tamaño */
 
   .user-actions {
     flex-direction: column;

@@ -1,0 +1,241 @@
+/* src/styles/EditUserModal.css */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: fadeInScale 0.2s ease-out;
+}
+
+/* ===================================
+   HEADER
+   =================================== */
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.modal-close-btn {
+  font-family: Arial, sans-serif;
+  font-size: 2rem;
+  font-weight: 300;
+  color: #9ca3af;
+  background: none;
+  border: none;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+
+.modal-close-btn:hover {
+  color: #374151;
+}
+
+/* ===================================
+   FORMULARIO (BODY)
+   =================================== */
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-form-group {
+  margin-bottom: 1.25rem;
+}
+
+.modal-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.modal-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  box-sizing: border-box; /* Importante para que el padding no rompa el ancho */
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.modal-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.modal-input--disabled {
+  background-color: #f3f4f6;
+  color: #6b7280;
+  cursor: not-allowed;
+  border-color: #e5e7eb;
+}
+
+.modal-input-hint {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+/* ===================================
+   ERRORES
+   =================================== */
+.modal-error {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ===================================
+   FOOTER (BOTONES)
+   =================================== */
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  background-color: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+.modal-btn {
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modal-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.modal-btn--secondary {
+  background-color: #e5e7eb;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.modal-btn--secondary:hover:not(:disabled) {
+  background-color: #d1d5db;
+}
+
+.modal-btn--primary {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.modal-btn--primary:hover:not(:disabled) {
+  background-color: #2563eb;
+}
+
+/* ===================================
+   ANIMATIONS (de UserListPage.css)
+   =================================== */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* === AÑADE ESTOS NUEVOS ESTILOS === */
+
+/* 1. Contenedor para el input y el icono */
+.modal-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* 2. Modifica el input para que deje espacio a la derecha */
+.modal-input {
+  /* ... (tus estilos existentes de width, padding, border, etc.) ... */
+  box-sizing: border-box; /* Asegúrate de que esto esté */
+  
+  /* 👇 AÑADE ESTA LÍNEA */
+  padding-right: 3rem; /* 48px, espacio para el icono */
+}
+
+/* 3. Estilos para el botón de mostrar/ocultar */
+.modal-password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem; /* 12px */
+  transform: translateY(-50%);
+  
+  background: none;
+  border: none;
+  cursor: pointer;
+  
+  font-size: 1.25rem; /* Tamaño del emoji */
+  line-height: 1;
+  color: #6b7280;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  transition: color 0.2s ease;
+}
+
+.modal-password-toggle:hover {
+  color: #111827;
+}

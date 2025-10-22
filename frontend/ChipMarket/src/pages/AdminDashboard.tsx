@@ -94,13 +94,7 @@ export const AdminDashboard: React.FC = () => {
                             <p className="admin-dashboard__placeholder-text">
                                 Necesitas confirmar para cerrar sesión.
                             </p>
-                            <button
-                                type="button"
-                                className="admin-dashboard__logout-button"
-                                onClick={logout}
-                            >
-                                Confirmar Cerrar Sesión
-                            </button>
+                            <button className="logout-confirm-btn"onClick={logout}>Confirmar Cerrar Sesión</button>
                         </div>
                     </div>
                 )}

@@ -111,3 +111,35 @@
 .admin-dashboard__placeholder-text {
   color: #6b7280;
 }
+
+/* ===================================
+   BOTÓN DE CONFIRMAR LOGOUT
+   =================================== */
+
+.logout-confirm-btn {
+  /* Estilos base del botón */
+  display: inline-block;
+  padding: 0.75rem 1.5rem; /* 12px 24px */
+  font-size: 1rem;         /* 16px */
+  font-weight: 600;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 1.5rem; /* Espacio para separarlo del texto */
+  
+  /* Gradiente y sombra (como tus otros botones) */
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  transition: all 0.3s ease;
+}
+
+.logout-confirm-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.logout-confirm-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}

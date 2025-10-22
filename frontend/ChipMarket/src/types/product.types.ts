@@ -22,31 +22,19 @@ export interface Product {
   score?: number;
 }
 
-export interface SearchFilters {
-  category: string;
-  minPrice: string;
-  maxPrice: string;
-  inStock: boolean;
-  garantee: string;
-  procesator: string;
-  gpu: string;
-  ram: string;
-}
-
-export interface Pagination {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-  hasNext: boolean;
-  hasPrev: boolean;
-}
-
-export interface AvailableFilters {
-  categories: string[];
-  priceRange: {
-    minPrice: number;
-    maxPrice: number;
+export interface ProductApiResponse {
+  success: boolean;
+  data?: {
+    productos?: Product[];
+    product?: Product; // Para endpoints que retornan un solo producto
+    pagination?: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+      hasNext: boolean;
+      hasPrev: boolean;
+    };
   };
-  garantees: string[];
+  message?: string;
 }

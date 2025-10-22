@@ -1,0 +1,94 @@
+/* src/styles/Alert.css */
+
+.alert {
+  display: flex;
+  align-items: start;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.alert__icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.alert__message {
+  flex: 1;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Alert Types */
+.alert--success {
+  background: #dcfce7;
+  border-color: #86efac;
+  color: #166534;
+}
+
+.alert--success .alert__icon {
+  color: #16a34a;
+}
+
+.alert--error {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #991b1b;
+}
+
+.alert--error .alert__icon {
+  color: #dc2626;
+}
+
+.alert--warning {
+  background: #fef3c7;
+  border-color: #fde047;
+  color: #854d0e;
+}
+
+.alert--warning .alert__icon {
+  color: #ca8a04;
+}
+
+.alert--info {
+  background: #dbeafe;
+  border-color: #93c5fd;
+  color: #1e40af;
+}
+
+.alert--info .alert__icon {
+  color: #3b82f6;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .alert {
+    padding: 0.75rem;
+  }
+
+  .alert__icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .alert__message {
+    font-size: 0.8125rem;
+  }
+}

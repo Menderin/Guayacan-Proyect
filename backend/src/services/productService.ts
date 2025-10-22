@@ -124,3 +124,36 @@ export const buscarProductos = async (
     }
   };
 };
+
+export const obtenerProductosConPocoStock = async (
+  threshold: number = 5,
+  page: number = 1, 
+  limit: number = 10
+) => {
+  const skip = (page - 1) * limit;
+  
+  // ✅ Cambiado a $lte para incluir el threshold
+  const lowStockFilter = { stock: { $lte: threshold } }; // stock <= 5
+
+  const [productos, total] = await Promise.all([
+    ProductoModel.find(lowStockFilter)
+      .skip(skip)
+      .limit(limit)
+      .sort({ stock: 1 }), // Ordena de menor a mayor stock
+    ProductoModel.countDocuments(lowStockFilter)
+  ]);
+
+  const totalPages = Math.ceil(total / limit);
+
+  return {
+    productos,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages,
+      hasNext: page < totalPages,
+      hasPrev: page > 1
+    }
+  };
+}

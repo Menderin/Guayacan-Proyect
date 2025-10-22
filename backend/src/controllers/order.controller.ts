@@ -43,12 +43,12 @@ export const getOrderDetail = async (req: AuthenticatedRequest, res: Response) =
   }
 };
 
-export const getOrdersByStatus = async (req: AuthenticatedRequest, res: Response) => {
+export const getPersonalOrdersByStatus = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const userId = req.user!.userId;
     const { status } = req.params;
     
-    const orders = await orderService.getOrdersByStatus(userId, status);
+    const orders = await orderService.getPersonalOrdersByStatus(userId, status);
     return ApiResponse.success(res, orders, `Pedidos con estado ${status}`);
   } catch (error) {
     console.error('Error:', error);
@@ -148,5 +148,21 @@ export const getOrderDetailsById = async (req: Request, res: Response) => {
       success: false,
       message: error instanceof Error ? error.message : 'Error al obtener detalles del pedido'
     });
+  }
+};
+
+
+export const getOrdersByStatus = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { status } = req.params;
+    const orders = await orderService.getOrdersByStatus(status);
+    return ApiResponse.success(res, orders, `Pedidos con estado ${status} obtenidos exitosamente`);
+  } catch (error) {
+    console.error('Error al obtener pedidos por estado:', error);
+    return ApiResponse.error(
+      res,
+      error instanceof Error ? error.message : 'Error al obtener pedidos por estado',
+      500
+    );
   }
 };

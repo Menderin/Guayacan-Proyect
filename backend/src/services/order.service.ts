@@ -73,7 +73,7 @@ export class OrderService {
     return order;
   }
 
-  async getOrdersByStatus(userId: number, status: string) {
+  async getPersonalOrdersByStatus(userId: number, status: string) {
     const orders = await Order.findAll({
       where: { 
         user_id: userId,
@@ -145,5 +145,18 @@ export class OrderService {
       throw new Error('Pedido no encontrado');
     }
     return order;
+  }
+
+  async getOrdersByStatus(status: string) {
+    const orders = await Order.findAll({
+      where: { status },
+      include: [
+        { model: Payment, as: 'payments' },
+        { model: OrderDetail, as: 'details' },
+        { model: Shipping, as: 'shipping' }
+      ],
+      order: [['order_date', 'DESC']]
+    });
+    return orders;
   }
 }

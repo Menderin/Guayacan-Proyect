@@ -4,6 +4,8 @@ import React from 'react';
 import { Grid, List } from 'lucide-react';
 import { SearchBar } from '../products/SearchBar'; // Reutilizamos el SearchBar
 
+import '../../styles/SearchHeader.css';
+
 interface UserSearchHeaderProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
@@ -20,85 +22,87 @@ interface UserSearchHeaderProps {
 }
 
 export const UserSearchHeader: React.FC<UserSearchHeaderProps> = ({
-  searchQuery,
-  setSearchQuery,
-  suggestions,
-  showSuggestions,
-  setShowSuggestions,
-  onSuggestionClick,
-  viewMode,
-  setViewMode,
-  sortBy,
-  setSortBy,
-  sortOrder,
-  setSortOrder
+    searchQuery,
+    setSearchQuery,
+    suggestions,
+    showSuggestions,
+    setShowSuggestions,
+    onSuggestionClick,
+    viewMode,
+    setViewMode,
+    sortBy,
+    setSortBy,
+    sortOrder,
+    setSortOrder
 }) => {
-  return (
-    <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
-      <div className="max-w-7xl mx-auto px-4 py-4">
-        <div className="flex items-center gap-4">
-          {/* Barra de búsqueda reutilizada - solo cambiar placeholder */}
-          <div className="flex-1 relative">
-            <SearchBar
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              suggestions={suggestions}
-              showSuggestions={showSuggestions}
-              setShowSuggestions={setShowSuggestions}
-              onSuggestionClick={onSuggestionClick}
-            />
-          </div>
+    return (
+        <div className="search-header-container">
+            <div className="search-header-content">
+                
+                {/* Top Bar: SearchBar + View Mode */}
+                <div className="search-header-topbar">
+                    <SearchBar
+                        searchQuery={searchQuery}
+                        setSearchQuery={setSearchQuery}
+                        suggestions={suggestions}
+                        showSuggestions={showSuggestions}
+                        setShowSuggestions={setShowSuggestions}
+                        onSuggestionClick={onSuggestionClick}
+                    />
 
-          {/* Control de vista Grid/List */}
-          <div className="flex gap-2">
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`p-3 border rounded-lg transition-colors ${
-                viewMode === 'grid'
-                  ? 'bg-indigo-50 border-indigo-500 text-indigo-600'
-                  : 'border-gray-300 hover:bg-gray-50'
-              }`}
-              title="Vista en cuadrícula"
-            >
-              <Grid className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              className={`p-3 border rounded-lg transition-colors ${
-                viewMode === 'list'
-                  ? 'bg-indigo-50 border-indigo-500 text-indigo-600'
-                  : 'border-gray-300 hover:bg-gray-50'
-              }`}
-              title="Vista en lista"
-            >
-              <List className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
+                    {/* View Mode Toggle */}
+                    <div className="view-mode-toggle">
+                        <button
+                            onClick={() => setViewMode('grid')}
+                            className={`view-mode-btn ${
+                                viewMode === 'grid' ? 'view-mode-btn--active' : ''
+                            }`}
+                            aria-label="Vista de cuadrícula"
+                        >
+                            <Grid />
+                        </button>
+                        <button
+                            onClick={() => setViewMode('list')}
+                            className={`view-mode-btn ${
+                                viewMode === 'list' ? 'view-mode-btn--active' : ''
+                            }`}
+                            aria-label="Vista de lista"
+                        >
+                            <List />
+                        </button>
+                    </div>
+                </div>
 
-        {/* Barra de ordenamiento */}
-        <div className="flex items-center gap-4 mt-4">
-          <span className="text-sm text-gray-600">Ordenar por:</span>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-          >
-            <option value="relevance">Relevancia</option>
-            <option value="name">Nombre</option>
-            <option value="email">Email</option>
-            <option value="created_at">Fecha de registro</option>
-          </select>
-          <select
-            value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-          >
-            <option value="asc">Ascendente</option>
-            <option value="desc">Descendente</option>
-          </select>
+                {/* Sort Bar */}
+                <div className="search-header-sortbar">
+                    <span className="search-header-sortbar__label">Ordenar por:</span>
+                    <div className="search-header-sortbar__controls">
+                        <select
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value)}
+                            className="sort-select"
+                            aria-label="Criterio de ordenamiento"
+                        >
+                            <option value="relevance">Relevancia</option>
+                            <option value="price">Precio</option>
+                            <option value="name">Nombre</option>
+                            <option value="createdAt">Más recientes</option>
+                        </select>
+                        <select
+                            value={sortOrder}
+                            onChange={(e) => setSortOrder(e.target.value)}
+                            className="sort-select"
+                            aria-label="Orden"
+                        >
+                            <option value="asc">Ascendente</option>
+                            <option value="desc">Descendente</option>
+                        </select>
+                        <div className={`sort-direction-indicator sort-direction-indicator--${sortOrder}`}>
+                            {sortOrder === 'asc' ? 'Ascendente' : 'Descendente'}
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 };

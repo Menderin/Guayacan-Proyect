@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { AlertTriangle, TrendingUp, Package, DollarSign } from 'lucide-react';
 import { LowStockAlerts } from '../home/LowStockAlerts';
 import { StatsCard } from '../home/StatsCard';
+import { SalesAnalytics } from '../home/SalesAnalytics'; // ⬅️ Importar nuevo componente
 import '../../styles/Home.css';
 
 interface Product {
@@ -67,7 +68,6 @@ export const Home: React.FC = () => {
     try {
       setLoading(true);
       
-      // Hacer todas las llamadas en paralelo
       const [productsResponse, pendingOrdersResponse, completedOrdersResponse] = await Promise.all([
         fetch('http://localhost:3000/api/productos'),
         fetch('http://localhost:3000/api/orders/order/status/Pending'),
@@ -78,7 +78,6 @@ export const Home: React.FC = () => {
       const pendingData: OrdersApiResponse = await pendingOrdersResponse.json();
       const completedData: OrdersApiResponse = await completedOrdersResponse.json();
       
-      // Calcular estadísticas de productos
       let totalProducts = 0;
       let lowStock = 0;
       
@@ -88,10 +87,8 @@ export const Home: React.FC = () => {
         lowStock = products.filter((p: Product) => p.stock <= 5).length;
       }
 
-      // Calcular pedidos pendientes
       const pendingOrders = pendingData.success ? pendingData.data.length : 0;
 
-      // Calcular ingresos totales de pedidos completados
       let totalRevenue = 0;
       if (completedData.success) {
         totalRevenue = completedData.data.reduce(
@@ -167,14 +164,9 @@ export const Home: React.FC = () => {
           <LowStockAlerts />
         </section>
 
-        {/* Sección de Análisis (Placeholder para futuras implementaciones) */}
+        {/* ⬅️ NUEVA SECCIÓN: Análisis de Ventas */}
         <section className="home-dashboard__section">
-          <h2 className="home-dashboard__section-title">Análisis de Ventas</h2>
-          <div className="home-dashboard__placeholder-chart">
-            <p className="home-dashboard__placeholder-text">
-              Gráfico de análisis de ventas próximamente
-            </p>
-          </div>
+          <SalesAnalytics />
         </section>
 
       </div>

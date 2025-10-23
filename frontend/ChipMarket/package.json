@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "chart.js": "^4.5.0",
+    "recharts": "^2.10.3",
     "chartjs-plugin-datalabels": "^2.2.0",
     "lucide-react": "^0.545.0",
     "react": "^19.1.1",

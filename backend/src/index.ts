@@ -6,6 +6,7 @@ import searchRoutes from "./routes/search.routes";
 import productRoutes from "./routes/productRoutes";
 import orderRoutes from "./routes/order.routes";
 import userRoutes from "./routes/user.routes";
+import paymentRoutes from "./routes/payment.routes";
 import { connectMongoDB, seedDatabase } from "../database/mongodb/init";
 import pool from "../database/postgres/config";
 import path from 'path';
@@ -72,6 +73,7 @@ app.get("/health", async (req: Request, res: Response) => {
 
 app.use("/api/orders", orderRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/payments", paymentRoutes);
 
 // Manejo de rutas no encontradas
 app.use("*", (req: Request, res: Response) => {

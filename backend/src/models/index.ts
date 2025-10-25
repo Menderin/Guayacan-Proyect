@@ -4,6 +4,7 @@ import Order from './orderModel';
 import OrderDetail from './orderDetailModel';
 import Payment from './paymentModel';
 import Shipping from './shippingModel';
+import Producto from './productoModels'
 
 // Definir todas las relaciones
 User.belongsTo(Role, { foreignKey: 'id_role', as: 'role' });

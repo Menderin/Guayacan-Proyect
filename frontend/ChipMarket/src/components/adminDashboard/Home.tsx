@@ -1,9 +1,9 @@
 // src/components/adminDashboard/Home.tsx
 import React, { useState, useEffect } from 'react';
-import { AlertTriangle, TrendingUp, Package, DollarSign } from 'lucide-react';
+import { AlertTriangle, TrendingUp, Package, DollarSign, CreditCard } from 'lucide-react';
 import { LowStockAlerts } from '../home/LowStockAlerts';
 import { StatsCard } from '../home/StatsCard';
-import { SalesAnalytics } from '../home/SalesAnalytics'; // ⬅️ Importar nuevo componente
+import SalesAnalytics from '../home/SalesAnalytics';
 import '../../styles/Home.css';
 
 interface Product {
@@ -38,10 +38,25 @@ interface Order {
   total_amount: string;
 }
 
+interface Payment {
+  id_payment: number;
+  order_id: number;
+  amount: number;
+  payment_method: string;
+  status: string;
+  payment_date: string;
+}
+
 interface OrdersApiResponse {
   success: boolean;
   message: string;
   data: Order[];
+}
+
+interface PaymentsApiResponse {
+  success: boolean;
+  message: string;
+  data: Payment[];
 }
 
 interface Stats {
@@ -49,6 +64,8 @@ interface Stats {
   totalRevenue: number;
   lowStockCount: number;
   pendingOrders: number;
+  pendingPayments: number; // ✅ Nueva estadística
+  pendingPaymentsAmount: number; // ✅ Monto total de pagos pendientes
 }
 
 export const Home: React.FC = () => {
@@ -56,7 +73,9 @@ export const Home: React.FC = () => {
     totalProducts: 0,
     totalRevenue: 0,
     lowStockCount: 0,
-    pendingOrders: 0
+    pendingOrders: 0,
+    pendingPayments: 0, // ✅ Inicializar
+    pendingPaymentsAmount: 0 // ✅ Inicializar
   });
   const [loading, setLoading] = useState(true);
 
@@ -68,16 +87,25 @@ export const Home: React.FC = () => {
     try {
       setLoading(true);
       
-      const [productsResponse, pendingOrdersResponse, completedOrdersResponse] = await Promise.all([
+      // ✅ Agregada la llamada a la API de pagos pendientes
+      const [
+        productsResponse, 
+        pendingOrdersResponse, 
+        completedOrdersResponse,
+        pendingPaymentsResponse // ✅ Nueva llamada
+      ] = await Promise.all([
         fetch('http://localhost:3000/api/productos'),
-        fetch('http://localhost:3000/api/orders/order/status/Pending'),
-        fetch('http://localhost:3000/api/orders/order/status/Completed')
+        fetch('http://localhost:3000/api/orders/status/Pending'),
+        fetch('http://localhost:3000/api/orders/status/Completed'),
+        fetch('http://localhost:3000/api/payments/status/Pending') // ✅ Corregido: payments en lugar de paymnets
       ]);
 
       const productsData: ApiResponse = await productsResponse.json();
       const pendingData: OrdersApiResponse = await pendingOrdersResponse.json();
       const completedData: OrdersApiResponse = await completedOrdersResponse.json();
+      const pendingPaymentsData: PaymentsApiResponse = await pendingPaymentsResponse.json(); // ✅ Nueva data
       
+      // Calcular productos y stock bajo
       let totalProducts = 0;
       let lowStock = 0;
       
@@ -87,12 +115,25 @@ export const Home: React.FC = () => {
         lowStock = products.filter((p: Product) => p.stock <= 5).length;
       }
 
+      // Calcular pedidos pendientes
       const pendingOrders = pendingData.success ? pendingData.data.length : 0;
 
+      // Calcular ingresos totales (pedidos completados)
       let totalRevenue = 0;
       if (completedData.success) {
         totalRevenue = completedData.data.reduce(
           (sum: number, order: Order) => sum + parseFloat(order.total_amount),
+          0
+        );
+      }
+
+      // ✅ Calcular pagos pendientes
+      let pendingPayments = 0;
+      let pendingPaymentsAmount = 0;
+      if (pendingPaymentsData.success) {
+        pendingPayments = pendingPaymentsData.data.length;
+        pendingPaymentsAmount = pendingPaymentsData.data.reduce(
+          (sum: number, payment: Payment) => sum + Number(payment.amount),
           0
         );
       }
@@ -101,7 +142,9 @@ export const Home: React.FC = () => {
         totalProducts,
         totalRevenue,
         lowStockCount: lowStock,
-        pendingOrders
+        pendingOrders,
+        pendingPayments, // ✅ Agregar al estado
+        pendingPaymentsAmount // ✅ Agregar al estado
       });
     } catch (error) {
       console.error('Error al cargar estadísticas:', error);
@@ -128,7 +171,7 @@ export const Home: React.FC = () => {
             />
             <StatsCard
               title="Ingresos Totales"
-              value={`${stats.totalRevenue.toLocaleString('es-CL')}`}
+              value={`$${stats.totalRevenue.toLocaleString('es-CL')}`}
               icon={DollarSign}
               trend="+8%"
               trendUp={true}
@@ -152,6 +195,16 @@ export const Home: React.FC = () => {
               trendUp={stats.pendingOrders > 0}
               loading={loading}
             />
+            {/* ✅ NUEVA TARJETA: Pagos Pendientes */}
+            <StatsCard
+              title="Pagos Pendientes"
+              value={stats.pendingPayments}
+              icon={CreditCard}
+              trend={`$${stats.pendingPaymentsAmount.toLocaleString('es-CL')}`}
+              trendUp={false}
+              loading={loading}
+              variant="danger"
+            />
           </div>
         </section>
 
@@ -164,7 +217,7 @@ export const Home: React.FC = () => {
           <LowStockAlerts />
         </section>
 
-        {/* ⬅️ NUEVA SECCIÓN: Análisis de Ventas */}
+        {/* Sección: Análisis de Ventas */}
         <section className="home-dashboard__section">
           <SalesAnalytics />
         </section>

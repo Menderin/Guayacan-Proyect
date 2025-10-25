@@ -7,6 +7,8 @@ import { useAuth } from '../context/AuthContext'; // Asegúrate de que este impo
 import { Home } from '..//components/adminDashboard/Home';
 import { ProductManagement } from '../components/adminDashboard/ProductManegement';
 import { UserManagement } from '../components/adminDashboard/UserManegements';
+import { OrderManagement } from '../components/adminDashboard/OrderManagement';
+import { PaymentManegement } from '../components/adminDashboard/PaymentManagement';
 
 import '../styles/AdminDashboard.css';
 
@@ -65,27 +67,9 @@ export const AdminDashboard: React.FC = () => {
                 
                 {activeTab === 'users' && <UserManagement />}
 
-                {activeTab === 'orders' && (
-                    <div className="admin-dashboard__content">
-                        <div className="admin-dashboard__placeholder">
-                            <h2 className="admin-dashboard__placeholder-title">Configuración</h2>
-                            <p className="admin-dashboard__placeholder-text">
-                                Sección de configuración en desarrollo
-                            </p>
-                        </div>
-                    </div>
-                )}
+                {activeTab === 'orders' && <OrderManagement />}
 
-                {activeTab === 'payments' && (
-                    <div className="admin-dashboard__content">
-                        <div className="admin-dashboard__placeholder">
-                            <h2 className="admin-dashboard__placeholder-title">Configuración</h2>
-                            <p className="admin-dashboard__placeholder-text">
-                                Sección de configuración en desarrollo
-                            </p>
-                        </div>
-                    </div>
-                )}
+                {activeTab === 'payments' && <PaymentManegement />}
 
                 {activeTab === 'logout' && (
                     <div className="admin-dashboard__content">

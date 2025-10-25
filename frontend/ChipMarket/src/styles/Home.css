@@ -36,10 +36,34 @@
   color: #f59e0b;
 }
 
+/* ✅ Grid mejorado para 5 tarjetas */
 .home-dashboard__stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1.5rem;
+}
+
+/* ✅ En pantallas grandes, hacer que la última tarjeta ocupe 2 columnas si hay 5 items */
+@media (min-width: 1200px) {
+  .home-dashboard__stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  /* Si quieres que la 5ta tarjeta esté centrada */
+  .home-dashboard__stats-grid > :nth-child(5) {
+    grid-column: 2 / 4;
+  }
+}
+
+/* ✅ Alternativa: 5 columnas iguales en pantallas muy grandes */
+@media (min-width: 1400px) {
+  .home-dashboard__stats-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+  
+  .home-dashboard__stats-grid > :nth-child(5) {
+    grid-column: auto;
+  }
 }
 
 .home-dashboard__placeholder-chart {
@@ -70,16 +94,46 @@
   }
 }
 
+/* Responsive */
+@media (max-width: 1024px) {
+  .home-dashboard__stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .home-dashboard__stats-grid > :nth-child(5) {
+    grid-column: auto;
+  }
+}
+
 @media (max-width: 768px) {
   .home-dashboard {
     padding: 1rem;
   }
-
+  
   .home-dashboard__section {
     padding: 1.5rem;
   }
-
+  
   .home-dashboard__stats-grid {
     grid-template-columns: 1fr;
+  }
+  
+  .home-dashboard__stats-grid > :nth-child(5) {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-dashboard {
+    padding: 0.75rem;
+  }
+  
+  .home-dashboard__section {
+    padding: 1rem;
+    border-radius: 12px;
+  }
+  
+  .home-dashboard__section-title {
+    font-size: 1.25rem;
   }
 }

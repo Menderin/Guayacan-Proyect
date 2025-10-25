@@ -40,7 +40,7 @@ export interface IAuthResponse {
 export interface IJWTPayload {
   userId: number;
   email: string;
-  role: number;
+  id_role: number;
 }
 
 export interface IAuthRequest extends Request {

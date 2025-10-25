@@ -25,7 +25,7 @@ export const UserOrdersPage: React.FC<UserOrdersPageProps> = ({ userId, userName
     try {
       console.log(`📦 Cargando pedidos del usuario ${userId}...`);
       
-      const url = `/api/orders/orders-by-user-id/${userId}`;
+      const url = `/api/orders/users/${userId}`;
       console.log('📦 URL:', url);
       
       const response = await authenticatedFetch(url);

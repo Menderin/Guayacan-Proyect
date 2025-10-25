@@ -22,7 +22,7 @@ export const OrderDetailsPage: React.FC<OrderDetailsPageProps> = ({ orderId, onB
     try {
       console.log(`📋 Cargando detalles del pedido ${orderId}...`);
       
-      const response = await authenticatedFetch(`/api/orders/order-details-by-id/${orderId}`);
+      const response = await authenticatedFetch(`/api/orders/${orderId}`);
 
       if (!response.ok) {
         throw new Error(`Error HTTP: ${response.status}`);

@@ -2,28 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { TrendingUp, TrendingDown, Package, Calendar } from 'lucide-react';
 
+interface OrderDetail {
+  id_detail_order: number;
+  product_sku: string;
+  quantity: number;
+  price: number;
+  subtotal: number;
+  product: {
+    sku: string;
+    name: string;
+    category: string;
+    stock: number;
+  } | null;
+}
+
 interface Order {
   id_order: number;
   user_id: number;
   order_date: string;
   status: string;
-  total_amount: string;
-  details: Array<{
-    id_detail_order: number;
-    order_id: number;
-    product_sku: string;
-    quantity: number;
-    price: string;
-  }>;
-}
-
-interface Product {
-  _id: string;
-  sku: string;
-  name: string;
-  price: number;
-  category: string;
-  stock: number;
+  total_amount: number;
+  details: OrderDetail[];
 }
 
 interface MonthlySales {
@@ -46,7 +45,7 @@ interface ProductStats {
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
-export function SalesAnalytics() {
+export default function SalesAnalytics() {
   const [monthlySales, setMonthlySales] = useState<MonthlySales[]>([]);
   const [topProducts, setTopProducts] = useState<ProductStats[]>([]);
   const [worstProducts, setWorstProducts] = useState<ProductStats[]>([]);
@@ -70,14 +69,21 @@ export function SalesAnalytics() {
       setLoading(true);
       setError(null);
       
-      // Obtener pedidos completados
-      const response = await fetch('http://localhost:3000/api/orders/order/status/Completed');
+      // ✅ URL ACTUALIZADA - ahora es /status/:status
+      const API_BASE = 'http://localhost:3000';
+      const response = await fetch(`${API_BASE}/api/orders/status/Completed`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        }
+      });
       
       if (!response.ok) {
-        throw new Error('Error al cargar los pedidos');
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
       }
       
       const data = await response.json();
+      console.log('📊 Datos recibidos:', data);
       
       if (!data.success || !data.data || data.data.length === 0) {
         setLoading(false);
@@ -86,9 +92,16 @@ export function SalesAnalytics() {
       }
 
       const orders: Order[] = data.data;
+      console.log('📦 Total de pedidos:', orders.length);
       
       // Calcular totales
-      const revenue = orders.reduce((sum, order) => sum + parseFloat(order.total_amount), 0);
+      const revenue = orders.reduce((sum, order) => {
+        const amount = typeof order.total_amount === 'string' 
+          ? parseFloat(order.total_amount) 
+          : order.total_amount;
+        return sum + amount;
+      }, 0);
+      
       setTotalRevenue(revenue);
       setTotalOrders(orders.length);
 
@@ -100,40 +113,29 @@ export function SalesAnalytics() {
       const productStats = await processProductStats(orders);
       
       if (productStats.length === 0) {
-        setLoading(false);
-        setError('No se pudieron cargar los detalles de productos');
-        return;
+        console.warn('⚠️ No se encontraron estadísticas de productos');
+        // No lanzar error, continuar con datos parciales
       }
       
       // Top 5 productos más vendidos
       const sorted = [...productStats].sort((a, b) => b.quantity - a.quantity);
       setTopProducts(sorted.slice(0, 5));
       
-      // Top 5 productos menos vendidos (pero que se hayan vendido)
+      // Top 5 productos menos vendidos
       setWorstProducts(sorted.slice(-5).reverse());
 
       // Estadísticas por categoría
       const categorySales = processCategoryStats(productStats);
       setCategoryStats(categorySales);
 
-      // Estadísticas por procesador
-      const processorSales = processProcessorStats(productStats);
-      setProcessorStats(processorSales);
-
-      // Estadísticas por RAM
-      const ramSales = processRamStats(productStats);
-      setRamStats(ramSales);
-
-      // Estadísticas por GPU
-      const gpuSales = processGpuStats(productStats);
-      setGpuStats(gpuSales);
-
-      // Estadísticas por garantía
-      const garanteeSales = processGaranteeStats(productStats);
-      setGaranteeStats(garanteeSales);
+      // Estadísticas por componentes
+      setProcessorStats(processProcessorStats(productStats));
+      setRamStats(processRamStats(productStats));
+      setGpuStats(processGpuStats(productStats));
+      setGaranteeStats(processGaranteeStats(productStats));
 
     } catch (error) {
-      console.error('Error al cargar análisis:', error);
+      console.error('❌ Error al cargar análisis:', error);
       setError(error instanceof Error ? error.message : 'Error desconocido');
     } finally {
       setLoading(false);
@@ -151,7 +153,11 @@ export function SalesAnalytics() {
         monthlyData[monthKey] = { ventas: 0, ordenes: 0 };
       }
       
-      monthlyData[monthKey].ventas += parseFloat(order.total_amount);
+      const amount = typeof order.total_amount === 'string' 
+        ? parseFloat(order.total_amount) 
+        : order.total_amount;
+      
+      monthlyData[monthKey].ventas += amount;
       monthlyData[monthKey].ordenes += 1;
     });
 
@@ -169,45 +175,96 @@ export function SalesAnalytics() {
   };
 
   const processProductStats = async (orders: Order[]): Promise<ProductStats[]> => {
-    const productMap: { [sku: string]: { quantity: number; revenue: number } } = {};
+    const productMap: { [sku: string]: { 
+      quantity: number; 
+      revenue: number;
+      name: string;
+      category: string;
+    } } = {};
     
-    // Agregar cantidades y ingresos por SKU
+    // ✅ Usar datos ya incluidos en la respuesta
     orders.forEach(order => {
       if (order.details && Array.isArray(order.details)) {
         order.details.forEach(detail => {
           if (!productMap[detail.product_sku]) {
-            productMap[detail.product_sku] = { quantity: 0, revenue: 0 };
+            productMap[detail.product_sku] = { 
+              quantity: 0, 
+              revenue: 0,
+              name: detail.product?.name || detail.product_sku,
+              category: detail.product?.category || 'Sin categoría'
+            };
           }
+          
+          const price = typeof detail.price === 'string' 
+            ? parseFloat(detail.price) 
+            : detail.price;
+          
           productMap[detail.product_sku].quantity += detail.quantity;
-          productMap[detail.product_sku].revenue += parseFloat(detail.price) * detail.quantity;
+          productMap[detail.product_sku].revenue += price * detail.quantity;
         });
       }
     });
 
-    // Obtener información de productos
+    // Obtener información adicional de productos si es necesario
     const productStats: ProductStats[] = [];
+    const API_BASE = 'http://localhost:3000';
     
     for (const [sku, stats] of Object.entries(productMap)) {
       try {
-        const response = await fetch(`http://localhost:3000/api/search?sku=${sku}`);
-        const data = await response.json();
+        // Intentar obtener detalles completos del producto
+        const response = await fetch(`${API_BASE}/api/search?sku=${sku}`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          }
+        });
         
-        if (data.success && data.data.products && data.data.products.length > 0) {
-          const product = data.data.products[0];
-          productStats.push({
-            sku: product.sku,
-            name: product.name,
-            quantity: stats.quantity,
-            revenue: stats.revenue,
-            category: product.category,
-            procesator: product.components?.procesator || 'N/A',
-            ram: product.components?.ram || 'N/A',
-            gpu: product.components?.gpu || 'N/A',
-            garantee: product.garantee || 'N/A'
-          });
+        if (response.ok) {
+          const data = await response.json();
+          
+          if (data.success && data.data.products && data.data.products.length > 0) {
+            const product = data.data.products[0];
+            productStats.push({
+              sku: product.sku,
+              name: product.name,
+              quantity: stats.quantity,
+              revenue: stats.revenue,
+              category: product.category,
+              procesator: product.components?.procesator || 'N/A',
+              ram: product.components?.ram || 'N/A',
+              gpu: product.components?.gpu || 'N/A',
+              garantee: product.garantee || 'N/A'
+            });
+            continue;
+          }
         }
+        
+        // Si falla, usar datos básicos
+        productStats.push({
+          sku,
+          name: stats.name,
+          quantity: stats.quantity,
+          revenue: stats.revenue,
+          category: stats.category,
+          procesator: 'N/A',
+          ram: 'N/A',
+          gpu: 'N/A',
+          garantee: 'N/A'
+        });
       } catch (error) {
-        console.error(`Error al obtener producto ${sku}:`, error);
+        console.error(`❌ Error al obtener producto ${sku}:`, error);
+        // Agregar con datos básicos
+        productStats.push({
+          sku,
+          name: stats.name,
+          quantity: stats.quantity,
+          revenue: stats.revenue,
+          category: stats.category,
+          procesator: 'N/A',
+          ram: 'N/A',
+          gpu: 'N/A',
+          garantee: 'N/A'
+        });
       }
     }
 
@@ -224,10 +281,9 @@ export function SalesAnalytics() {
       categoryMap[product.category] += product.revenue;
     });
 
-    return Object.entries(categoryMap).map(([name, value]) => ({
-      name,
-      value: Math.round(value)
-    }));
+    return Object.entries(categoryMap)
+      .map(([name, value]) => ({ name, value: Math.round(value) }))
+      .sort((a, b) => b.value - a.value);
   };
 
   const processProcessorStats = (productStats: ProductStats[]) => {
@@ -241,10 +297,10 @@ export function SalesAnalytics() {
       processorMap[processor] += product.revenue;
     });
 
-    return Object.entries(processorMap).map(([name, value]) => ({
-      name,
-      value: Math.round(value)
-    }));
+    return Object.entries(processorMap)
+      .map(([name, value]) => ({ name, value: Math.round(value) }))
+      .filter(item => item.name !== 'N/A')
+      .sort((a, b) => b.value - a.value);
   };
 
   const processRamStats = (productStats: ProductStats[]) => {
@@ -258,10 +314,10 @@ export function SalesAnalytics() {
       ramMap[ram] += product.revenue;
     });
 
-    return Object.entries(ramMap).map(([name, value]) => ({
-      name,
-      value: Math.round(value)
-    }));
+    return Object.entries(ramMap)
+      .map(([name, value]) => ({ name, value: Math.round(value) }))
+      .filter(item => item.name !== 'N/A')
+      .sort((a, b) => b.value - a.value);
   };
 
   const processGpuStats = (productStats: ProductStats[]) => {
@@ -275,10 +331,10 @@ export function SalesAnalytics() {
       gpuMap[gpu] += product.revenue;
     });
 
-    return Object.entries(gpuMap).map(([name, value]) => ({
-      name,
-      value: Math.round(value)
-    }));
+    return Object.entries(gpuMap)
+      .map(([name, value]) => ({ name, value: Math.round(value) }))
+      .filter(item => item.name !== 'N/A')
+      .sort((a, b) => b.value - a.value);
   };
 
   const processGaranteeStats = (productStats: ProductStats[]) => {
@@ -292,29 +348,31 @@ export function SalesAnalytics() {
       garanteeMap[garantee] += product.revenue;
     });
 
-    return Object.entries(garanteeMap).map(([name, value]) => ({
-      name,
-      value: Math.round(value)
-    }));
+    return Object.entries(garanteeMap)
+      .map(([name, value]) => ({ name, value: Math.round(value) }))
+      .filter(item => item.name !== 'N/A')
+      .sort((a, b) => b.value - a.value);
   };
 
   const formatCurrency = (value: number) => {
-    return `$${value.toLocaleString('es-CL')}`;
+    return new Intl.NumberFormat('es-CL', {
+      style: 'currency',
+      currency: 'CLP'
+    }).format(value);
   };
 
-  // Obtener los datos actuales según el filtro activo
   const getCurrentFilterData = () => {
     switch (activeFilter) {
       case 'processor':
-        return processorStats;
+        return processorStats.length > 0 ? processorStats : [{ name: 'Sin datos', value: 0 }];
       case 'ram':
-        return ramStats;
+        return ramStats.length > 0 ? ramStats : [{ name: 'Sin datos', value: 0 }];
       case 'gpu':
-        return gpuStats;
+        return gpuStats.length > 0 ? gpuStats : [{ name: 'Sin datos', value: 0 }];
       case 'garantee':
-        return garanteeStats;
+        return garanteeStats.length > 0 ? garanteeStats : [{ name: 'Sin datos', value: 0 }];
       default:
-        return categoryStats;
+        return categoryStats.length > 0 ? categoryStats : [{ name: 'Sin datos', value: 0 }];
     }
   };
 
@@ -331,7 +389,7 @@ export function SalesAnalytics() {
             animation: 'spin 1s linear infinite',
             margin: '0 auto 1rem'
           }}></div>
-          <p style={{ color: '#64748b' }}>Cargando análisis...</p>
+          <p style={{ color: '#64748b' }}>Cargando análisis de ventas...</p>
         </div>
       </div>
     );
@@ -339,7 +397,7 @@ export function SalesAnalytics() {
 
   if (error) {
     return (
-      <div style={{ background: 'white', padding: '3rem', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', textAlign: 'center' }}>
+      <div style={{ background: 'white', padding: '3rem', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', textAlign: 'center', margin: '2rem' }}>
         <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📊</div>
         <h3 style={{ color: '#ef4444', marginBottom: '0.5rem' }}>Error al cargar análisis</h3>
         <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>{error}</p>
@@ -352,10 +410,13 @@ export function SalesAnalytics() {
             border: 'none',
             borderRadius: '8px',
             cursor: 'pointer',
-            fontWeight: 600
+            fontWeight: 600,
+            transition: 'all 0.3s ease'
           }}
+          onMouseOver={(e) => e.currentTarget.style.background = '#2563eb'}
+          onMouseOut={(e) => e.currentTarget.style.background = '#3b82f6'}
         >
-          Reintentar
+          🔄 Reintentar
         </button>
       </div>
     );
@@ -380,6 +441,16 @@ export function SalesAnalytics() {
         }
       `}</style>
 
+      {/* Título */}
+      <div style={{ marginBottom: '2rem' }}>
+        <h1 style={{ margin: '0 0 0.5rem 0', fontSize: '2rem', fontWeight: 'bold', color: '#1e293b' }}>
+          📊 Análisis de Ventas
+        </h1>
+        <p style={{ margin: 0, color: '#64748b' }}>
+          Estadísticas y métricas de pedidos completados
+        </p>
+      </div>
+
       {/* Resumen General */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
         <div style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', padding: '1.5rem', borderRadius: '12px', boxShadow: '0 4px 12px rgba(102,126,234,0.3)' }}>
@@ -395,7 +466,7 @@ export function SalesAnalytics() {
             <Calendar size={24} />
             <h3 style={{ margin: 0, fontSize: '0.875rem', opacity: 0.9 }}>Órdenes Completadas</h3>
           </div>
-          <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold' }}>{totalOrders}</p>
+          <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold' }}>{totalOrders.toLocaleString('es-CL')}</p>
         </div>
 
         <div style={{ background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', color: 'white', padding: '1.5rem', borderRadius: '12px', boxShadow: '0 4px 12px rgba(79,172,254,0.3)' }}>
@@ -412,156 +483,101 @@ export function SalesAnalytics() {
       {/* Gráfico de Ventas Mensuales */}
       <div style={{ background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', marginBottom: '2rem' }}>
         <h2 style={{ margin: '0 0 1.5rem 0', fontSize: '1.5rem', fontWeight: 'bold', color: '#1e293b' }}>
-          📊 Ventas por Mes
+          📈 Ventas por Mes
         </h2>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={monthlySales}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-            <XAxis dataKey="month" stroke="#64748b" />
-            <YAxis stroke="#64748b" tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`} />
-            <Tooltip 
-              formatter={(value: number) => formatCurrency(value)}
-              contentStyle={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '8px' }}
-            />
-            <Legend />
-            <Line type="monotone" dataKey="ventas" stroke="#3b82f6" strokeWidth={3} name="Ventas" />
-            <Line type="monotone" dataKey="ordenes" stroke="#10b981" strokeWidth={3} name="Órdenes" />
-          </LineChart>
-        </ResponsiveContainer>
+        {monthlySales.length > 0 ? (
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={monthlySales}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <XAxis dataKey="month" stroke="#64748b" />
+              <YAxis stroke="#64748b" tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`} />
+              <Tooltip 
+                formatter={(value: number) => formatCurrency(value)}
+                contentStyle={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '8px' }}
+              />
+              <Legend />
+              <Line type="monotone" dataKey="ventas" stroke="#3b82f6" strokeWidth={3} name="Ventas" />
+              <Line type="monotone" dataKey="ordenes" stroke="#10b981" strokeWidth={3} name="Órdenes" />
+            </LineChart>
+          </ResponsiveContainer>
+        ) : (
+          <p style={{ textAlign: 'center', color: '#64748b', padding: '3rem' }}>No hay datos suficientes para mostrar</p>
+        )}
       </div>
 
       {/* Productos Más y Menos Vendidos */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '2rem', marginBottom: '2rem' }}>
-        {/* Top 5 Más Vendidos */}
-        <div style={{ background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
-          <h2 style={{ margin: '0 0 1.5rem 0', fontSize: '1.25rem', fontWeight: 'bold', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <TrendingUp size={20} color="#10b981" />
-            Top 5 Productos Más Vendidos
-          </h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={topProducts} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-              <XAxis type="number" stroke="#64748b" />
-              <YAxis dataKey="name" type="category" width={150} stroke="#64748b" style={{ fontSize: '0.75rem' }} />
-              <Tooltip 
-                formatter={(value: number, name: string) => name === 'quantity' ? [`${value} unidades`, 'Cantidad'] : [formatCurrency(value), 'Ingresos']}
-                contentStyle={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '8px' }}
-              />
-              <Bar dataKey="quantity" fill="#10b981" name="Cantidad" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+      {topProducts.length > 0 && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '2rem', marginBottom: '2rem' }}>
+          <div style={{ background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
+            <h2 style={{ margin: '0 0 1.5rem 0', fontSize: '1.25rem', fontWeight: 'bold', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <TrendingUp size={20} color="#10b981" />
+              Top 5 Productos Más Vendidos
+            </h2>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={topProducts} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis type="number" stroke="#64748b" />
+                <YAxis dataKey="name" type="category" width={150} stroke="#64748b" style={{ fontSize: '0.75rem' }} />
+                <Tooltip 
+                  formatter={(value: number, name: string) => name === 'quantity' ? [`${value} unidades`, 'Cantidad'] : [formatCurrency(value), 'Ingresos']}
+                  contentStyle={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '8px' }}
+                />
+                <Bar dataKey="quantity" fill="#10b981" name="Cantidad" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
 
-        {/* Top 5 Menos Vendidos */}
-        <div style={{ background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
-          <h2 style={{ margin: '0 0 1.5rem 0', fontSize: '1.25rem', fontWeight: 'bold', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <TrendingDown size={20} color="#ef4444" />
-            Top 5 Productos Menos Vendidos
-          </h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={worstProducts} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-              <XAxis type="number" stroke="#64748b" />
-              <YAxis dataKey="name" type="category" width={150} stroke="#64748b" style={{ fontSize: '0.75rem' }} />
-              <Tooltip 
-                formatter={(value: number, name: string) => name === 'quantity' ? [`${value} unidades`, 'Cantidad'] : [formatCurrency(value), 'Ingresos']}
-                contentStyle={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '8px' }}
-              />
-              <Bar dataKey="quantity" fill="#ef4444" name="Cantidad" />
-            </BarChart>
-          </ResponsiveContainer>
+          <div style={{ background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
+            <h2 style={{ margin: '0 0 1.5rem 0', fontSize: '1.25rem', fontWeight: 'bold', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <TrendingDown size={20} color="#ef4444" />
+              Top 5 Productos Menos Vendidos
+            </h2>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={worstProducts} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis type="number" stroke="#64748b" />
+                <YAxis dataKey="name" type="category" width={150} stroke="#64748b" style={{ fontSize: '0.75rem' }} />
+                <Tooltip 
+                  formatter={(value: number, name: string) => name === 'quantity' ? [`${value} unidades`, 'Cantidad'] : [formatCurrency(value), 'Ingresos']}
+                  contentStyle={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '8px' }}
+                />
+                <Bar dataKey="quantity" fill="#ef4444" name="Cantidad" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Ventas por Categoría con Filtros */}
       <div style={{ background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
           <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold', color: '#1e293b' }}>
-            📈 Análisis de Ventas
+            🎯 Análisis Detallado
           </h2>
           
-          {/* Filtros */}
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            <button
-              onClick={() => setActiveFilter('category')}
-              style={{
-                padding: '0.5rem 1rem',
-                background: activeFilter === 'category' ? '#3b82f6' : '#f1f5f9',
-                color: activeFilter === 'category' ? 'white' : '#64748b',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontWeight: 600,
-                fontSize: '0.875rem',
-                transition: 'all 0.3s ease'
-              }}
-            >
-              Categoría
-            </button>
-            <button
-              onClick={() => setActiveFilter('processor')}
-              style={{
-                padding: '0.5rem 1rem',
-                background: activeFilter === 'processor' ? '#3b82f6' : '#f1f5f9',
-                color: activeFilter === 'processor' ? 'white' : '#64748b',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontWeight: 600,
-                fontSize: '0.875rem',
-                transition: 'all 0.3s ease'
-              }}
-            >
-              Procesador
-            </button>
-            <button
-              onClick={() => setActiveFilter('ram')}
-              style={{
-                padding: '0.5rem 1rem',
-                background: activeFilter === 'ram' ? '#3b82f6' : '#f1f5f9',
-                color: activeFilter === 'ram' ? 'white' : '#64748b',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontWeight: 600,
-                fontSize: '0.875rem',
-                transition: 'all 0.3s ease'
-              }}
-            >
-              Memoria RAM
-            </button>
-            <button
-              onClick={() => setActiveFilter('gpu')}
-              style={{
-                padding: '0.5rem 1rem',
-                background: activeFilter === 'gpu' ? '#3b82f6' : '#f1f5f9',
-                color: activeFilter === 'gpu' ? 'white' : '#64748b',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontWeight: 600,
-                fontSize: '0.875rem',
-                transition: 'all 0.3s ease'
-              }}
-            >
-              Tarjeta Gráfica
-            </button>
-            <button
-              onClick={() => setActiveFilter('garantee')}
-              style={{
-                padding: '0.5rem 1rem',
-                background: activeFilter === 'garantee' ? '#3b82f6' : '#f1f5f9',
-                color: activeFilter === 'garantee' ? 'white' : '#64748b',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontWeight: 600,
-                fontSize: '0.875rem',
-                transition: 'all 0.3s ease'
-              }}
-            >
-              Garantía
-            </button>
+            {['category', 'processor', 'ram', 'gpu', 'garantee'].map((filter) => (
+              <button
+                key={filter}
+                onClick={() => setActiveFilter(filter as any)}
+                style={{
+                  padding: '0.5rem 1rem',
+                  background: activeFilter === filter ? '#3b82f6' : '#f1f5f9',
+                  color: activeFilter === filter ? 'white' : '#64748b',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  fontSize: '0.875rem',
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                {filter === 'category' ? 'Categoría' :
+                 filter === 'processor' ? 'Procesador' :
+                 filter === 'ram' ? 'RAM' :
+                 filter === 'gpu' ? 'GPU' : 'Garantía'}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -586,11 +602,11 @@ export function SalesAnalytics() {
             </PieChart>
           </ResponsiveContainer>
           
-          <div>
+          <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
             {getCurrentFilterData().map((stat, index) => (
               <div key={stat.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', marginBottom: '0.5rem', background: '#f8fafc', borderRadius: '8px', borderLeft: `4px solid ${COLORS[index % COLORS.length]}` }}>
-                <span style={{ fontWeight: 600, color: '#1e293b' }}>{stat.name}</span>
-                <span style={{ color: '#64748b' }}>{formatCurrency(stat.value)}</span>
+                <span style={{ fontWeight: 600, color: '#1e293b', fontSize: '0.875rem' }}>{stat.name}</span>
+                <span style={{ color: '#64748b', fontSize: '0.875rem' }}>{formatCurrency(stat.value)}</span>
               </div>
             ))}
           </div>

@@ -1,11 +1,17 @@
 // src/types/order.types.ts
 
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
 export interface OrderDetail {
   id_detail_order: number;
   order_id: number;
   product_sku: string;
   quantity: number;
-  price: string;
+  price: string | number;
 }
 
 export interface Payment {
@@ -41,6 +47,17 @@ export interface OrderWithDetails extends Order {
   shipping?: Shipping;
 }
 
+export interface OrderSearchFilters {
+  startDate: string;
+  endDate: string;
+  userId: string | number;
+  userEmail: string;
+  productSku: string;
+  status: string;
+  page: number;
+  limit: number;
+}
+
 export interface OrderApiResponse {
   success: boolean;
   message: string;
@@ -59,4 +76,11 @@ export interface OrderDetailsApiResponse {
   success: boolean;
   message: string;
   data: OrderWithDetails;
+}
+
+export interface Pagination {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }

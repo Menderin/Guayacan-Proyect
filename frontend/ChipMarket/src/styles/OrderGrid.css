@@ -1,0 +1,159 @@
+/* src/styles/OrderGrid.css */
+
+.order-grid {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f1f5f9;
+  overflow: hidden;
+}
+
+/* Contador */
+.order-grid__counter {
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+/* Estados */
+.order-grid__loading,
+.order-grid__empty,
+.order-grid__initial {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 2rem;
+  text-align: center;
+}
+
+.order-grid__spinner {
+  width: 3rem;
+  height: 3rem;
+  color: #3b82f6;
+  animation: spin 0.8s linear infinite;
+}
+
+.order-grid__loading-text {
+  margin-top: 1rem;
+  color: #64748b;
+  font-size: 0.9375rem;
+}
+
+/* Error */
+.order-grid__error {
+  margin: 1.5rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  border: 2px solid #fecaca;
+  border-radius: 12px;
+}
+
+.order-grid__error-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.order-grid__error-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #dc2626;
+  flex-shrink: 0;
+}
+
+.order-grid__error-title {
+  font-weight: 600;
+  color: #991b1b;
+}
+
+.order-grid__error-message {
+  color: #991b1b;
+  margin: 0;
+}
+
+/* Empty */
+.order-grid__empty-icon {
+  width: 5rem;
+  height: 5rem;
+  color: #cbd5e1;
+  margin-bottom: 1rem;
+}
+
+.order-grid__empty-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0 0 0.5rem 0;
+}
+
+.order-grid__empty-text {
+  color: #64748b;
+  margin: 0;
+}
+
+/* Initial */
+.order-grid__initial {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border: 2px solid #bfdbfe;
+  border-radius: 12px;
+  margin: 1.5rem;
+  padding: 3rem 2rem;
+}
+
+.order-grid__initial-icon {
+  width: 5rem;
+  height: 5rem;
+  color: #60a5fa;
+  margin-bottom: 1rem;
+}
+
+.order-grid__initial-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0 0 0.5rem 0;
+}
+
+.order-grid__initial-text {
+  color: #64748b;
+  margin: 0;
+}
+
+/* Lista de pedidos */
+.order-grid__list {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Animaciones */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .order-grid__list {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .order-grid__loading,
+  .order-grid__empty,
+  .order-grid__initial {
+    padding: 3rem 1.5rem;
+  }
+
+  .order-grid__empty-icon,
+  .order-grid__initial-icon {
+    width: 4rem;
+    height: 4rem;
+  }
+}

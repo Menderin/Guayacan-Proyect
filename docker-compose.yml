@@ -5,7 +5,7 @@ services:
       context: ./frontend/ChipMarket
       dockerfile: Dockerfile
     container_name: guayacan_frontend
-    restart: always
+    restart: unless-stopped
     ports:
       - "5173:5173"
     environment:
@@ -24,7 +24,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: guayacan_backend
-    restart: always
+    restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
@@ -61,7 +61,7 @@ services:
   postgres:
     image: postgres:15-alpine
     container_name: guayacan_postgres
-    restart: always
+    restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}

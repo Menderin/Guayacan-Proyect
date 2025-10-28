@@ -1003,7 +1003,7 @@ export class OrderService {
   }
 
   async updateOrderStatus(orderId: number, newStatus: string): Promise<{ success: boolean; message: string; order?: any }> {
-  const validStatuses = ['Pending', 'In_preparation', 'Shipped', 'Delivered', 'Completed', 'Cancelled'];
+  const validStatuses = ['Pending', 'Completed'];
 
   // Validar estado
   if (!validStatuses.includes(newStatus)) {

@@ -63,12 +63,10 @@ export const UpdateOrderStatusPage: React.FC = () => {
     setSelectedOrder({ ...selectedOrder, status: newStatus });
   };
 
-  const handleFieldChange = (field: keyof Order | keyof Shipping, value: any) => {
+  const handleFieldChange = (field: keyof Shipping, value: any) => {
     if (!selectedOrder) return;
-    if (selectedOrder.shipping && field in selectedOrder.shipping) {
+    if (selectedOrder.shipping) {
       setSelectedOrder({ ...selectedOrder, shipping: { ...selectedOrder.shipping, [field]: value } });
-    } else {
-      setSelectedOrder({ ...selectedOrder, [field]: value });
     }
   };
 
@@ -81,7 +79,7 @@ export const UpdateOrderStatusPage: React.FC = () => {
       const response = await authenticatedFetch(`/api/orders/${selectedOrder.id_order}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(selectedOrder)
+        body: JSON.stringify({ status: selectedOrder.status })
       });
       const result = await response.json();
       if (!result.success) alert(result.message || 'Error al guardar');
@@ -146,10 +144,7 @@ export const UpdateOrderStatusPage: React.FC = () => {
             <span>Estado:</span>
             <select value={selectedOrder.status} onChange={e => handleStatusChange(e.target.value)}>
               <option value="Pending">Pendiente</option>
-              <option value="InPreparation">En preparación</option>
-              <option value="Shipped">Enviado</option>
-              <option value="Delivered">Entregado</option>
-              <option value="Cancelled">Cancelado</option>
+              <option value="Completed">Completado</option>
             </select>
           </div>
           <div className="order-details-field">

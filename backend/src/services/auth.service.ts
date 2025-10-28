@@ -61,7 +61,7 @@ export const registerUser = async (
   const token = generateToken({
     userId: newUser.id,
     email: newUser.email,
-    role: newUser.id_role,
+    id_role: newUser.id_role
   });
 
   return { user: newUser, token };
@@ -102,7 +102,7 @@ export const loginUser = async (
   const token = generateToken({
     userId: userResponse.id,
     email: userResponse.email,
-    role: userResponse.id_role,
+    id_role: userResponse.id_role,
   });
 
   return { user: userResponse, token };

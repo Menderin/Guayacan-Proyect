@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import FilterOrders from '../../pages/Admin/Orders/FilterOrders';
-import { UserEditPage } from '../../pages/Admin/Users/UserEditPage';
+import { UpdateOrderStatusPage } from '../../pages/Admin/Orders/UpdateOrderStatusPage';
 import { CreateUserPage } from '../../pages/Admin/Users/CreateUserPage';
 import { RefundManagementPage } from '../../pages/Admin/Orders/RefoundManagementPage';
 import  SalesAnalyticsPage  from '../../pages/Admin/Orders/SalesAnalyticsPage';
@@ -48,7 +48,7 @@ export const OrderManagement: React.FC = () => {
 
                 {activeOrderTab === 'add' && <CreateUserPage />}
 
-                {activeOrderTab === 'edit' && <UserEditPage />}
+                {activeOrderTab === 'edit' && <UpdateOrderStatusPage />}
 
                 {activeOrderTab === 'refused' && <RefundManagementPage />}
 

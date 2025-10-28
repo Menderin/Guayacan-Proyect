@@ -50,7 +50,7 @@ export const authorizeRoles = (...allowedRoles: number[]) => {
       return;
     }
 
-    if (!allowedRoles.includes(req.user.id_role)) {
+    if (!allowedRoles.includes(req.user.role)) {
       res.status(403).json({
         success: false,
         message: 'No tienes permisos para acceder a este recurso',
@@ -68,7 +68,8 @@ export const authorizeRoles = (...allowedRoles: number[]) => {
 //export const isAdmin = authorizeRoles(1);
 
 export const isAdmin = (req: IAuthRequest, res: Response, next: NextFunction): void => {
-  if (req.user?.id_role !== 1) {
+
+  if (req.user?.role !== 1) {
     res.status(403).json({
       success: false,
       message: 'Acceso denegado. Solo para Administradores',
@@ -94,7 +95,7 @@ export const isAdminOrOwner = (userIdParam: string = 'id') => {
     const resourceUserId = parseInt(req.params[userIdParam]);
 
     // Si es admin o es el dueño del recurso
-    if (req.user.id_role === 1 || req.user.userId === resourceUserId) {
+    if (req.user.role === 1 || req.user.userId === resourceUserId) {
       next();
       return;
     }
@@ -107,7 +108,7 @@ export const isAdminOrOwner = (userIdParam: string = 'id') => {
 };
 
 export const isClient = (req: IAuthRequest, res: Response, next: NextFunction): void => {
-  if (req.user?.id_role !== 2) {
+  if (req.user?.role !== 2) {
     res.status(403).json({
       success: false,
       message: 'Acceso denegado. Solo para clientes',

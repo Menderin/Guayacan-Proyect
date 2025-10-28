@@ -14,7 +14,6 @@ import {
   getOrderDetailsById,
   getOrdersByStatus,
 
-
   // Controladores de reembolsos
   processRefund,
   processPartialRefund,
@@ -23,7 +22,8 @@ import {
   
   // Búsqueda avanzada
   getOrdersWithFilters,
-  getOrdersSummary
+  getOrdersSummary,
+  updateOrderStatus
 } from '../controllers/order.controller';
 import { authenticateToken, isClient, isAdmin } from '../middlewares/auth.middleware';
 
@@ -156,6 +156,8 @@ router.post('/:orderId/refund', processRefund);
  * Requiere: Admin
  */
 router.post('/:orderId/partial-refund', authenticateToken, isAdmin, processPartialRefund);
+
+router.put('/:orderId/status', authenticateToken, isAdmin, updateOrderStatus);
 
 export default router;
 

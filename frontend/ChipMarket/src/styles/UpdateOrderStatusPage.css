@@ -1,0 +1,130 @@
+/* src/styles/UpdateOrderStatusPage.css */
+
+.update-order-status-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.back-btn,
+.reload-btn,
+.save-btn {
+  padding: 8px 14px;
+  border: none;
+  background-color: #1976d2;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
+}
+
+.back-btn:hover,
+.reload-btn:hover,
+.save-btn:hover {
+  background-color: #115293;
+}
+
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.orders-table th,
+.orders-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+.orders-table th {
+  background-color: #f0f0f0;
+}
+
+.orders-table tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+.orders-table tr:hover {
+  background-color: #f5f5f5;
+}
+
+.orders-table select {
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.orders-table select:disabled {
+  background-color: #e0e0e0;
+  cursor: not-allowed;
+}
+
+/* Detalles de pedido expandido */
+.order-details-card {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background-color: #fafafa;
+}
+
+.order-details-card h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+}
+
+.order-details-field {
+  display: flex;
+  margin-bottom: 8px;
+  align-items: center;
+}
+
+.order-details-field span {
+  min-width: 120px;
+  font-weight: bold;
+}
+
+.order-details-field input,
+.order-details-field select {
+  flex: 1;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.order-details-actions {
+  margin-top: 12px;
+  text-align: right;
+}
+
+.order-details-actions button {
+  margin-left: 8px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  background-color: #1976d2;
+  color: white;
+  transition: background-color 0.2s ease;
+}
+
+.order-details-actions button:hover {
+  background-color: #115293;
+}

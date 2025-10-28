@@ -437,6 +437,55 @@ export const processPartialRefund = async (req: AuthenticatedRequest, res: Respo
 };
 
 /**
+ * PUT /api/orders/:orderId/status
+ * Actualizar el estado de un pedido
+ * Requiere: Admin
+ * Body: { status: string }
+ */
+export const updateOrderStatus = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const orderId = parseInt(req.params.orderId);
+    const { status } = req.body;
+    const adminUserId = req.user?.userId;
+
+    // Validaciones
+    if (isNaN(orderId)) {
+      return ApiResponse.error(res, 'ID de pedido inválido', 400);
+    }
+
+    if (!status || status.trim() === '') {
+      return ApiResponse.error(res, 'Debe proporcionar un nuevo estado', 400);
+    }
+
+    // Actualizar pedido usando servicio
+    const result = await orderService.updateOrderStatus(orderId, status);
+
+    if (!result.success) {
+      return ApiResponse.error(res, result.message || 'No se pudo actualizar el pedido', 400);
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Estado del pedido actualizado exitosamente',
+      data: {
+        id_order: orderId,
+        new_status: status,
+        updated_by: adminUserId,
+        updated_at: new Date().toISOString()
+      }
+    });
+
+  } catch (error) {
+    console.error('Error al actualizar el estado del pedido:', error);
+    return ApiResponse.error(
+      res,
+      error instanceof Error ? error.message : 'Error interno del servidor',
+      500
+    );
+  }
+};
+
+/**
  * GET /api/orders/:orderId/can-refund
  * Verificar si un pedido puede ser reembolsado
  * Requiere: Admin

@@ -1001,4 +1001,34 @@ export class OrderService {
       throw error;
     }
   }
+
+  async updateOrderStatus(orderId: number, newStatus: string): Promise<{ success: boolean; message: string; order?: any }> {
+  const validStatuses = ['Pending', 'In_preparation', 'Shipped', 'Delivered', 'Completed', 'Cancelled'];
+
+  // Validar estado
+  if (!validStatuses.includes(newStatus)) {
+    return {
+      success: false,
+      message: `Estado inválido. Los estados válidos son: ${validStatuses.join(', ')}`
+    };
+  }
+
+  // Buscar pedido
+  const order = await Order.findByPk(orderId);
+  if (!order) {
+    return {
+      success: false,
+      message: 'Pedido no encontrado'
+    };
+  }
+
+  // Actualizar
+  await order.update({ status: newStatus });
+
+  return {
+    success: true,
+    message: `Estado del pedido actualizado a "${newStatus}".`,
+    order
+  };
+}
 }

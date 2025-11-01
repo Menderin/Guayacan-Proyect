@@ -15,7 +15,7 @@ interface UseProductsReturn {
 /**
  * Hook para buscar y gestionar productos
  */
-export const useProducts = (): UseProductsReturn => {
+export function useProducts(): UseProductsReturn {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -108,4 +108,4 @@ export const useProducts = (): UseProductsReturn => {
     getProductBySku,
     reset
   };
-};
+}

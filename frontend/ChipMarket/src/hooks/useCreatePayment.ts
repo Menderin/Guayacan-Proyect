@@ -23,7 +23,7 @@ interface UseCreatePaymentReturn {
 /**
  * Hook para crear pagos con validaciones
  */
-export const useCreatePayment = (): UseCreatePaymentReturn => {
+export function useCreatePayment(): UseCreatePaymentReturn {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -157,4 +157,4 @@ export const useCreatePayment = (): UseCreatePaymentReturn => {
     reset,
     validatePayment
   };
-};
+}

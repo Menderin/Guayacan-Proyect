@@ -17,7 +17,7 @@ interface UseCreateOrderReturn {
 /**
  * Hook para crear pedidos con validaciones
  */
-export const useCreateOrder = (): UseCreateOrderReturn => {
+export function useCreateOrder(): UseCreateOrderReturn {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -121,4 +121,4 @@ export const useCreateOrder = (): UseCreateOrderReturn => {
     reset,
     validateOrder
   };
-};
+}

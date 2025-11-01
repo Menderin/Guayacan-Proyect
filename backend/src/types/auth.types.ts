@@ -1,3 +1,4 @@
+// types/auth.types.ts
 import { Request } from 'express';
 
 export interface IUser {
@@ -41,6 +42,9 @@ export interface IJWTPayload {
   userId: number;
   email: string;
   id_role: number;
+  role?: number;
+  iat?: number;
+  exp?: number;
 }
 
 export interface IAuthRequest extends Request {

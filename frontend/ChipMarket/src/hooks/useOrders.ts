@@ -18,7 +18,7 @@ interface UseOrdersReturn {
 /**
  * Hook para gestionar pedidos
  */
-export const useOrders = (): UseOrdersReturn => {
+export function useOrders(): UseOrdersReturn {
   const [orders, setOrders] = useState<OrderWithUser[]>([]);
   const [pendingOrders, setPendingOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
@@ -123,4 +123,4 @@ export const useOrders = (): UseOrdersReturn => {
     getAllOrders,
     reset
   };
-};
+}

@@ -558,3 +558,91 @@ export const getRefundHistory = async (req: Request, res: Response) => {
     );
   }
 };
+
+export const createOrder = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { 
+      userId, 
+      products, 
+      paymentMethod, 
+      shippingAddress, 
+      status 
+    } = req.body;
+
+    // ========================================
+    // VALIDACIONES
+    // ========================================
+    if (!userId || !products || !paymentMethod) {
+      return ApiResponse.error(
+        res, 
+        'Faltan campos requeridos: userId, products, paymentMethod', 
+        400
+      );
+    }
+
+    if (!Array.isArray(products) || products.length === 0) {
+      return ApiResponse.error(
+        res, 
+        'Debe incluir al menos un producto', 
+        400
+      );
+    }
+
+    // Validar estructura de productos
+    for (const product of products) {
+      if (!product.sku || !product.quantity) {
+        return ApiResponse.error(
+          res, 
+          'Cada producto debe tener "sku" y "quantity"', 
+          400
+        );
+      }
+
+      if (typeof product.quantity !== 'number' || product.quantity <= 0) {
+        return ApiResponse.error(
+          res, 
+          'La cantidad debe ser un número mayor a 0', 
+          400
+        );
+      }
+    }
+
+    // Validar dirección de envío si se proporciona
+    if (shippingAddress) {
+      if (!shippingAddress.address || !shippingAddress.city) {
+        return ApiResponse.error(
+          res, 
+          'La dirección de envío debe incluir "address" y "city"', 
+          400
+        );
+      }
+    }
+
+    // ========================================
+    // CREAR PEDIDO
+    // ========================================
+    const orderResult = await orderService.createOrder({
+      userId,
+      products,
+      paymentMethod,
+      shippingAddress,
+      status
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: 'Pedido creado exitosamente',
+      data: orderResult
+    });
+
+  } catch (error) {
+    console.error('Error al crear pedido:', error);
+    return ApiResponse.error(
+      res,
+      error instanceof Error ? error.message : 'Error al crear pedido',
+      error instanceof Error && error.message.includes('no encontrado') ? 404 :
+      error instanceof Error && error.message.includes('insuficiente') ? 400 :
+      500
+    );
+  }
+};

@@ -1031,4 +1031,202 @@ export class OrderService {
     order
   };
 }
+
+  // ========================================
+  // CREAR NUEVO PEDIDO
+  // ========================================
+
+  async createOrder(orderData: {
+    userId: number;
+    products: Array<{ sku: string; quantity: number }>;
+    paymentMethod: string;
+    shippingAddress?: {
+      address: string;
+      city: string;
+      transportCompany?: string;
+    };
+    status?: string;
+  }) {
+    const transaction = await sequelize.transaction();
+
+    try {
+      const { userId, products, paymentMethod, shippingAddress, status = 'Pending' } = orderData;
+
+      // ========================================
+      // 1. VALIDAR USUARIO
+      // ========================================
+      const user = await User.findByPk(userId);
+      if (!user) {
+        await transaction.rollback();
+        throw new Error('Usuario no encontrado');
+      }
+
+      // ========================================
+      // 2. VALIDAR Y OBTENER PRODUCTOS DE MONGODB
+      // ========================================
+      const productDetails: Array<{
+        sku: string;
+        name: string;
+        price: number;
+        stock: number;
+        quantity: number;
+      }> = [];
+
+      let totalAmount = 0;
+
+      for (const item of products) {
+        const product = await Producto.findOne({ sku: item.sku });
+
+        if (!product) {
+          await transaction.rollback();
+          throw new Error(`Producto con SKU "${item.sku}" no encontrado`);
+        }
+
+        // Validar stock disponible
+        if (product.stock < item.quantity) {
+          await transaction.rollback();
+          throw new Error(
+            `Stock insuficiente para "${product.name}". ` +
+            `Disponible: ${product.stock}, Solicitado: ${item.quantity}`
+          );
+        }
+
+        // Validar cantidad positiva
+        if (item.quantity <= 0) {
+          await transaction.rollback();
+          throw new Error(`La cantidad debe ser mayor a 0 para el producto "${product.name}"`);
+        }
+
+        productDetails.push({
+          sku: product.sku,
+          name: product.name,
+          price: product.price,
+          stock: product.stock,
+          quantity: item.quantity
+        });
+
+        totalAmount += product.price * item.quantity;
+      }
+
+      // ========================================
+      // 3. CREAR ORDEN EN POSTGRESQL
+      // ========================================
+      const order = await Order.create(
+        {
+          user_id: userId,
+          status: status,
+          total_amount: totalAmount,
+          order_date: new Date()
+        },
+        { transaction }
+      );
+
+      // ========================================
+      // 4. CREAR DETALLES DEL PEDIDO
+      // ========================================
+      const orderDetailsData = productDetails.map(product => ({
+        order_id: order.id_order,
+        product_sku: product.sku,
+        quantity: product.quantity,
+        price: product.price
+      }));
+
+      const createdDetails = await OrderDetail.bulkCreate(orderDetailsData, { transaction });
+
+      // ========================================
+      // 5. ACTUALIZAR STOCK EN MONGODB
+      // ========================================
+      for (const product of productDetails) {
+        await Producto.updateOne(
+          { sku: product.sku },
+          {
+            $inc: { stock: -product.quantity }
+          }
+        );
+      }
+
+      // ========================================
+      // 6. CREAR PAGO
+      // ========================================
+      const payment = await Payment.create(
+        {
+          order_id: order.id_order,
+          payment_method: paymentMethod,
+          amount: totalAmount,
+          status: 'Pending',
+          payment_date: new Date()
+        },
+        { transaction }
+      );
+
+      // ========================================
+      // 7. CREAR ENVÍO (SI SE PROPORCIONA)
+      // ========================================
+      let shipping = null;
+      if (shippingAddress) {
+        shipping = await Shipping.create(
+          {
+            order_id: order.id_order,
+            address: shippingAddress.address,
+            city: shippingAddress.city,
+            transport_company: shippingAddress.transportCompany || 'Por definir',
+            status: 'Processing',
+            shipping_date: new Date()
+          },
+          { transaction }
+        );
+      }
+
+      // ========================================
+      // 8. CONFIRMAR TRANSACCIÓN
+      // ========================================
+      await transaction.commit();
+
+      // ========================================
+      // 9. FORMATEAR RESPUESTA
+      // ========================================
+      return {
+        order: {
+          id_order: order.id_order,
+          user_id: order.user_id,
+          order_date: order.order_date,
+          status: order.status,
+          total_amount: parseFloat(order.total_amount.toString())
+        },
+        details: createdDetails.map((detail, index) => ({
+          id_detail_order: detail.id_detail_order,
+          product_sku: detail.product_sku,
+          product_name: productDetails[index].name,
+          quantity: detail.quantity,
+          price: parseFloat(detail.price.toString()),
+          subtotal: parseFloat(detail.price.toString()) * detail.quantity
+        })),
+        payment: {
+          id_payment: payment.id_payment,
+          payment_method: payment.payment_method,
+          amount: parseFloat(payment.amount.toString()),
+          status: payment.status
+        },
+        shipping: shipping ? {
+          id_shipping: shipping.id_shipping,
+          address: shipping.address,
+          city: shipping.city,
+          status: shipping.status,
+          transport_company: shipping.transport_company
+        } : undefined,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email
+        }
+      };
+
+    } catch (error) {
+      await transaction.rollback();
+      console.error('Error al crear pedido:', error);
+      throw error;
+    }
+  }
+
 }
+

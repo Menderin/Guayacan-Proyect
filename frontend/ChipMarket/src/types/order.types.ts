@@ -84,3 +84,57 @@ export interface Pagination {
   limit: number;
   totalPages: number;
 }
+
+export type OrderStatus = 'Pending' | 'Completed' | 'Cancelled' | 'Processing';
+
+export interface OrderProductInput {
+  sku: string;
+  quantity: number;
+  name?: string; // Info adicional para UI
+  price?: number; // Info adicional para UI
+  stock?: number; // Info adicional para UI
+}
+
+export interface ShippingAddress {
+  address: string;
+  city: string;
+  transportCompany?: string;
+}
+
+export interface CreateOrderDTO {
+  userId: number;
+  products: OrderProductInput[];
+  paymentMethod: string;
+  shippingAddress?: ShippingAddress;
+  status?: OrderStatus;
+}
+
+export interface CreateOrderApiResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    order: Order;
+    details: OrderDetail[];
+    payment: Payment;
+    shipping?: Shipping;
+  };
+}
+
+export interface OrderSummary {
+  subtotal: number;
+  tax: number;
+  shipping: number;
+  total: number;
+  itemCount: number;
+}
+
+export interface OrderWithUser extends Order {
+  user?: User;
+}
+
+export interface OrderSearchApiResponse {
+  success: boolean;
+  message: string;
+  data: OrderWithUser[];
+  pagination: Pagination;
+}

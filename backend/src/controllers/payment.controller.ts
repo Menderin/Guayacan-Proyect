@@ -76,7 +76,244 @@ export const getPaymentsByStatus = async (req: Request, res: Response) => {
   }
 };
 
+// ========================================
+// CREAR NUEVO PAGO
+// ========================================
 
+/**
+ * POST /api/payments
+ * Crear un nuevo pago asociado a un pedido
+ * Requiere: Admin
+ * Body: { orderId, paymentMethod, amount, status? }
+ */
+export const createPayment = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { orderId, paymentMethod, amount, status } = req.body;
+
+    // Validaciones
+    if (!orderId || !paymentMethod || !amount) {
+      return ApiResponse.error(
+        res,
+        'Faltan campos requeridos: orderId, paymentMethod, amount',
+        400
+      );
+    }
+
+    if (typeof amount !== 'number' || amount <= 0) {
+      return ApiResponse.error(
+        res,
+        'El monto debe ser un número mayor a 0',
+        400
+      );
+    }
+
+    if (typeof orderId !== 'number') {
+      return ApiResponse.error(
+        res,
+        'El orderId debe ser un número',
+        400
+      );
+    }
+
+    // Validar estado si se proporciona
+    const validStatuses = ['Pending', 'Completed', 'Failed', 'Refunded'];
+    if (status && !validStatuses.includes(status)) {
+      return ApiResponse.error(
+        res,
+        `Estado inválido. Los estados válidos son: ${validStatuses.join(', ')}`,
+        400
+      );
+    }
+
+    // Crear pago
+    const result = await paymentService.createPayment({
+      orderId,
+      paymentMethod,
+      amount,
+      status
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: 'Pago registrado exitosamente',
+      data: result
+    });
+
+  } catch (error) {
+    console.error('Error al crear pago:', error);
+    return ApiResponse.error(
+      res,
+      error instanceof Error ? error.message : 'Error al crear pago',
+      error instanceof Error && error.message.includes('no encontrado') ? 404 :
+      error instanceof Error && error.message.includes('excede') ? 400 :
+      error instanceof Error && error.message.includes('cancelado') ? 400 :
+      500
+    );
+  }
+};
+
+// ========================================
+// ACTUALIZAR PAGO
+// ========================================
+
+/**
+ * PUT /api/payments/:paymentId
+ * Actualizar el estado de un pago existente
+ * Requiere: Admin
+ * Body: { status }
+ */
+export const updatePayment = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const paymentId = parseInt(req.params.paymentId);
+    const { status } = req.body;
+
+    if (isNaN(paymentId)) {
+      return ApiResponse.error(res, 'ID de pago inválido', 400);
+    }
+
+    if (!status) {
+      return ApiResponse.error(
+        res,
+        'Debe proporcionar un estado para actualizar',
+        400
+      );
+    }
+
+    // Validar estado
+    const validStatuses = ['Pending', 'Completed', 'Failed', 'Refunded'];
+    if (!validStatuses.includes(status)) {
+      return ApiResponse.error(
+        res,
+        `Estado inválido. Los estados válidos son: ${validStatuses.join(', ')}`,
+        400
+      );
+    }
+
+    const result = await paymentService.updatePayment(paymentId, { status });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Pago actualizado exitosamente',
+      data: result
+    });
+
+  } catch (error) {
+    console.error('Error al actualizar pago:', error);
+    return ApiResponse.error(
+      res,
+      error instanceof Error ? error.message : 'Error al actualizar pago',
+      error instanceof Error && error.message.includes('no encontrado') ? 404 :
+      error instanceof Error && error.message.includes('reembolsado') ? 400 :
+      500
+    );
+  }
+};
+
+// ========================================
+// OBTENER DETALLES DE UN PAGO
+// ========================================
+
+/**
+ * GET /api/payments/:paymentId
+ * Obtener detalles completos de un pago específico
+ * Requiere: Admin
+ */
+export const getPaymentDetails = async (req: Request, res: Response) => {
+  try {
+    const paymentId = parseInt(req.params.paymentId);
+
+    if (isNaN(paymentId)) {
+      return ApiResponse.error(res, 'ID de pago inválido', 400);
+    }
+
+    const payment = await paymentService.getPaymentById(paymentId);
+
+    if (!payment) {
+      return ApiResponse.error(res, 'Pago no encontrado', 404);
+    }
+
+    return ApiResponse.success(
+      res,
+      payment,
+      'Detalles del pago obtenidos exitosamente'
+    );
+
+  } catch (error) {
+    console.error('Error al obtener pago:', error);
+    return ApiResponse.error(
+      res,
+      error instanceof Error ? error.message : 'Error al obtener pago',
+      500
+    );
+  }
+};
+
+// ========================================
+// ELIMINAR PAGO
+// ========================================
+
+/**
+ * DELETE /api/payments/:paymentId
+ * Eliminar un pago pendiente o fallido
+ * Requiere: Admin
+ */
+export const deletePayment = async (req: Request, res: Response) => {
+  try {
+    const paymentId = parseInt(req.params.paymentId);
+
+    if (isNaN(paymentId)) {
+      return ApiResponse.error(res, 'ID de pago inválido', 400);
+    }
+
+    const result = await paymentService.deletePayment(paymentId);
+
+    return ApiResponse.success(
+      res,
+      result,
+      'Pago eliminado exitosamente'
+    );
+
+  } catch (error) {
+    console.error('Error al eliminar pago:', error);
+    return ApiResponse.error(
+      res,
+      error instanceof Error ? error.message : 'Error al eliminar pago',
+      error instanceof Error && error.message.includes('no encontrado') ? 404 :
+      error instanceof Error && error.message.includes('completado') ? 400 :
+      error instanceof Error && error.message.includes('reembolsado') ? 400 :
+      500
+    );
+  }
+};
+
+// ========================================
+// OBTENER ESTADÍSTICAS DE PAGOS
+// ========================================
+
+/**
+ * GET /api/payments/stats
+ * Obtener estadísticas generales de pagos
+ * Requiere: Admin
+ */
+export const getPaymentStats = async (req: Request, res: Response) => {
+  try {
+    const stats = await paymentService.getPaymentStats();
+
+    return ApiResponse.success(
+      res,
+      stats,
+      'Estadísticas de pagos obtenidas exitosamente'
+    );
+
+  } catch (error) {
+    console.error('Error al obtener estadísticas:', error);
+    return ApiResponse.error(
+      res,
+      error instanceof Error ? error.message : 'Error al obtener estadísticas',
+      500
+    );
+  }
+};
 
 
 

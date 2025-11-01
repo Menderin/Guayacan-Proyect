@@ -13,6 +13,7 @@ import {
   getPaymentsByOrderId,
   getOrderDetailsById,
   getOrdersByStatus,
+  createOrder,
 
   // Controladores de reembolsos
   processRefund,
@@ -82,6 +83,15 @@ router.get('/my-payments', authenticateToken, isClient, getMyPayments);
 // ========================================
 
 /**
+ * POST /api/orders
+ * Crear un nuevo pedido
+ * Body: { userId, products: [{sku, quantity}], paymentMethod, shippingAddress?, status? }
+ * Requiere: Admin
+ */
+router.post('/', authenticateToken, isAdmin, createOrder);
+
+
+/**
  * GET /api/orders/all
  * Obtener todos los pedidos del sistema
  * Requiere: Admin
@@ -120,6 +130,8 @@ router.get('/payments/:orderId', authenticateToken, isAdmin, getPaymentsByOrderI
  * IMPORTANTE: Esta ruta debe ir al final para evitar conflictos con otras rutas
  */
 router.get('/:orderId', authenticateToken, isAdmin, getOrderDetailsById);
+
+
 
 
 // ========================================

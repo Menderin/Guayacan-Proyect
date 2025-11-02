@@ -470,6 +470,44 @@ export class PaymentService {
     return stats;
   }
 
+  /**
+   * Obtener pagos de un pedido específico
+   * Retorna solo los pagos asociados a un pedido en particular
+   */
+  async getPaymentsByOrderId(orderId: number): Promise<any[]> {
+    const payments = await Payment.findAll({
+      where: { order_id: orderId },
+      include: [
+        {
+          model: Order,
+          as: 'order',
+          attributes: ['id_order', 'order_date', 'status', 'total_amount', 'user_id'],
+          include: [
+            {
+              model: User,
+              as: 'user',
+              attributes: ['id', 'name', 'email']
+            },
+            {
+              model: OrderDetail,
+              as: 'details',
+              attributes: ['id_detail_order', 'product_sku', 'quantity', 'price']
+            }
+          ]
+        }
+      ],
+      order: [['payment_date', 'DESC']]
+    });
+
+    // Si no hay pagos, retornar array vacío
+    if (!payments || payments.length === 0) {
+      return [];
+    }
+
+    // Enriquecer con productos de MongoDB
+    return this.enrichPaymentsWithProducts(payments);
+  }
+
 
   // ========================================
   // CREAR NUEVO PAGO
@@ -540,6 +578,11 @@ export class PaymentService {
         throw new Error(
           `El monto del pago ($${amount.toLocaleString()}) excede el monto pendiente ($${remainingAmount.toLocaleString()})`
         );
+      }
+
+      if (remainingAmount === 0) {
+        await transaction.rollback();
+        throw new Error('Este pedido ya está completamente pagado. No se pueden registrar más pagos.');
       }
 
       // Validar monto positivo

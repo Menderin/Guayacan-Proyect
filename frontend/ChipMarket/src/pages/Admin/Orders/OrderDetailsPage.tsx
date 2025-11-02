@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import type { OrderWithDetails, OrderDetailsApiResponse } from '../../../types/order.types';
 import { authenticatedFetch } from '../../../utils/api.helper';
-import '../../../styles/OrderDetailsPage.css'; // Importar el CSS
+import '../../../styles/OrderDetailsPage.css';
 
 interface OrderDetailsPageProps {
   orderId: number;
@@ -60,8 +60,8 @@ export const OrderDetailsPage: React.FC<OrderDetailsPageProps> = ({ orderId, onB
     });
   };
 
-  const formatPrice = (price: string) => {
-    const numPrice = parseFloat(price);
+  const formatPrice = (price: string | number) => {
+    const numPrice = typeof price === 'string' ? parseFloat(price) : price;
     return new Intl.NumberFormat('es-CL', {
       style: 'currency',
       currency: 'CLP'
@@ -73,9 +73,31 @@ export const OrderDetailsPage: React.FC<OrderDetailsPageProps> = ({ orderId, onB
       pending: 'status-badge--pending',
       completed: 'status-badge--completed',
       cancelled: 'status-badge--cancelled',
-      processing: 'status-badge--processing'
+      processing: 'status-badge--processing',
+      failed: 'status-badge--failed'
     };
     return classes[status.toLowerCase()] || '';
+  };
+
+  // ✅ NUEVA FUNCIÓN: Calcular el total real (solo pagos COMPLETED)
+  const calculateActualTotal = (order: OrderWithDetails): number => {
+    if (!order.payments || order.payments.length === 0) {
+      return typeof order.total_amount === 'string' 
+        ? parseFloat(order.total_amount) 
+        : order.total_amount;
+    }
+
+    // Sumar solo pagos COMPLETED
+    const completedTotal = order.payments
+      .filter(payment => payment.status.toUpperCase() === 'COMPLETED')
+      .reduce((sum, payment) => {
+        const amount = typeof payment.amount === 'string' 
+          ? parseFloat(payment.amount) 
+          : payment.amount;
+        return sum + amount;
+      }, 0);
+
+    return completedTotal;
   };
 
   if (loading) {
@@ -112,6 +134,9 @@ export const OrderDetailsPage: React.FC<OrderDetailsPageProps> = ({ orderId, onB
     );
   }
 
+  // ✅ CALCULAR TOTAL REAL
+  const actualTotal = calculateActualTotal(order);
+
   return (
     <div className="order-details-layout">
       {/* Header */}
@@ -133,7 +158,7 @@ export const OrderDetailsPage: React.FC<OrderDetailsPageProps> = ({ orderId, onB
               {order.status}
             </span>
             <p className="order-details-header__total">
-              {formatPrice(order.total_amount)}
+              Total: {formatPrice(actualTotal)}
             </p>
           </div>
         </div>
@@ -142,7 +167,7 @@ export const OrderDetailsPage: React.FC<OrderDetailsPageProps> = ({ orderId, onB
       {/* Productos del pedido */}
       {order.details && order.details.length > 0 && (
         <div className="order-section-card">
-          <h3 className="order-section-card__title">🛍️ Productos</h3>
+          <h3 className="order-section-card__title">🛍️ Productos del pedido</h3>
           <div className="products-table-container">
             <table className="products-table">
               <thead>
@@ -154,18 +179,25 @@ export const OrderDetailsPage: React.FC<OrderDetailsPageProps> = ({ orderId, onB
                 </tr>
               </thead>
               <tbody>
-                {order.details.map((detail) => (
-                  <tr key={detail.id_detail_order}>
-                    <td>
-                      <span className="products-table__sku">{detail.product_sku}</span>
-                    </td>
-                    <td className="products-table__quantity">{detail.quantity}</td>
-                    <td className="products-table__price">{formatPrice(detail.price)}</td>
-                    <td className="products-table__subtotal">
-                      {formatPrice((parseFloat(detail.price) * detail.quantity).toString())}
-                    </td>
-                  </tr>
-                ))}
+                {order.details.map((detail) => {
+                  const price = typeof detail.price === 'string' 
+                    ? parseFloat(detail.price) 
+                    : detail.price;
+                  const subtotal = price * detail.quantity;
+
+                  return (
+                    <tr key={detail.id_detail_order}>
+                      <td>
+                        <span className="products-table__sku">{detail.product_sku}</span>
+                      </td>
+                      <td className="products-table__quantity">{detail.quantity}</td>
+                      <td className="products-table__price">{formatPrice(price)}</td>
+                      <td className="products-table__subtotal">
+                        {formatPrice(subtotal)}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -175,7 +207,7 @@ export const OrderDetailsPage: React.FC<OrderDetailsPageProps> = ({ orderId, onB
       {/* Información de envío */}
       {order.shipping && (
         <div className="order-section-card">
-          <h3 className="order-section-card__title">🚚 Envío</h3>
+          <h3 className="order-section-card__title">🚚 Información de envío</h3>
           <div className="shipping-grid">
             <div className="shipping-field">
               <span className="shipping-field__label">Dirección</span>
@@ -206,24 +238,34 @@ export const OrderDetailsPage: React.FC<OrderDetailsPageProps> = ({ orderId, onB
       {/* Pagos */}
       {order.payments && order.payments.length > 0 && (
         <div className="order-section-card">
-          <h3 className="order-section-card__title">💳 Pagos</h3>
+          <h3 className="order-section-card__title">💳 Información de pago</h3>
           <div className="payments-list">
-            {order.payments.map((payment) => (
-              <div key={payment.id_payment} className="payment-card">
-                <div className="payment-card__content">
-                  <div>
-                    <p className="payment-card__method">{payment.payment_method}</p>
-                    <p className="payment-card__date">{formatDate(payment.payment_date)}</p>
-                  </div>
-                  <div className="payment-card__summary">
-                    <p className="payment-card__amount">{formatPrice(payment.amount)}</p>
-                    <span className={`payment-card__status ${getStatusClass(payment.status)}`}>
-                      {payment.status}
-                    </span>
+            {order.payments.map((payment) => {
+              const amount = typeof payment.amount === 'string' 
+                ? parseFloat(payment.amount) 
+                : payment.amount;
+
+              return (
+                <div key={payment.id_payment} className="payment-card">
+                  <div className="payment-card__content">
+                    <div>
+                      <p className="payment-card__method">
+                        Método: {payment.payment_method}
+                      </p>
+                      <p className="payment-card__date">
+                        {formatDate(payment.payment_date)}
+                      </p>
+                    </div>
+                    <div className="payment-card__summary">
+                      <p className="payment-card__amount">{formatPrice(amount)}</p>
+                      <span className={`payment-card__status ${getStatusClass(payment.status)}`}>
+                        {payment.status}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

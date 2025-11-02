@@ -24,7 +24,7 @@ export interface Payment {
   id_payment: number;
   order_id: number;
   payment_method: PaymentMethod;
-  amount: string | number;
+  amount: string; // ✅ Cambiado a string para consistencia con el backend
   status: PaymentStatus;
   payment_date: string;
 }

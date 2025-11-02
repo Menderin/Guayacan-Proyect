@@ -52,6 +52,41 @@ router.get('/all', authenticateToken, isAdmin, getAllPayments);
 router.get('/status/:status', authenticateToken, isAdmin, getPaymentsByStatus);
 
 /**
+ * GET /api/payments/order/:orderId
+ * Obtener todos los pagos de un pedido específico
+ * Params: orderId
+ * Requiere: Admin
+ */
+router.get('/order/:orderId', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const orderId = parseInt(req.params.orderId);
+    
+    if (isNaN(orderId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'ID de pedido inválido'
+      });
+    }
+
+    const { PaymentService } = await import('../services/payment.service');
+    const paymentService = new PaymentService();
+    const payments = await paymentService.getPaymentsByOrderId(orderId);
+    
+    res.json({
+      success: true,
+      data: payments
+    });
+  } catch (error: any) {
+    console.error('Error al obtener pagos del pedido:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al obtener pagos del pedido',
+      error: error.message
+    });
+  }
+});
+
+/**
  * GET /api/payments/:paymentId
  * Obtener detalles completos de un pago específico
  * Params: paymentId

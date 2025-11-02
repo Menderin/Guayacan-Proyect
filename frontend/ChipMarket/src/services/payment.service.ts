@@ -147,12 +147,12 @@ export const PaymentService = {
     }
   },
 
-  /**
+/**
    * Obtener pagos de un pedido específico
    */
   async getPaymentsByOrderId(orderId: number): Promise<PaymentListApiResponse> {
     try {
-      const response = await authenticatedFetch(`${API_URL}/search?orderId=${orderId}`);
+      const response = await authenticatedFetch(`${API_URL}/order/${orderId}`);
       const data = await response.json();
       return data;
     } catch (error) {

@@ -11,7 +11,7 @@ interface OrderSelectorProps {
   onOrderSelect: (order: Order | null) => void;
   disabled?: boolean;
   error?: string | null;
-  filterByStatus?: string; // Para filtrar solo pedidos pendientes, por ejemplo
+  filterByStatus?: 'Pending' | 'unpaid';
 }
 
 export const OrderSelector: React.FC<OrderSelectorProps> = ({
@@ -23,25 +23,41 @@ export const OrderSelector: React.FC<OrderSelectorProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
-  const { pendingOrders, loading, getPendingOrders } = useOrders();
+  const { pendingOrders, unpaidOrders, loading, getPendingOrders, getUnpaidOrders } = useOrders();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Cargar pedidos pendientes al montar
+  // Calcular saldo pendiente
+  const calculateRemainingAmount = (order: Order): number => {
+    const totalPaid = (order.payments || [])
+      .filter(p => p.status === 'Completed')
+      .reduce((sum, p) => sum + Number(p.amount), 0);
+    
+    return Number(order.total_amount) - totalPaid;
+  };
+
+  // Cargar pedidos según el filtro
   useEffect(() => {
     if (filterByStatus === 'Pending') {
       getPendingOrders();
+    } else if (filterByStatus === 'unpaid') {
+      getUnpaidOrders();
     }
-  }, [getPendingOrders, filterByStatus]);
+  }, [filterByStatus, getPendingOrders, getUnpaidOrders]);
+
+  // Seleccionar la lista correcta según el filtro
+  const ordersList = filterByStatus === 'unpaid' ? unpaidOrders : pendingOrders;
 
   // Filtrar pedidos según búsqueda
-  const filteredOrders = pendingOrders.filter(order => {
+  const filteredOrders = ordersList.filter(order => {
     if (!searchQuery.trim()) return true;
     
     const query = searchQuery.toLowerCase();
     return (
       order.id_order.toString().includes(query) ||
       order.user_id.toString().includes(query) ||
-      order.status.toLowerCase().includes(query)
+      order.status.toLowerCase().includes(query) ||
+      (order.user?.name?.toLowerCase().includes(query)) ||
+      (order.user?.email?.toLowerCase().includes(query))
     );
   });
 
@@ -121,7 +137,7 @@ export const OrderSelector: React.FC<OrderSelectorProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setShowDropdown(true)}
-              placeholder="Buscar pedido por ID..."
+              placeholder="Buscar pedido por ID, cliente..."
               disabled={disabled}
               className="order-selector__input"
             />
@@ -137,34 +153,60 @@ export const OrderSelector: React.FC<OrderSelectorProps> = ({
                 </div>
               ) : filteredOrders.length === 0 ? (
                 <div className="order-selector__empty">
-                  {pendingOrders.length === 0 
-                    ? 'No hay pedidos pendientes'
+                  {ordersList.length === 0 
+                    ? `No hay pedidos ${filterByStatus === 'unpaid' ? 'con saldo pendiente' : 'pendientes'}`
                     : 'No se encontraron pedidos con ese criterio'
                   }
                 </div>
               ) : (
                 <ul className="order-selector__list">
-                  {filteredOrders.map((order) => (
-                    <li
-                      key={order.id_order}
-                      onClick={() => handleOrderSelect(order)}
-                      className="order-selector__item"
-                    >
-                      <ShoppingBag className="order-selector__item-icon" />
-                      <div className="order-selector__item-info">
-                        <p className="order-selector__item-id">
-                          Pedido #{order.id_order}
-                        </p>
-                        <p className="order-selector__item-details">
-                          Total: ${formatCurrency(order.total_amount)} | 
-                          {formatDate(order.order_date)}
-                        </p>
-                        <span className={`order-selector__status order-selector__status--${order.status.toLowerCase()}`}>
-                          {order.status}
-                        </span>
-                      </div>
-                    </li>
-                  ))}
+                  {filteredOrders.map((order) => {
+                    const remainingAmount = calculateRemainingAmount(order);
+                    
+                    return (
+                      <li
+                        key={order.id_order}
+                        onClick={() => handleOrderSelect(order)}
+                        className="order-selector__item"
+                      >
+                        <ShoppingBag className="order-selector__item-icon" />
+                        <div className="order-selector__item-info">
+                          <p className="order-selector__item-id">
+                            Pedido #{order.id_order}
+                          </p>
+                          
+                          {/* Mostrar saldo pendiente si aplica */}
+                          {filterByStatus === 'unpaid' && remainingAmount > 0 ? (
+                            <p className="order-selector__item-details">
+                              💰 Pendiente: ${formatCurrency(remainingAmount)} | 
+                              Total: ${formatCurrency(order.total_amount)} | 
+                              {formatDate(order.order_date)}
+                            </p>
+                          ) : (
+                            <p className="order-selector__item-details">
+                              Total: ${formatCurrency(order.total_amount)} | 
+                              {formatDate(order.order_date)}
+                            </p>
+                          )}
+                          
+                          {/* Usuario si existe */}
+                          {order.user && (
+                            <p style={{
+                              fontSize: '0.75rem',
+                              color: '#64748b',
+                              marginTop: '0.25rem'
+                            }}>
+                              👤 {order.user.name}
+                            </p>
+                          )}
+                          
+                          <span className={`order-selector__status order-selector__status--${order.status.toLowerCase()}`}>
+                            {order.status}
+                          </span>
+                        </div>
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </div>

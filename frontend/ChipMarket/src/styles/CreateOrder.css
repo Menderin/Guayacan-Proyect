@@ -48,7 +48,7 @@
 /* Layout */
 .create-order-page__layout {
   display: grid;
-  grid-template-columns: 1fr 380px;
+  grid-template-columns: 1fr minmax(320px, 400px);
   gap: 2rem;
   align-items: start;
 }
@@ -57,10 +57,12 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  min-width: 0;
 }
 
 .create-order-page__summary-column {
   position: relative;
+  min-width: 0;
 }
 
 .create-order-page__summary-sticky {
@@ -69,6 +71,7 @@
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  max-width: 100%;
 }
 
 /* Sections */
@@ -92,6 +95,7 @@
   width: 1.5rem;
   height: 1.5rem;
   color: #3b82f6;
+  flex-shrink: 0;
 }
 
 .create-order-page__section-title {
@@ -135,12 +139,14 @@
   height: 1.125rem;
   cursor: pointer;
   accent-color: #3b82f6;
+  flex-shrink: 0;
 }
 
 .create-order-page__payment-label {
   font-size: 0.9rem;
   color: #1e293b;
   font-weight: 500;
+  word-break: break-word;
 }
 
 /* Shipping */
@@ -166,6 +172,7 @@
   height: 1.125rem;
   cursor: pointer;
   accent-color: #3b82f6;
+  flex-shrink: 0;
 }
 
 .create-order-page__shipping-fields {
@@ -189,12 +196,14 @@
 }
 
 .create-order-page__input {
+  width: 100%;
   padding: 0.75rem;
   border: 2px solid #e2e8f0;
   border-radius: 8px;
   font-size: 0.95rem;
   transition: all 0.2s;
   outline: none;
+  box-sizing: border-box;
 }
 
 .create-order-page__input:focus {
@@ -228,6 +237,7 @@
   cursor: pointer;
   transition: all 0.2s;
   outline: none;
+  width: 100%;
 }
 
 .create-order-page__btn--primary {
@@ -272,6 +282,7 @@
   color: #b91c1c;
   font-size: 0.9rem;
   line-height: 1.5;
+  word-break: break-word;
 }
 
 .create-order-page__success {
@@ -318,6 +329,13 @@
 }
 
 /* Responsive */
+@media (max-width: 1200px) {
+  .create-order-page__layout {
+    grid-template-columns: 1fr minmax(280px, 350px);
+    gap: 1.5rem;
+  }
+}
+
 @media (max-width: 1024px) {
   .create-order-page__layout {
     grid-template-columns: 1fr;

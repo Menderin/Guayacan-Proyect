@@ -18,7 +18,7 @@ export interface Payment {
   id_payment: number;
   order_id: number;
   payment_method: string;
-  amount: string;
+  amount: string | number;
   status: string;
   payment_date: string;
 }
@@ -30,7 +30,7 @@ export interface Shipping {
   city: string;
   shipping_date: string;
   status: string;
-  transport_company: string;
+  transport_company?: string;
 }
 
 export interface Order {
@@ -39,12 +39,16 @@ export interface Order {
   total_amount: string;
   status: string;
   order_date: string;
-}
-
-export interface OrderWithDetails extends Order {
+  user?: User;
   payments?: Payment[];
   details?: OrderDetail[];
   shipping?: Shipping;
+}
+
+export interface OrderWithDetails extends Order {
+  user: User;
+  payments: Payment[];
+  details: OrderDetail[];
 }
 
 export interface OrderSearchFilters {
@@ -90,9 +94,9 @@ export type OrderStatus = 'Pending' | 'Completed' | 'Cancelled' | 'Processing';
 export interface OrderProductInput {
   sku: string;
   quantity: number;
-  name?: string; // Info adicional para UI
-  price?: number; // Info adicional para UI
-  stock?: number; // Info adicional para UI
+  name?: string;
+  price?: number;
+  stock?: number;
 }
 
 export interface ShippingAddress {
@@ -129,7 +133,7 @@ export interface OrderSummary {
 }
 
 export interface OrderWithUser extends Order {
-  user?: User;
+  user: User;
 }
 
 export interface OrderSearchApiResponse {
@@ -138,3 +142,8 @@ export interface OrderSearchApiResponse {
   data: OrderWithUser[];
   pagination: Pagination;
 }
+
+export type PaymentInfo = Payment;
+export type OrderDetailInfo = OrderDetail;
+export type ShippingInfo = Shipping;
+export type UserInfo = User;

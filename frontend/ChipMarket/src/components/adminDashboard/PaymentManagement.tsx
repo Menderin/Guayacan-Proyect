@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import FilterOrders from '../../pages/Admin/Orders/FilterOrders';
+import { ConsultPaymentPage } from '../../pages/Admin/Orders/ConsultPaymentPage';
 
 import { UserEditPage } from '../../pages/Admin/Users/UserEditPage';
 import { CreateUserPage } from '../../pages/Admin/Users/CreateUserPage';
@@ -18,7 +19,8 @@ export const PaymentManegement: React.FC = () => {
     const userTabs = [
         { id: 'search', name: 'Consultar historial de pagos', icon: Search },
         { id: 'add', name: 'Registrar pago', icon: UserPlus},
-        { id: 'analytics', name: 'Análisis', icon: UserPen }
+        { id: 'analytics', name: 'Análisis', icon: UserPen },
+        { id: 'consult', name: 'Consultar pagos', icon: Users}
     ];
 
     return (
@@ -47,6 +49,8 @@ export const PaymentManegement: React.FC = () => {
                 {activePaymentTab === 'add' && <CreateUserPage />}
 
                 {activePaymentTab === 'analytics' && <AnalyticsPage />}
+
+                {activePaymentTab === 'consult' && <ConsultPaymentPage />}
 
             </main>
         </div>

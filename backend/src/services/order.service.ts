@@ -1002,8 +1002,144 @@ export class OrderService {
     }
   }
 
-  async updateOrderStatus(orderId: number, newStatus: string): Promise<{ success: boolean; message: string; order?: any }> {
-  const validStatuses = ['Pending', 'Completed'];
+/**
+ * Debe ser llamado desde:
+ * - PaymentController después de crear/actualizar pagos
+ * - ShippingController después de actualizar envíos
+ */
+async recalculateOrderStatus(orderId: number): Promise<{
+  previousStatus: string;
+  newStatus: string;
+  changed: boolean;
+  message: string;
+}> {
+  const transaction = await sequelize.transaction();
+
+  try {
+    // ========================================
+    // 1. OBTENER PEDIDO CON TODA LA INFO
+    // ========================================
+    const order = await Order.findByPk(orderId, {
+      include: [
+        {
+          model: Payment,
+          as: 'payments',
+          attributes: ['id_payment', 'amount', 'status']
+        },
+        {
+          model: Shipping,
+          as: 'shipping',
+          attributes: ['id_shipping', 'status']
+        }
+      ],
+      transaction
+    });
+
+    if (!order) {
+      await transaction.rollback();
+      throw new Error('Pedido no encontrado');
+    }
+
+    const previousStatus = order.status;
+
+    // No recalcular si el pedido está cancelado
+    if (previousStatus === 'Cancelled') {
+      await transaction.rollback();
+      return {
+        previousStatus,
+        newStatus: previousStatus,
+        changed: false,
+        message: 'Pedido cancelado, no se recalcula estado'
+      };
+    }
+
+    // ========================================
+    // 2. CALCULAR ESTADO DE PAGO
+    // ========================================
+    const payments = order.get('payments') as any[];
+    const totalPaid = payments
+      .filter(p => p.status === 'Completed')
+      .reduce((sum, p) => sum + parseFloat(p.amount.toString()), 0);
+
+    const orderTotal = parseFloat(order.total_amount.toString());
+    const isFullyPaid = totalPaid >= orderTotal;
+    const hasAnyPayment = totalPaid > 0;
+
+    // ========================================
+    // 3. OBTENER ESTADO DE ENVÍO
+    // ========================================
+    const shipping = order.get('shipping') as any;
+    const shippingStatus = shipping?.status || null;
+
+    // ========================================
+    // 4. DETERMINAR NUEVO ESTADO DEL PEDIDO
+    // ========================================
+    let newStatus = previousStatus;
+
+    // REGLA 1: Pedido completamente pagado Y envío entregado = Completed
+    if (isFullyPaid && shippingStatus === 'Delivered') {
+      newStatus = 'Completed';
+    }
+    // REGLA 2: Pedido completamente pagado Y envío en tránsito = Shipped
+    else if (isFullyPaid && shippingStatus === 'Shipped') {
+      newStatus = 'Shipped';
+    }
+    // REGLA 3: Pedido completamente pagado pero envío pendiente = Processing
+    else if (isFullyPaid) {
+      newStatus = 'Processing';
+    }
+    // REGLA 4: Tiene pagos parciales = Processing
+    else if (hasAnyPayment) {
+      newStatus = 'Processing';
+    }
+    // REGLA 5: Sin pagos completados = Pending
+    else {
+      newStatus = 'Pending';
+    }
+
+    // ========================================
+    // 5. ACTUALIZAR SI CAMBIÓ
+    // ========================================
+    const changed = previousStatus !== newStatus;
+    
+    if (changed) {
+      await order.update({ status: newStatus }, { transaction });
+    }
+
+    await transaction.commit();
+
+    return {
+      previousStatus,
+      newStatus,
+      changed,
+      message: changed 
+        ? `Estado actualizado de "${previousStatus}" a "${newStatus}"`
+        : `Estado permanece en "${newStatus}"`
+    };
+
+  } catch (error) {
+    await transaction.rollback();
+    console.error('Error al recalcular estado del pedido:', error);
+    throw error;
+  }
+}
+
+async updateOrderStatus(
+  orderId: number, 
+  newStatus: string,
+  force: boolean = false
+): Promise<{ 
+  success: boolean; 
+  message: string; 
+  order?: any 
+}> {
+  const validStatuses = [
+    'Pending', 
+    'Processing', 
+    'Shipped', 
+    'Completed', 
+    'Cancelled'
+  ];
 
   // Validar estado
   if (!validStatuses.includes(newStatus)) {
@@ -1014,7 +1150,21 @@ export class OrderService {
   }
 
   // Buscar pedido
-  const order = await Order.findByPk(orderId);
+  const order = await Order.findByPk(orderId, {
+    include: [
+      {
+        model: Payment,
+        as: 'payments',
+        attributes: ['id_payment', 'amount', 'status']
+      },
+      {
+        model: Shipping,
+        as: 'shipping',
+        attributes: ['id_shipping', 'status']
+      }
+    ]
+  });
+
   if (!order) {
     return {
       success: false,
@@ -1022,12 +1172,39 @@ export class OrderService {
     };
   }
 
+  const previousStatus = order.status;
+
+  // Validaciones de transiciones (si no es forzado)
+  if (!force) {
+    // No permitir cambiar pedidos cancelados
+    if (previousStatus === 'Cancelled' && newStatus !== 'Cancelled') {
+      return {
+        success: false,
+        message: 'No se puede cambiar el estado de un pedido cancelado'
+      };
+    }
+
+    // Advertir si se intenta marcar como completado sin estar pagado
+    const payments = order.get('payments') as any[];
+    const totalPaid = payments
+      .filter((p: any) => p.status === 'Completed')
+      .reduce((sum: number, p: any) => sum + parseFloat(p.amount.toString()), 0);
+    const orderTotal = parseFloat(order.total_amount.toString());
+
+    if (newStatus === 'Completed' && totalPaid < orderTotal) {
+      return {
+        success: false,
+        message: 'No se puede marcar como completado un pedido que no está totalmente pagado. Use force=true para omitir esta validación.'
+      };
+    }
+  }
+
   // Actualizar
   await order.update({ status: newStatus });
 
   return {
     success: true,
-    message: `Estado del pedido actualizado a "${newStatus}".`,
+    message: `Estado del pedido actualizado de "${previousStatus}" a "${newStatus}".`,
     order
   };
 }
@@ -1229,4 +1406,3 @@ export class OrderService {
   }
 
 }
-

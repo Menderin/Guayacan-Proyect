@@ -23,6 +23,7 @@ export const CreatePaymentPage: React.FC = () => {
   const [amount, setAmount] = useState('');
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>('Completed');
   const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
 
   // Hook personalizado
   const { loading, error, success, createdPaymentId, orderInfo, createPayment, reset } = useCreatePayment();
@@ -41,47 +42,42 @@ export const CreatePaymentPage: React.FC = () => {
   // Estados de pago
   const paymentStatuses: PaymentStatus[] = ['Completed', 'Failed'];
 
+  // Función para recargar los pagos sin perder el pedido seleccionado
+  const refreshPayments = async () => {
+    if (!selectedOrder) return;
+
+    setLoadingPayments(true);
+    try {
+      const response = await PaymentService.getPaymentsByOrderId(selectedOrder.id_order);
+      
+      if (response.success && response.data) {
+        setExistingPayments(response.data);
+        
+        // Determinar el tipo de operación por defecto
+        const hasPendingPayments = response.data.some(p => p.status === 'Pending');
+        const hasCompletedPayments = response.data.some(p => p.status === 'Completed');
+        
+        if (hasPendingPayments) {
+          setOperationType('confirm');
+        } else if (hasCompletedPayments) {
+          setOperationType('additional');
+        } else {
+          setOperationType('confirm');
+        }
+      } else {
+        setExistingPayments([]);
+      }
+    } catch (error) {
+      console.error('Error al cargar pagos:', error);
+      setExistingPayments([]);
+    } finally {
+      setLoadingPayments(false);
+    }
+  };
+
   // Cargar pagos existentes cuando se selecciona un pedido
   useEffect(() => {
-    const fetchPayments = async () => {
-      if (!selectedOrder) {
-        setExistingPayments([]);
-        setLoadingPayments(false);
-        return;
-      }
-
-      setLoadingPayments(true);
-      setExistingPayments([]);
-      
-      try {
-        const response = await PaymentService.getPaymentsByOrderId(selectedOrder.id_order);
-        
-        if (response.success && response.data) {
-          setExistingPayments(response.data);
-          
-          // Determinar el tipo de operación por defecto
-          const hasPendingPayments = response.data.some(p => p.status === 'Pending');
-          const hasCompletedPayments = response.data.some(p => p.status === 'Completed');
-          
-          if (hasPendingPayments) {
-            setOperationType('confirm');
-          } else if (hasCompletedPayments) {
-            setOperationType('additional');
-          } else {
-            setOperationType('confirm');
-          }
-        } else {
-          setExistingPayments([]);
-        }
-      } catch (error) {
-        console.error('Error al cargar pagos:', error);
-        setExistingPayments([]);
-      } finally {
-        setLoadingPayments(false);
-      }
-    };
-
-    fetchPayments();
+    refreshPayments();
   }, [selectedOrder?.id_order]);
 
   // Calcular montos
@@ -126,10 +122,17 @@ export const CreatePaymentPage: React.FC = () => {
         });
 
         if (response.success) {
+          setToastMessage('Pago confirmado exitosamente');
           setShowToast(true);
-          setTimeout(() => {
-            handleReset();
-          }, 2000);
+          
+          // Resetear solo el formulario, NO el pedido seleccionado
+          setPaymentMethod('');
+          setAmount('');
+          setPaymentStatus('Completed');
+          reset();
+          
+          // Recargar los pagos para reflejar el cambio
+          await refreshPayments();
         } else {
           alert(response.message || 'Error al actualizar el pago');
         }
@@ -178,10 +181,17 @@ export const CreatePaymentPage: React.FC = () => {
         const result = await createPayment(paymentData);
 
         if (result) {
+          setToastMessage('Pago reemplazado exitosamente');
           setShowToast(true);
-          setTimeout(() => {
-            handleReset();
-          }, 2000);
+          
+          // Resetear solo el formulario
+          setPaymentMethod('');
+          setAmount('');
+          setPaymentStatus('Completed');
+          reset();
+          
+          // Recargar los pagos
+          await refreshPayments();
         }
       } catch (error) {
         alert('Error al procesar el reemplazo del pago');
@@ -216,10 +226,17 @@ export const CreatePaymentPage: React.FC = () => {
       const result = await createPayment(paymentData);
 
       if (result) {
+        setToastMessage('Pago adicional registrado exitosamente');
         setShowToast(true);
-        setTimeout(() => {
-          handleReset();
-        }, 2000);
+        
+        // Resetear solo el formulario
+        setPaymentMethod('');
+        setAmount('');
+        setPaymentStatus('Completed');
+        reset();
+        
+        // Recargar los pagos
+        await refreshPayments();
       }
     }
   };
@@ -645,9 +662,9 @@ export const CreatePaymentPage: React.FC = () => {
       </div>
 
       {/* Toast Notification */}
-      {showToast && success && (
+      {showToast && (
         <ToastNotification
-          message={`Pago ${operationType === 'confirm' ? 'confirmado' : 'registrado'} exitosamente`}
+          message={toastMessage}
           onClose={() => setShowToast(false)}
         />
       )}

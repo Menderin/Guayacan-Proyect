@@ -342,7 +342,19 @@ export const processRefund = async (req: AuthenticatedRequest, res: Response) =>
   try {
     const orderId = parseInt(req.params.orderId);
     const { reason, refundAmount } = req.body;
-    const adminUserId = req.user!.userId;
+    
+    // ✅ CORRECCIÓN: Manejar múltiples posibles estructuras de req.user
+    const adminUserId = req.user?.userId || req.user?.id || 0;
+
+    // ✅ VALIDACIÓN: Asegurar que el usuario esté autenticado
+    if (!req.user) {
+      return ApiResponse.error(res, 'Usuario no autenticado', 401);
+    }
+
+    if (adminUserId === 0) {
+      console.error('❌ req.user structure:', req.user);
+      return ApiResponse.error(res, 'No se pudo obtener el ID del usuario', 500);
+    }
 
     // Validaciones
     if (isNaN(orderId)) {
@@ -397,7 +409,19 @@ export const processPartialRefund = async (req: AuthenticatedRequest, res: Respo
   try {
     const orderId = parseInt(req.params.orderId);
     const { productSkus, reason } = req.body;
-    const adminUserId = req.user!.userId;
+    
+    // ✅ CORRECCIÓN: Manejar múltiples posibles estructuras de req.user
+    const adminUserId = req.user?.userId || req.user?.id || 0;
+
+    // ✅ VALIDACIÓN: Asegurar que el usuario esté autenticado
+    if (!req.user) {
+      return ApiResponse.error(res, 'Usuario no autenticado', 401);
+    }
+
+    if (adminUserId === 0) {
+      console.error('❌ req.user structure:', req.user);
+      return ApiResponse.error(res, 'No se pudo obtener el ID del usuario', 500);
+    }
 
     // Validaciones
     if (isNaN(orderId)) {

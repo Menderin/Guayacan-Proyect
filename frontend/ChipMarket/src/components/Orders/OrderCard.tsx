@@ -1,7 +1,7 @@
 // src/components/orders/OrderCard.tsx
 import React, { useState } from 'react';
 import { Package, User, Calendar, ChevronDown, ChevronUp, CreditCard, Truck } from 'lucide-react';
-import type { Order } from '../../types/order.types';
+import type { Order, Payment, OrderDetail } from '../../types/order.types';
 import '../../styles/OrderCard.css';
 
 interface OrderCardProps {
@@ -11,7 +11,7 @@ interface OrderCardProps {
 export const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
   const [expanded, setExpanded] = useState(false);
 
-  const formatDate = (dateString: string): string => {
+  const formatDate = (dateString: string | Date): string => {
     return new Date(dateString).toLocaleDateString('es-CL', {
       year: 'numeric',
       month: 'long',
@@ -34,9 +34,11 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
       processing: 'order-card__badge--processing',
       shipped: 'order-card__badge--shipped',
       delivered: 'order-card__badge--delivered',
-      cancelled: 'order-card__badge--cancelled'
+      cancelled: 'order-card__badge--cancelled',
+      completed: 'order-card__badge--completed',
+      failed: 'order-card__badge--failed'
     };
-    return statusMap[status] || 'order-card__badge--default';
+    return statusMap[status.toLowerCase()] || 'order-card__badge--default';
   };
 
   const getStatusLabel = (status: string): string => {
@@ -45,12 +47,17 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
       processing: 'Procesando',
       shipped: 'Enviado',
       delivered: 'Entregado',
-      cancelled: 'Cancelado'
+      cancelled: 'Cancelado',
+      completed: 'Completado',
+      failed: 'Fallido'
     };
-    return labels[status] || status;
+    return labels[status.toLowerCase()] || status;
   };
 
-  const totalAmount = order.payments?.reduce((sum, p) => sum + Number(p.amount), 0) || 0;
+  // ✅ CORRECCIÓN PRINCIPAL: Sumar solo pagos COMPLETED
+  const totalAmount = order.payments
+    ?.filter((payment: Payment) => payment.status.toUpperCase() === 'COMPLETED')
+    .reduce((sum: number, payment: Payment) => sum + Number(payment.amount), 0) || 0;
 
   return (
     <div className="order-card">
@@ -135,7 +142,7 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
                 Productos del pedido
               </h4>
               <div className="order-card__products">
-                {order.details.map((detail) => (
+                {order.details.map((detail: OrderDetail) => (
                   <div key={detail.id_detail_order} className="order-card__product">
                     <div className="order-card__product-info">
                       <div className="order-card__product-sku">{detail.product_sku}</div>
@@ -205,7 +212,7 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
                 Información de pago
               </h4>
               <div className="order-card__payments">
-                {order.payments.map((payment) => (
+                {order.payments.map((payment: Payment) => (
                   <div key={payment.id_payment} className="order-card__payment">
                     <div className="order-card__payment-header">
                       <span className="order-card__payment-amount">

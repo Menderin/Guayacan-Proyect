@@ -342,7 +342,19 @@ export const processRefund = async (req: AuthenticatedRequest, res: Response) =>
   try {
     const orderId = parseInt(req.params.orderId);
     const { reason, refundAmount } = req.body;
-    const adminUserId = req.user!.userId;
+    
+    // ✅ CORRECCIÓN: Manejar múltiples posibles estructuras de req.user
+    const adminUserId = req.user?.userId || req.user?.id || 0;
+
+    // ✅ VALIDACIÓN: Asegurar que el usuario esté autenticado
+    if (!req.user) {
+      return ApiResponse.error(res, 'Usuario no autenticado', 401);
+    }
+
+    if (adminUserId === 0) {
+      console.error('❌ req.user structure:', req.user);
+      return ApiResponse.error(res, 'No se pudo obtener el ID del usuario', 500);
+    }
 
     // Validaciones
     if (isNaN(orderId)) {
@@ -397,7 +409,19 @@ export const processPartialRefund = async (req: AuthenticatedRequest, res: Respo
   try {
     const orderId = parseInt(req.params.orderId);
     const { productSkus, reason } = req.body;
-    const adminUserId = req.user!.userId;
+    
+    // ✅ CORRECCIÓN: Manejar múltiples posibles estructuras de req.user
+    const adminUserId = req.user?.userId || req.user?.id || 0;
+
+    // ✅ VALIDACIÓN: Asegurar que el usuario esté autenticado
+    if (!req.user) {
+      return ApiResponse.error(res, 'Usuario no autenticado', 401);
+    }
+
+    if (adminUserId === 0) {
+      console.error('❌ req.user structure:', req.user);
+      return ApiResponse.error(res, 'No se pudo obtener el ID del usuario', 500);
+    }
 
     // Validaciones
     if (isNaN(orderId)) {
@@ -554,6 +578,94 @@ export const getRefundHistory = async (req: Request, res: Response) => {
     return ApiResponse.error(
       res,
       error instanceof Error ? error.message : 'Error al obtener historial de reembolsos',
+      500
+    );
+  }
+};
+
+export const createOrder = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { 
+      userId, 
+      products, 
+      paymentMethod, 
+      shippingAddress, 
+      status 
+    } = req.body;
+
+    // ========================================
+    // VALIDACIONES
+    // ========================================
+    if (!userId || !products || !paymentMethod) {
+      return ApiResponse.error(
+        res, 
+        'Faltan campos requeridos: userId, products, paymentMethod', 
+        400
+      );
+    }
+
+    if (!Array.isArray(products) || products.length === 0) {
+      return ApiResponse.error(
+        res, 
+        'Debe incluir al menos un producto', 
+        400
+      );
+    }
+
+    // Validar estructura de productos
+    for (const product of products) {
+      if (!product.sku || !product.quantity) {
+        return ApiResponse.error(
+          res, 
+          'Cada producto debe tener "sku" y "quantity"', 
+          400
+        );
+      }
+
+      if (typeof product.quantity !== 'number' || product.quantity <= 0) {
+        return ApiResponse.error(
+          res, 
+          'La cantidad debe ser un número mayor a 0', 
+          400
+        );
+      }
+    }
+
+    // Validar dirección de envío si se proporciona
+    if (shippingAddress) {
+      if (!shippingAddress.address || !shippingAddress.city) {
+        return ApiResponse.error(
+          res, 
+          'La dirección de envío debe incluir "address" y "city"', 
+          400
+        );
+      }
+    }
+
+    // ========================================
+    // CREAR PEDIDO
+    // ========================================
+    const orderResult = await orderService.createOrder({
+      userId,
+      products,
+      paymentMethod,
+      shippingAddress,
+      status
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: 'Pedido creado exitosamente',
+      data: orderResult
+    });
+
+  } catch (error) {
+    console.error('Error al crear pedido:', error);
+    return ApiResponse.error(
+      res,
+      error instanceof Error ? error.message : 'Error al crear pedido',
+      error instanceof Error && error.message.includes('no encontrado') ? 404 :
+      error instanceof Error && error.message.includes('insuficiente') ? 400 :
       500
     );
   }

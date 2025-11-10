@@ -1,14 +1,14 @@
 // src/pages/AdminDashboard.tsx
-
 import React, { useState } from 'react';
 import { Search, Barcode, Users, ShoppingBasket, BadgeDollarSign, LogOut } from 'lucide-react';
-import { useAuth } from '../context/AuthContext'; // Asegúrate de que este import esté aquí
-//Importacion de componentes
-import { Home } from '..//components/adminDashboard/Home';
+import { useAuth } from '../context/AuthContext';
+
+// Importación de componentes
+import { Home } from '../components/adminDashboard/Home';
 import { ProductManagement } from '../components/adminDashboard/ProductManegement';
 import { UserManagement } from '../components/adminDashboard/UserManegements';
 import { OrderManagement } from '../components/adminDashboard/OrderManagement';
-import { PaymentManegement } from '../components/adminDashboard/PaymentManagement';
+import { PaymentManagement } from '../components/adminDashboard/PaymentManagement';
 
 import '../styles/AdminDashboard.css';
 
@@ -59,18 +59,13 @@ export const AdminDashboard: React.FC = () => {
                 </div>
             </div>
 
-            {/* Bloque de Contenido - Modificado */}
+            {/* Contenido Principal */}
             <div>
                 {activeTab === 'home' && <Home />}
-
                 {activeTab === 'products' && <ProductManagement />}
-                
                 {activeTab === 'users' && <UserManagement />}
-
                 {activeTab === 'orders' && <OrderManagement />}
-
-                {activeTab === 'payments' && <PaymentManegement />}
-
+                {activeTab === 'payments' && <PaymentManagement />}
                 {activeTab === 'logout' && (
                     <div className="admin-dashboard__content">
                         <div className="admin-dashboard__placeholder">
@@ -78,12 +73,12 @@ export const AdminDashboard: React.FC = () => {
                             <p className="admin-dashboard__placeholder-text">
                                 Necesitas confirmar para cerrar sesión.
                             </p>
-                            <button className="logout-confirm-btn"onClick={logout}>Confirmar Cerrar Sesión</button>
+                            <button className="logout-confirm-btn" onClick={logout}>
+                                Confirmar Cerrar Sesión
+                            </button>
                         </div>
                     </div>
                 )}
-
-
             </div>
         </div>
     );

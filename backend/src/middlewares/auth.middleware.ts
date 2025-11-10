@@ -1,3 +1,4 @@
+// middlewares/auth.middleware.ts
 import { Response, NextFunction } from 'express';
 import { IAuthRequest } from '../types/auth.types';
 import { verifyToken } from '../utils/auth.utils';
@@ -26,7 +27,6 @@ export const authenticateToken = (
     // Verificar el token
     const decoded = verifyToken(token);
     req.user = decoded;
-
     next();
   } catch (error) {
     res.status(403).json({
@@ -65,18 +65,46 @@ export const authorizeRoles = (...allowedRoles: number[]) => {
 /**
  * Middleware para verificar si el usuario es admin (role 1)
  */
-//export const isAdmin = authorizeRoles(1);
-
 export const isAdmin = (req: IAuthRequest, res: Response, next: NextFunction): void => {
-  console.log('Usuario autenticado:', req.user);
+  if (!req.user) {
+    res.status(401).json({
+      success: false,
+      message: 'Usuario no autenticado',
+    });
+    return;
+  }
 
-  if (req.user?.id_role !== 1) {
+  if (req.user.id_role !== 1) {
     res.status(403).json({
       success: false,
       message: 'Acceso denegado. Solo para Administradores',
     });
     return;
   }
+
+  next();
+};
+
+/**
+ * Middleware para verificar si el usuario es cliente (role 2)
+ */
+export const isClient = (req: IAuthRequest, res: Response, next: NextFunction): void => {
+  if (!req.user) {
+    res.status(401).json({
+      success: false,
+      message: 'Usuario no autenticado',
+    });
+    return;
+  }
+
+  if (req.user.id_role !== 2) {
+    res.status(403).json({
+      success: false,
+      message: 'Acceso denegado. Solo para clientes',
+    });
+    return;
+  }
+
   next();
 };
 
@@ -106,15 +134,4 @@ export const isAdminOrOwner = (userIdParam: string = 'id') => {
       message: 'No tienes permisos para acceder a este recurso',
     });
   };
-};
-
-export const isClient = (req: IAuthRequest, res: Response, next: NextFunction): void => {
-  if (req.user?.id_role !== 2) {
-    res.status(403).json({
-      success: false,
-      message: 'Acceso denegado. Solo para clientes',
-    });
-    return;
-  }
-  next();
 };

@@ -1002,8 +1002,144 @@ export class OrderService {
     }
   }
 
-  async updateOrderStatus(orderId: number, newStatus: string): Promise<{ success: boolean; message: string; order?: any }> {
-  const validStatuses = ['Pending', 'Completed'];
+/**
+ * Debe ser llamado desde:
+ * - PaymentController después de crear/actualizar pagos
+ * - ShippingController después de actualizar envíos
+ */
+async recalculateOrderStatus(orderId: number): Promise<{
+  previousStatus: string;
+  newStatus: string;
+  changed: boolean;
+  message: string;
+}> {
+  const transaction = await sequelize.transaction();
+
+  try {
+    // ========================================
+    // 1. OBTENER PEDIDO CON TODA LA INFO
+    // ========================================
+    const order = await Order.findByPk(orderId, {
+      include: [
+        {
+          model: Payment,
+          as: 'payments',
+          attributes: ['id_payment', 'amount', 'status']
+        },
+        {
+          model: Shipping,
+          as: 'shipping',
+          attributes: ['id_shipping', 'status']
+        }
+      ],
+      transaction
+    });
+
+    if (!order) {
+      await transaction.rollback();
+      throw new Error('Pedido no encontrado');
+    }
+
+    const previousStatus = order.status;
+
+    // No recalcular si el pedido está cancelado
+    if (previousStatus === 'Cancelled') {
+      await transaction.rollback();
+      return {
+        previousStatus,
+        newStatus: previousStatus,
+        changed: false,
+        message: 'Pedido cancelado, no se recalcula estado'
+      };
+    }
+
+    // ========================================
+    // 2. CALCULAR ESTADO DE PAGO
+    // ========================================
+    const payments = order.get('payments') as any[];
+    const totalPaid = payments
+      .filter(p => p.status === 'Completed')
+      .reduce((sum, p) => sum + parseFloat(p.amount.toString()), 0);
+
+    const orderTotal = parseFloat(order.total_amount.toString());
+    const isFullyPaid = totalPaid >= orderTotal;
+    const hasAnyPayment = totalPaid > 0;
+
+    // ========================================
+    // 3. OBTENER ESTADO DE ENVÍO
+    // ========================================
+    const shipping = order.get('shipping') as any;
+    const shippingStatus = shipping?.status || null;
+
+    // ========================================
+    // 4. DETERMINAR NUEVO ESTADO DEL PEDIDO
+    // ========================================
+    let newStatus = previousStatus;
+
+    // REGLA 1: Pedido completamente pagado Y envío entregado = Completed
+    if (isFullyPaid && shippingStatus === 'Delivered') {
+      newStatus = 'Completed';
+    }
+    // REGLA 2: Pedido completamente pagado Y envío en tránsito = Shipped
+    else if (isFullyPaid && shippingStatus === 'Shipped') {
+      newStatus = 'Shipped';
+    }
+    // REGLA 3: Pedido completamente pagado pero envío pendiente = Processing
+    else if (isFullyPaid) {
+      newStatus = 'Processing';
+    }
+    // REGLA 4: Tiene pagos parciales = Processing
+    else if (hasAnyPayment) {
+      newStatus = 'Processing';
+    }
+    // REGLA 5: Sin pagos completados = Pending
+    else {
+      newStatus = 'Pending';
+    }
+
+    // ========================================
+    // 5. ACTUALIZAR SI CAMBIÓ
+    // ========================================
+    const changed = previousStatus !== newStatus;
+    
+    if (changed) {
+      await order.update({ status: newStatus }, { transaction });
+    }
+
+    await transaction.commit();
+
+    return {
+      previousStatus,
+      newStatus,
+      changed,
+      message: changed 
+        ? `Estado actualizado de "${previousStatus}" a "${newStatus}"`
+        : `Estado permanece en "${newStatus}"`
+    };
+
+  } catch (error) {
+    await transaction.rollback();
+    console.error('Error al recalcular estado del pedido:', error);
+    throw error;
+  }
+}
+
+async updateOrderStatus(
+  orderId: number, 
+  newStatus: string,
+  force: boolean = false
+): Promise<{ 
+  success: boolean; 
+  message: string; 
+  order?: any 
+}> {
+  const validStatuses = [
+    'Pending', 
+    'Processing', 
+    'Shipped', 
+    'Completed', 
+    'Cancelled'
+  ];
 
   // Validar estado
   if (!validStatuses.includes(newStatus)) {
@@ -1014,7 +1150,21 @@ export class OrderService {
   }
 
   // Buscar pedido
-  const order = await Order.findByPk(orderId);
+  const order = await Order.findByPk(orderId, {
+    include: [
+      {
+        model: Payment,
+        as: 'payments',
+        attributes: ['id_payment', 'amount', 'status']
+      },
+      {
+        model: Shipping,
+        as: 'shipping',
+        attributes: ['id_shipping', 'status']
+      }
+    ]
+  });
+
   if (!order) {
     return {
       success: false,
@@ -1022,13 +1172,237 @@ export class OrderService {
     };
   }
 
+  const previousStatus = order.status;
+
+  // Validaciones de transiciones (si no es forzado)
+  if (!force) {
+    // No permitir cambiar pedidos cancelados
+    if (previousStatus === 'Cancelled' && newStatus !== 'Cancelled') {
+      return {
+        success: false,
+        message: 'No se puede cambiar el estado de un pedido cancelado'
+      };
+    }
+
+    // Advertir si se intenta marcar como completado sin estar pagado
+    const payments = order.get('payments') as any[];
+    const totalPaid = payments
+      .filter((p: any) => p.status === 'Completed')
+      .reduce((sum: number, p: any) => sum + parseFloat(p.amount.toString()), 0);
+    const orderTotal = parseFloat(order.total_amount.toString());
+
+    if (newStatus === 'Completed' && totalPaid < orderTotal) {
+      return {
+        success: false,
+        message: 'No se puede marcar como completado un pedido que no está totalmente pagado. Use force=true para omitir esta validación.'
+      };
+    }
+  }
+
   // Actualizar
   await order.update({ status: newStatus });
 
   return {
     success: true,
-    message: `Estado del pedido actualizado a "${newStatus}".`,
+    message: `Estado del pedido actualizado de "${previousStatus}" a "${newStatus}".`,
     order
   };
 }
+
+  // ========================================
+  // CREAR NUEVO PEDIDO
+  // ========================================
+
+  async createOrder(orderData: {
+    userId: number;
+    products: Array<{ sku: string; quantity: number }>;
+    paymentMethod: string;
+    shippingAddress?: {
+      address: string;
+      city: string;
+      transportCompany?: string;
+    };
+    status?: string;
+  }) {
+    const transaction = await sequelize.transaction();
+
+    try {
+      const { userId, products, paymentMethod, shippingAddress, status = 'Pending' } = orderData;
+
+      // ========================================
+      // 1. VALIDAR USUARIO
+      // ========================================
+      const user = await User.findByPk(userId);
+      if (!user) {
+        await transaction.rollback();
+        throw new Error('Usuario no encontrado');
+      }
+
+      // ========================================
+      // 2. VALIDAR Y OBTENER PRODUCTOS DE MONGODB
+      // ========================================
+      const productDetails: Array<{
+        sku: string;
+        name: string;
+        price: number;
+        stock: number;
+        quantity: number;
+      }> = [];
+
+      let totalAmount = 0;
+
+      for (const item of products) {
+        const product = await Producto.findOne({ sku: item.sku });
+
+        if (!product) {
+          await transaction.rollback();
+          throw new Error(`Producto con SKU "${item.sku}" no encontrado`);
+        }
+
+        // Validar stock disponible
+        if (product.stock < item.quantity) {
+          await transaction.rollback();
+          throw new Error(
+            `Stock insuficiente para "${product.name}". ` +
+            `Disponible: ${product.stock}, Solicitado: ${item.quantity}`
+          );
+        }
+
+        // Validar cantidad positiva
+        if (item.quantity <= 0) {
+          await transaction.rollback();
+          throw new Error(`La cantidad debe ser mayor a 0 para el producto "${product.name}"`);
+        }
+
+        productDetails.push({
+          sku: product.sku,
+          name: product.name,
+          price: product.price,
+          stock: product.stock,
+          quantity: item.quantity
+        });
+
+        totalAmount += product.price * item.quantity;
+      }
+
+      // ========================================
+      // 3. CREAR ORDEN EN POSTGRESQL
+      // ========================================
+      const order = await Order.create(
+        {
+          user_id: userId,
+          status: status,
+          total_amount: totalAmount,
+          order_date: new Date()
+        },
+        { transaction }
+      );
+
+      // ========================================
+      // 4. CREAR DETALLES DEL PEDIDO
+      // ========================================
+      const orderDetailsData = productDetails.map(product => ({
+        order_id: order.id_order,
+        product_sku: product.sku,
+        quantity: product.quantity,
+        price: product.price
+      }));
+
+      const createdDetails = await OrderDetail.bulkCreate(orderDetailsData, { transaction });
+
+      // ========================================
+      // 5. ACTUALIZAR STOCK EN MONGODB
+      // ========================================
+      for (const product of productDetails) {
+        await Producto.updateOne(
+          { sku: product.sku },
+          {
+            $inc: { stock: -product.quantity }
+          }
+        );
+      }
+
+      // ========================================
+      // 6. CREAR PAGO
+      // ========================================
+      const payment = await Payment.create(
+        {
+          order_id: order.id_order,
+          payment_method: paymentMethod,
+          amount: totalAmount,
+          status: 'Pending',
+          payment_date: new Date()
+        },
+        { transaction }
+      );
+
+      // ========================================
+      // 7. CREAR ENVÍO (SI SE PROPORCIONA)
+      // ========================================
+      let shipping = null;
+      if (shippingAddress) {
+        shipping = await Shipping.create(
+          {
+            order_id: order.id_order,
+            address: shippingAddress.address,
+            city: shippingAddress.city,
+            transport_company: shippingAddress.transportCompany || 'Por definir',
+            status: 'Processing',
+            shipping_date: new Date()
+          },
+          { transaction }
+        );
+      }
+
+      // ========================================
+      // 8. CONFIRMAR TRANSACCIÓN
+      // ========================================
+      await transaction.commit();
+
+      // ========================================
+      // 9. FORMATEAR RESPUESTA
+      // ========================================
+      return {
+        order: {
+          id_order: order.id_order,
+          user_id: order.user_id,
+          order_date: order.order_date,
+          status: order.status,
+          total_amount: parseFloat(order.total_amount.toString())
+        },
+        details: createdDetails.map((detail, index) => ({
+          id_detail_order: detail.id_detail_order,
+          product_sku: detail.product_sku,
+          product_name: productDetails[index].name,
+          quantity: detail.quantity,
+          price: parseFloat(detail.price.toString()),
+          subtotal: parseFloat(detail.price.toString()) * detail.quantity
+        })),
+        payment: {
+          id_payment: payment.id_payment,
+          payment_method: payment.payment_method,
+          amount: parseFloat(payment.amount.toString()),
+          status: payment.status
+        },
+        shipping: shipping ? {
+          id_shipping: shipping.id_shipping,
+          address: shipping.address,
+          city: shipping.city,
+          status: shipping.status,
+          transport_company: shipping.transport_company
+        } : undefined,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email
+        }
+      };
+
+    } catch (error) {
+      await transaction.rollback();
+      console.error('Error al crear pedido:', error);
+      throw error;
+    }
+  }
+
 }

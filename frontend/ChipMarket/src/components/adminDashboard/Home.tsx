@@ -4,6 +4,7 @@ import { AlertTriangle, TrendingUp, Package, DollarSign, CreditCard } from 'luci
 import { LowStockAlerts } from '../home/LowStockAlerts';
 import { StatsCard } from '../home/StatsCard';
 import SalesAnalytics from '../home/SalesAnalytics';
+import { PaymentService } from '../../services/payment.service'; // ✅ IMPORTAR SERVICIO
 import '../../styles/Home.css';
 
 interface Product {
@@ -38,14 +39,8 @@ interface Order {
   total_amount: string;
 }
 
-interface Payment {
-  id_payment: number;
-  order_id: number;
-  amount: number;
-  payment_method: string;
-  status: string;
-  payment_date: string;
-}
+// ✅ Importar el tipo Payment desde types
+import type { Payment } from '../../types/payment.types';
 
 interface OrdersApiResponse {
   success: boolean;
@@ -53,19 +48,13 @@ interface OrdersApiResponse {
   data: Order[];
 }
 
-interface PaymentsApiResponse {
-  success: boolean;
-  message: string;
-  data: Payment[];
-}
-
 interface Stats {
   totalProducts: number;
   totalRevenue: number;
   lowStockCount: number;
   pendingOrders: number;
-  pendingPayments: number; // ✅ Nueva estadística
-  pendingPaymentsAmount: number; // ✅ Monto total de pagos pendientes
+  pendingPayments: number;
+  pendingPaymentsAmount: number;
 }
 
 export const Home: React.FC = () => {
@@ -74,8 +63,8 @@ export const Home: React.FC = () => {
     totalRevenue: 0,
     lowStockCount: 0,
     pendingOrders: 0,
-    pendingPayments: 0, // ✅ Inicializar
-    pendingPaymentsAmount: 0 // ✅ Inicializar
+    pendingPayments: 0,
+    pendingPaymentsAmount: 0
   });
   const [loading, setLoading] = useState(true);
 
@@ -87,23 +76,23 @@ export const Home: React.FC = () => {
     try {
       setLoading(true);
       
-      // ✅ Agregada la llamada a la API de pagos pendientes
+      // ✅ Usar Promise.all con el servicio de pagos
       const [
         productsResponse, 
         pendingOrdersResponse, 
         completedOrdersResponse,
-        pendingPaymentsResponse // ✅ Nueva llamada
+        pendingPaymentsData // ✅ Ya no es un Response, es el objeto parseado
       ] = await Promise.all([
         fetch('http://localhost:3000/api/productos'),
         fetch('http://localhost:3000/api/orders/status/Pending'),
         fetch('http://localhost:3000/api/orders/status/Completed'),
-        fetch('http://localhost:3000/api/payments/status/Pending') // ✅ Corregido: payments en lugar de paymnets
+        PaymentService.getPaymentsByStatus('Pending') // ✅ CAMBIO AQUÍ
       ]);
 
       const productsData: ApiResponse = await productsResponse.json();
       const pendingData: OrdersApiResponse = await pendingOrdersResponse.json();
       const completedData: OrdersApiResponse = await completedOrdersResponse.json();
-      const pendingPaymentsData: PaymentsApiResponse = await pendingPaymentsResponse.json(); // ✅ Nueva data
+      // ✅ pendingPaymentsData YA es el objeto, no necesita .json()
       
       // Calcular productos y stock bajo
       let totalProducts = 0;
@@ -127,13 +116,13 @@ export const Home: React.FC = () => {
         );
       }
 
-      // ✅ Calcular pagos pendientes
+      // ✅ Calcular pagos pendientes (amount es string en la BD)
       let pendingPayments = 0;
       let pendingPaymentsAmount = 0;
-      if (pendingPaymentsData.success) {
+      if (pendingPaymentsData.success && pendingPaymentsData.data) {
         pendingPayments = pendingPaymentsData.data.length;
         pendingPaymentsAmount = pendingPaymentsData.data.reduce(
-          (sum: number, payment: Payment) => sum + Number(payment.amount),
+          (sum: number, payment: Payment) => sum + parseFloat(payment.amount.toString()),
           0
         );
       }
@@ -143,11 +132,20 @@ export const Home: React.FC = () => {
         totalRevenue,
         lowStockCount: lowStock,
         pendingOrders,
-        pendingPayments, // ✅ Agregar al estado
-        pendingPaymentsAmount // ✅ Agregar al estado
+        pendingPayments,
+        pendingPaymentsAmount
       });
     } catch (error) {
       console.error('Error al cargar estadísticas:', error);
+      // ✅ Mejor manejo de errores
+      setStats({
+        totalProducts: 0,
+        totalRevenue: 0,
+        lowStockCount: 0,
+        pendingOrders: 0,
+        pendingPayments: 0,
+        pendingPaymentsAmount: 0
+      });
     } finally {
       setLoading(false);
     }
@@ -195,7 +193,6 @@ export const Home: React.FC = () => {
               trendUp={stats.pendingOrders > 0}
               loading={loading}
             />
-            {/* ✅ NUEVA TARJETA: Pagos Pendientes */}
             <StatsCard
               title="Pagos Pendientes"
               value={stats.pendingPayments}

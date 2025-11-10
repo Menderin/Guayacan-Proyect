@@ -372,10 +372,10 @@ export const RefundManagementPage: React.FC = () => {
                   <div>
                     <p className="success-title">¡Reembolso procesado exitosamente!</p>
                     <p className="success-detail">
-                      Monto reembolsado: ${refundSuccess.refundedAmount.toFixed(2)}
+                      Monto reembolsado: ${Number(refundSuccess.refundedAmount).toFixed(2)}
                     </p>
                     <p className="success-detail">
-                      Productos reabastecidos: {refundSuccess.productsRestocked.length}
+                      Productos reabastecidos: {refundSuccess.productsRestocked?.length || 0}
                     </p>
                   </div>
                 </div>

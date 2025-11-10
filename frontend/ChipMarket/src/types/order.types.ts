@@ -18,7 +18,7 @@ export interface Payment {
   id_payment: number;
   order_id: number;
   payment_method: string;
-  amount: string;
+  amount: string | number;
   status: string;
   payment_date: string;
 }
@@ -30,7 +30,7 @@ export interface Shipping {
   city: string;
   shipping_date: string;
   status: string;
-  transport_company: string;
+  transport_company?: string;
 }
 
 export interface Order {
@@ -39,12 +39,16 @@ export interface Order {
   total_amount: string;
   status: string;
   order_date: string;
-}
-
-export interface OrderWithDetails extends Order {
+  user?: User;
   payments?: Payment[];
   details?: OrderDetail[];
   shipping?: Shipping;
+}
+
+export interface OrderWithDetails extends Order {
+  user: User;
+  payments: Payment[];
+  details: OrderDetail[];
 }
 
 export interface OrderSearchFilters {
@@ -84,3 +88,62 @@ export interface Pagination {
   limit: number;
   totalPages: number;
 }
+
+export type OrderStatus = 'Pending' | 'Completed' | 'Cancelled' | 'Processing';
+
+export interface OrderProductInput {
+  sku: string;
+  quantity: number;
+  name?: string;
+  price?: number;
+  stock?: number;
+}
+
+export interface ShippingAddress {
+  address: string;
+  city: string;
+  transportCompany?: string;
+}
+
+export interface CreateOrderDTO {
+  userId: number;
+  products: OrderProductInput[];
+  paymentMethod: string;
+  shippingAddress?: ShippingAddress;
+  status?: OrderStatus;
+}
+
+export interface CreateOrderApiResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    order: Order;
+    details: OrderDetail[];
+    payment: Payment;
+    shipping?: Shipping;
+  };
+}
+
+export interface OrderSummary {
+  subtotal: number;
+  tax: number;
+  shipping: number;
+  total: number;
+  itemCount: number;
+}
+
+export interface OrderWithUser extends Order {
+  user: User;
+}
+
+export interface OrderSearchApiResponse {
+  success: boolean;
+  message: string;
+  data: OrderWithUser[];
+  pagination: Pagination;
+}
+
+export type PaymentInfo = Payment;
+export type OrderDetailInfo = OrderDetail;
+export type ShippingInfo = Shipping;
+export type UserInfo = User;

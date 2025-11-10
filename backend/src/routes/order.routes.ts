@@ -13,6 +13,7 @@ import {
   getPaymentsByOrderId,
   getOrderDetailsById,
   getOrdersByStatus,
+  createOrder,
 
   // Controladores de reembolsos
   processRefund,
@@ -30,25 +31,43 @@ import { authenticateToken, isClient, isAdmin } from '../middlewares/auth.middle
 const router = Router();
 
 // ========================================
-// RUTAS PÚBLICAS O DE BÚSQUEDA AVANZADA (colocar primero para evitar conflictos)
+// RUTAS ESPECÍFICAS (DEBEN IR PRIMERO)
 // ========================================
 
 /**
  * GET /api/orders/summary
  * Obtener resumen y estadísticas de pedidos
- * Requiere: Admin
  */
 router.get('/summary', getOrdersSummary);
 
 /**
  * GET /api/orders/search
  * Búsqueda avanzada con filtros múltiples
- * Requiere: Admin
  */
 router.get('/search', getOrdersWithFilters);
 
+/**
+ * GET /api/orders/refunds/history
+ * Obtener historial de todos los reembolsos
+ * Query params: orderId (opcional)
+ */
+router.get('/refunds/history', getRefundHistory);
+
+/**
+ * GET /api/orders/all
+ * Obtener todos los pedidos del sistema
+ */
+router.get('/all', getAllOrders);
+
+/**
+ * GET /api/orders/status/:status
+ * Obtener todos los pedidos por estado
+ * Params: status (Pending, Completed, Cancelled, etc.)
+ */
+router.get('/status/:status', getOrdersByStatus);
+
 // ========================================
-// RUTAS PARA CLIENTES (requieren autenticación + rol cliente)
+// RUTAS PARA CLIENTES
 // ========================================
 
 /**
@@ -60,14 +79,12 @@ router.get('/my-orders', authenticateToken, isClient, getMyOrders);
 /**
  * GET /api/orders/my-orders/status/:status
  * Obtener pedidos del cliente por estado
- * Params: status (Pending, Completed, Cancelled, etc.)
  */
 router.get('/my-orders/status/:status', authenticateToken, isClient, getPersonalOrdersByStatus);
 
 /**
  * GET /api/orders/my-orders/:orderId
  * Obtener detalle de un pedido específico del cliente
- * Params: orderId
  */
 router.get('/my-orders/:orderId', authenticateToken, isClient, getOrderDetail);
 
@@ -78,23 +95,16 @@ router.get('/my-orders/:orderId', authenticateToken, isClient, getOrderDetail);
 router.get('/my-payments', authenticateToken, isClient, getMyPayments);
 
 // ========================================
-// RUTAS PARA ADMINISTRADORES (requieren autenticación + rol admin)
+// RUTAS PARA ADMINISTRADORES
 // ========================================
 
 /**
- * GET /api/orders/all
- * Obtener todos los pedidos del sistema
+ * POST /api/orders
+ * Crear un nuevo pedido
+ * Body: { userId, products: [{sku, quantity}], paymentMethod, shippingAddress?, status? }
  * Requiere: Admin
  */
-router.get('/all', getAllOrders);
-
-/**
- * GET /api/orders/status/:status
- * Obtener todos los pedidos por estado
- * Params: status (Pending, Completed, Cancelled, etc.)
- * Requiere: Admin
- */
-router.get('/status/:status', getOrdersByStatus);
+router.post('/', authenticateToken, isAdmin, createOrder);
 
 /**
  * GET /api/orders/users/:userId
@@ -112,42 +122,25 @@ router.get('/users/:userId', authenticateToken, isAdmin, getOrdersByUserId);
  */
 router.get('/payments/:orderId', authenticateToken, isAdmin, getPaymentsByOrderId);
 
-/**
- * GET /api/orders/:orderId
- * Obtener detalles completos de un pedido
- * Params: orderId
- * Requiere: Admin
- * IMPORTANTE: Esta ruta debe ir al final para evitar conflictos con otras rutas
- */
-router.get('/:orderId', authenticateToken, isAdmin, getOrderDetailsById);
-
-
 // ========================================
-// RUTAS DE REEMBOLSOS (Admin only)
+// RUTAS DE REEMBOLSOS
 // ========================================
-
-/**
- * GET /api/orders/refunds/history
- * Obtener historial de todos los reembolsos
- * Query params: orderId (opcional)
- * Requiere: Admin
- */
-router.get('/refunds/history', getRefundHistory);
 
 /**
  * GET /api/orders/:orderId/can-refund
  * Verificar si un pedido puede ser reembolsado
  * Requiere: Admin
  */
-router.get('/:orderId/can-refund', checkRefundEligibility);
+router.get('/:orderId/can-refund', authenticateToken, isAdmin, checkRefundEligibility);
 
 /**
  * POST /api/orders/:orderId/refund
  * Procesar reembolso completo de un pedido
  * Body: { reason: string, refundAmount?: number }
  * Requiere: Admin
+ * CON MIDDLEWARES PARA PROTEGER LA RUTA
  */
-router.post('/:orderId/refund', processRefund);
+router.post('/:orderId/refund', authenticateToken, isAdmin, processRefund);
 
 /**
  * POST /api/orders/:orderId/partial-refund
@@ -157,41 +150,68 @@ router.post('/:orderId/refund', processRefund);
  */
 router.post('/:orderId/partial-refund', authenticateToken, isAdmin, processPartialRefund);
 
+/**
+ * PUT /api/orders/:orderId/status
+ * Actualizar el estado de un pedido
+ * Body: { status: string }
+ * Requiere: Admin
+ */
 router.put('/:orderId/status', authenticateToken, isAdmin, updateOrderStatus);
+
+// ========================================
+// RUTA GENÉRICA
+// ========================================
+
+/**
+ * GET /api/orders/:orderId
+ * Obtener detalles completos de un pedido
+ * Params: orderId
+ * Requiere: Admin
+ * IMPORTANTE: Esta ruta DEBE ir al final para evitar conflictos
+ */
+router.get('/:orderId', authenticateToken, isAdmin, getOrderDetailsById);
 
 export default router;
 
-// ========================================
-// EJEMPLOS DE USO
-// ========================================
-
 /*
+ORDEN DE RUTAS:
+1. Rutas específicas primero:
+   - /summary
+   - /search
+   - /refunds/history
+   - /all
+   - /status/:status
 
-CLIENTES:
----------
-GET /api/orders/my-orders
-GET /api/orders/my-orders/123
-GET /api/orders/my-orders/status/Pending
-GET /api/orders/my-payments
+2. Rutas de clientes:
+   - /my-orders
+   - /my-orders/status/:status
+   - /my-orders/:orderId
+   - /my-payments
 
-ADMINISTRADORES:
-----------------
-GET /api/orders/all
-GET /api/orders/123
-GET /api/orders/status/Completed
-GET /api/orders/users/5
-GET /api/orders/payments/123
+3. Rutas de admin específicas:
+   - POST /
+   - /users/:userId
+   - /payments/:orderId
 
-BÚSQUEDA AVANZADA (Admin):
---------------------------
-GET /api/orders/search?startDate=2025-01-01&endDate=2025-01-31&status=Completed&page=1&limit=20
-GET /api/orders/search?userEmail=juan@example.com&productSku=PC-GAMING-001
-GET /api/orders/search?userId=5&startDate=2025-01-01
+4. Rutas de reembolsos (ANTES de /:orderId):
+   - /:orderId/can-refund
+   - POST /:orderId/refund (CON MIDDLEWARES)
+   - POST /:orderId/partial-refund
+   - PUT /:orderId/status
 
-RESUMEN Y ESTADÍSTICAS (Admin):
--------------------------------
-GET /api/orders/summary
-GET /api/orders/summary?startDate=2025-01-01&endDate=2025-12-31
-GET /api/orders/summary?status=Completed
+5. Ruta genérica AL FINAL:
+   - GET /:orderId
 
+RUTAS SIN AUTENTICACIÓN (para Dashboard):
+- GET /summary
+- GET /all
+- GET /status/:status
+- GET /refunds/history
+
+RUTAS CON AUTENTICACIÓN (Admin):
+- POST /:orderId/refund (Protegido)
+- POST /:orderId/partial-refund (Protegido)
+- PUT /:orderId/status (Protegido)
+- GET /:orderId/can-refund (Protegido)
+- GET /:orderId (Protegido)
 */

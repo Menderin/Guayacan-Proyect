@@ -50,10 +50,7 @@ export const authorizeRoles = (...allowedRoles: number[]) => {
       return;
     }
 
-    // Usar id_role del token
-    const userRole = req.user.role || req.user.id_role;
-
-    if (!allowedRoles.includes(userRole)) {
+    if (!allowedRoles.includes(req.user.id_role)) {
       res.status(403).json({
         success: false,
         message: 'No tienes permisos para acceder a este recurso',
@@ -77,10 +74,7 @@ export const isAdmin = (req: IAuthRequest, res: Response, next: NextFunction): v
     return;
   }
 
-  // Verificar tanto 'role' como 'id_role'
-  const userRole = req.user.role || req.user.id_role;
-
-  if (userRole !== 1) {
+  if (req.user.id_role !== 1) {
     res.status(403).json({
       success: false,
       message: 'Acceso denegado. Solo para Administradores',
@@ -103,10 +97,7 @@ export const isClient = (req: IAuthRequest, res: Response, next: NextFunction): 
     return;
   }
 
-  // Verificar tanto 'role' como 'id_role'
-  const userRole = req.user.role || req.user.id_role;
-
-  if (userRole !== 2) {
+  if (req.user.id_role !== 2) {
     res.status(403).json({
       success: false,
       message: 'Acceso denegado. Solo para clientes',
@@ -131,12 +122,9 @@ export const isAdminOrOwner = (userIdParam: string = 'id') => {
     }
 
     const resourceUserId = parseInt(req.params[userIdParam]);
-    
-    // Verificar tanto 'role' como 'id_role'
-    const userRole = req.user.role || req.user.id_role;
 
     // Si es admin o es el dueño del recurso
-    if (userRole === 1 || req.user.userId === resourceUserId) {
+    if (req.user.id_role === 1 || req.user.userId === resourceUserId) {
       next();
       return;
     }

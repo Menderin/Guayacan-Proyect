@@ -47,14 +47,23 @@ export const generateToken = (payload: IJWTPayload): string => {
  */
 export const verifyToken = (token: string): IJWTPayload => {
   try {
-    return jwt.verify(token, JWT_SECRET) as IJWTPayload;
+    const decoded = jwt.verify(token, JWT_SECRET) as IJWTPayload;
+    
+    // Imprimir los datos del token decodificado y la fecha de expiración
+    console.log("Token verificado:", token); // El token entero
+    console.log("Datos del token decodificado:", decoded); // Contiene la fecha de expiración (exp)
+    
+    return decoded;
   } catch (error: any) {
     if (error.name === 'TokenExpiredError') {
+      console.log("El token ha expirado", error);
       throw new Error('El token ha expirado');
     }
     if (error.name === 'JsonWebTokenError') {
+      console.log("Token inválido:", error);
       throw new Error('Token inválido');
     }
+    console.log("Error al verificar el token:", error);
     throw new Error('Error al verificar el token');
   }
 };

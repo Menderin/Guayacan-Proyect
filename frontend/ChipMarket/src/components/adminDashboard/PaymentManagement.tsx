@@ -5,17 +5,14 @@ import { CreatePaymentPage } from '../../pages/Admin/Payments/CreatePaymentPage'
 import { Search, DollarSign, BarChart3 } from 'lucide-react';
 import '../../styles/AdminDashboard.css';
 import '../../styles/Management.css';
-
 export const PaymentManagement: React.FC = () => {
     const [activePaymentTab, setActivePaymentTab] = useState('add');
     const { user } = useAuth();
-
     const paymentTabs = [
         { id: 'search', name: 'Consultar historial de pagos', icon: Search },
         { id: 'add', name: 'Registrar pago', icon: DollarSign },
         { id: 'analytics', name: 'Análisis', icon: BarChart3 }
     ];
-
     return (
         <div className="product-management-layout">
             <aside className="product-sidebar">
@@ -38,7 +35,6 @@ export const PaymentManagement: React.FC = () => {
                     })}
                 </nav>
             </aside>
-
             <main className="product-content">
                 {activePaymentTab === 'search' && (
                     <div style={{ 

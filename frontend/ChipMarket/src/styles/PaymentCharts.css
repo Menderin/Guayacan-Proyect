@@ -1,0 +1,86 @@
+/* frontend/src/styles/PaymentCharts.css */
+
+.reports-charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.chart-container {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.chart-loading,
+.chart-error {
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  font-style: italic;
+}
+
+.chart-error {
+  color: #dc2626;
+}
+
+.chart-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.chart-subtitle {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0.25rem 0 1rem 0;
+}
+
+.chart-wrapper {
+  /* Limitamos la altura del contenedor del gráfico */
+  max-height: 300px; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* --- NUEVOS ESTILOS PARA LAS MÉTRICAS CLAVE --- */
+
+.metrics-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem; /* Espacio entre métricas */
+  margin-top: 1.5rem;
+}
+
+.metric-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.metric-label {
+  font-size: 0.875rem; /* 14px */
+  color: #64748b;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.metric-value {
+  font-size: 2rem; /* 32px */
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1;
+}
+
+.metric-value--success {
+  color: #16a34a; /* Verde */
+}
+
+.metric-value--warning {
+  color: #d97706; /* Naranja/Amarillo */
+}

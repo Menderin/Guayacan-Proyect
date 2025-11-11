@@ -4,7 +4,7 @@ import { AlertTriangle, TrendingUp, Package, DollarSign, CreditCard } from 'luci
 import { LowStockAlerts } from '../home/LowStockAlerts';
 import { StatsCard } from '../home/StatsCard';
 import SalesAnalytics from '../home/SalesAnalytics';
-import { PaymentService } from '../../services/payment.service'; // ✅ IMPORTAR SERVICIO
+import { PaymentService } from '../../services/payment.service';
 import '../../styles/Home.css';
 
 interface Product {
@@ -36,10 +36,9 @@ interface Order {
   user_id: number;
   order_date: string;
   status: string;
-  total_amount: string;
+  total_amount: string | number; // ✅ Puede ser string o number según la API
 }
 
-// ✅ Importar el tipo Payment desde types
 import type { Payment } from '../../types/payment.types';
 
 interface OrdersApiResponse {
@@ -76,23 +75,27 @@ export const Home: React.FC = () => {
     try {
       setLoading(true);
       
-      // ✅ Usar Promise.all con el servicio de pagos
+      // ✅ CORREGIDO: Obtener pedidos Pending Y Processing
       const [
         productsResponse, 
-        pendingOrdersResponse, 
+        pendingOrdersResponse,
+        processingOrdersResponse, // ✅ NUEVO: Pedidos en procesamiento
         completedOrdersResponse,
-        pendingPaymentsData // ✅ Ya no es un Response, es el objeto parseado
+        pendingPaymentsData,
+        processingPaymentsData // ✅ NUEVO: Pagos en procesamiento
       ] = await Promise.all([
         fetch('http://localhost:3000/api/productos'),
         fetch('http://localhost:3000/api/orders/status/Pending'),
+        fetch('http://localhost:3000/api/orders/status/Processing'), // ✅ NUEVO
         fetch('http://localhost:3000/api/orders/status/Completed'),
-        PaymentService.getPaymentsByStatus('Pending') // ✅ CAMBIO AQUÍ
+        PaymentService.getPaymentsByStatus('Pending'),
+        PaymentService.getPaymentsByStatus('Processing') // ✅ NUEVO
       ]);
 
       const productsData: ApiResponse = await productsResponse.json();
-      const pendingData: OrdersApiResponse = await pendingOrdersResponse.json();
+      const pendingOrdersData: OrdersApiResponse = await pendingOrdersResponse.json();
+      const processingOrdersData: OrdersApiResponse = await processingOrdersResponse.json(); // ✅ NUEVO
       const completedData: OrdersApiResponse = await completedOrdersResponse.json();
-      // ✅ pendingPaymentsData YA es el objeto, no necesita .json()
       
       // Calcular productos y stock bajo
       let totalProducts = 0;
@@ -104,8 +107,10 @@ export const Home: React.FC = () => {
         lowStock = products.filter((p: Product) => p.stock <= 5).length;
       }
 
-      // Calcular pedidos pendientes
-      const pendingOrders = pendingData.success ? pendingData.data.length : 0;
+      // ✅ CORREGIDO: Sumar pedidos Pending + Processing
+      const pendingCount = pendingOrdersData.success ? pendingOrdersData.data.length : 0;
+      const processingCount = processingOrdersData.success ? processingOrdersData.data.length : 0;
+      const pendingOrders = pendingCount + processingCount;
 
       // Calcular ingresos totales (pedidos completados)
       let totalRevenue = 0;
@@ -116,12 +121,21 @@ export const Home: React.FC = () => {
         );
       }
 
-      // ✅ Calcular pagos pendientes (amount es string en la BD)
+      // ✅ CORREGIDO: Sumar pagos Pending + Processing
       let pendingPayments = 0;
       let pendingPaymentsAmount = 0;
+      
       if (pendingPaymentsData.success && pendingPaymentsData.data) {
-        pendingPayments = pendingPaymentsData.data.length;
-        pendingPaymentsAmount = pendingPaymentsData.data.reduce(
+        pendingPayments += pendingPaymentsData.data.length;
+        pendingPaymentsAmount += pendingPaymentsData.data.reduce(
+          (sum: number, payment: Payment) => sum + parseFloat(payment.amount.toString()),
+          0
+        );
+      }
+      
+      if (processingPaymentsData.success && processingPaymentsData.data) {
+        pendingPayments += processingPaymentsData.data.length;
+        pendingPaymentsAmount += processingPaymentsData.data.reduce(
           (sum: number, payment: Payment) => sum + parseFloat(payment.amount.toString()),
           0
         );
@@ -137,7 +151,6 @@ export const Home: React.FC = () => {
       });
     } catch (error) {
       console.error('Error al cargar estadísticas:', error);
-      // ✅ Mejor manejo de errores
       setStats({
         totalProducts: 0,
         totalRevenue: 0,

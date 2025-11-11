@@ -3,79 +3,71 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { CreatePaymentPage } from '../../pages/Admin/Payments/CreatePaymentPage';
 import { Search, DollarSign, BarChart3 } from 'lucide-react';
+
+// 1. 👇 ¡AQUÍ! Importamos tu nuevo componente de reportes
+// (La ruta es './' porque están en la misma carpeta 'adminDashboard')
+import { PaymentReports } from './PaymentReports';
+
 import '../../styles/AdminDashboard.css';
 import '../../styles/Management.css';
+
 export const PaymentManagement: React.FC = () => {
-    const [activePaymentTab, setActivePaymentTab] = useState('add');
-    const { user } = useAuth();
-    const paymentTabs = [
+     const [activePaymentTab, setActivePaymentTab] = useState('add');
+     const { user } = useAuth();
+     const paymentTabs = [
         { id: 'search', name: 'Consultar historial de pagos', icon: Search },
-        { id: 'add', name: 'Registrar pago', icon: DollarSign },
+         { id: 'add', name: 'Registrar pago', icon: DollarSign },
         { id: 'analytics', name: 'Análisis', icon: BarChart3 }
     ];
     return (
-        <div className="product-management-layout">
-            <aside className="product-sidebar">
-                <h3 className="product-sidebar__title">Gestión de Pagos</h3>
-                <nav className="product-sidebar__nav">
-                    {paymentTabs.map((tab) => {
+         <div className="product-management-layout">
+             <aside className="product-sidebar">
+                 <h3 className="product-sidebar__title">Gestión de Pagos</h3>
+                     <nav className="product-sidebar__nav">
+                         {paymentTabs.map((tab) => {
                         const Icon = tab.icon;
                         return (
-                            <button
+                             <button
                                 key={tab.id}
                                 onClick={() => setActivePaymentTab(tab.id)}
                                 className={`product-sidebar__tab ${
                                     activePaymentTab === tab.id ? 'product-sidebar__tab--active' : ''
                                 }`}
-                            >
+                             >
                                 <Icon size={18} style={{ marginRight: '0.5rem' }} />
-                                {tab.name}
-                            </button>
-                        );
+                                 {tab.name}
+                             </button>
+                         );
                     })}
                 </nav>
-            </aside>
-            <main className="product-content">
+             </aside>
+             <main className="product-content">
                 {activePaymentTab === 'search' && (
                     <div style={{ 
-                        padding: '4rem 2rem', 
-                        textAlign: 'center', 
-                        color: '#64748b',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
+                         padding: '4rem 2rem', 
+                         textAlign: 'center', 
+                         color: '#64748b',
+                         display: 'flex',
+                         flexDirection: 'column',
+                         alignItems: 'center',
                         gap: '1rem'
                     }}>
                         <Search size={64} style={{ opacity: 0.3 }} />
-                        <h2 style={{ margin: 0, fontSize: '1.5rem', color: '#475569' }}>
-                            Consultar Historial de Pagos
-                        </h2>
-                        <p style={{ margin: 0, fontSize: '1rem' }}>
-                            Esta funcionalidad estará disponible próximamente.
-                        </p>
-                    </div>
+                     <h2 style={{ margin: 0, fontSize: '1.5rem', color: '#475569' }}>
+              </h2>
+                     <p style={{ margin: 0, fontSize: '1rem' }}>
+                             Esta funcionalidad estará disponible próximamente.
+                     </p>
+                     </div>
                 )}
-                {activePaymentTab === 'add' && <CreatePaymentPage />}
+                 {activePaymentTab === 'add' && <CreatePaymentPage />}
+
+                 {/* 2. 👇 ¡AQUÍ! Reemplazamos el 'div' por el componente */}
                 {activePaymentTab === 'analytics' && (
-                    <div style={{ 
-                        padding: '4rem 2rem', 
-                        textAlign: 'center', 
-                        color: '#64748b',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '1rem'
-                    }}>
-                        <BarChart3 size={64} style={{ opacity: 0.3 }} />
-                        <h2 style={{ margin: 0, fontSize: '1.5rem', color: '#475569' }}>
-                            Análisis de Pagos
-                        </h2>
-                        <p style={{ margin: 0, fontSize: '1rem' }}>
-                            Esta funcionalidad estará disponible próximamente.
-                        </p>
-                    </div>
+                    <PaymentReports />
+                
                 )}
-            </main>
+             </main>
         </div>
     );
 };

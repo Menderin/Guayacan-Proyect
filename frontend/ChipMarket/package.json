@@ -10,14 +10,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/d3": "^7.4.3",
     "chart.js": "^4.5.0",
-    "recharts": "^2.10.3",
     "chartjs-plugin-datalabels": "^2.2.0",
+    "d3": "^7.9.0",
     "lucide-react": "^0.545.0",
     "react": "^19.1.1",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "^19.1.1",
-    "react-router-dom": "^7.9.4"
+    "react-router-dom": "^7.9.4",
+    "recharts": "^2.10.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

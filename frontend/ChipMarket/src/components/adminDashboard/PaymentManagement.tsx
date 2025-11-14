@@ -4,15 +4,14 @@ import { useAuth } from '../../context/AuthContext';
 import { CreatePaymentPage } from '../../pages/Admin/Payments/CreatePaymentPage';
 import { Search, DollarSign, BarChart3 } from 'lucide-react';
 
-// 1. 👇 ¡AQUÍ! Importamos tu nuevo componente de reportes
-// (La ruta es './' porque están en la misma carpeta 'adminDashboard')
+import { SearchUserPayments } from '../../pages/Admin/Payments/SearchUserPayments';
 import { PaymentReports } from './PaymentReports';
 
 import '../../styles/AdminDashboard.css';
 import '../../styles/Management.css';
 
 export const PaymentManagement: React.FC = () => {
-     const [activePaymentTab, setActivePaymentTab] = useState('add');
+     const [activePaymentTab, setActivePaymentTab] = useState('search');
      const { user } = useAuth();
      const paymentTabs = [
         { id: 'search', name: 'Consultar historial de pagos', icon: Search },
@@ -42,31 +41,9 @@ export const PaymentManagement: React.FC = () => {
                 </nav>
              </aside>
              <main className="product-content">
-                {activePaymentTab === 'search' && (
-                    <div style={{ 
-                         padding: '4rem 2rem', 
-                         textAlign: 'center', 
-                         color: '#64748b',
-                         display: 'flex',
-                         flexDirection: 'column',
-                         alignItems: 'center',
-                        gap: '1rem'
-                    }}>
-                        <Search size={64} style={{ opacity: 0.3 }} />
-                     <h2 style={{ margin: 0, fontSize: '1.5rem', color: '#475569' }}>
-              </h2>
-                     <p style={{ margin: 0, fontSize: '1rem' }}>
-                             Esta funcionalidad estará disponible próximamente.
-                     </p>
-                     </div>
-                )}
-                 {activePaymentTab === 'add' && <CreatePaymentPage />}
-
-                 {/* 2. 👇 ¡AQUÍ! Reemplazamos el 'div' por el componente */}
-                {activePaymentTab === 'analytics' && (
-                    <PaymentReports />
-                
-                )}
+                {activePaymentTab === 'search' && <SearchUserPayments />}
+                {activePaymentTab === 'add' && <CreatePaymentPage />}
+                {activePaymentTab === 'analytics' && <PaymentReports />}
              </main>
         </div>
     );

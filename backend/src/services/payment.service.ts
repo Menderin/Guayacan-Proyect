@@ -457,6 +457,35 @@ export class PaymentService {
     return this.enrichPaymentsWithProducts(payments);
   }
 
+  async getPaymentsByUserId(userId: number): Promise<any[]> {
+    const payments = await Payment.findAll({
+      include: [
+        {
+          model: Order,
+          as: 'order',
+          attributes: ['id_order', 'order_date', 'status', 'total_amount', 'user_id'],
+          where: { user_id: userId },
+          include: [
+            {
+              model: User,
+              as: 'user',
+              attributes: ['id', 'name', 'email']
+            },
+            {              model: OrderDetail,
+              as: 'details',
+              attributes: ['id_detail_order', 'product_sku', 'quantity', 'price']
+            }
+          ]
+        }
+      ],
+      order: [['payment_date', 'DESC']]
+    });
+    if (!payments || payments.length === 0) {
+      return [];
+    }
+    return this.enrichPaymentsWithProducts(payments);
+  }
+
   async createPayment(paymentData: {
     orderId: number;
     paymentMethod: string;

@@ -7,6 +7,7 @@ import {
   getPaymentsWithFilters,
   getPaymentDetails,
   getPaymentStats,
+  getPaymentsByUserId,
   
   // Operaciones (POST, PUT, DELETE)
   createPayment,
@@ -93,6 +94,14 @@ router.get('/order/:orderId', authenticateToken, isAdmin, async (req, res) => {
  * Requiere: Admin
  */
 router.get('/:paymentId', authenticateToken, isAdmin, getPaymentDetails);
+
+/**
+ * GET /api/payments/user/:userId
+ * Obtener todos los pagos realizados por un usuario específico
+ * Params: userId
+ * Requiere: Admin
+ */
+router.get('/user/:userId', authenticateToken, isAdmin, getPaymentsByUserId);
 
 // ========================================
 // RUTAS DE OPERACIONES (POST, PUT, DELETE)

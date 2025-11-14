@@ -76,6 +76,33 @@ export const getPaymentsByStatus = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * GET /api/payments/userId/:userId
+ * Obtener pagos por ID de usuario (Admin)
+ * Query params: userId
+ */
+export const getPaymentsByUserId = async (req: Request, res: Response) => {
+  try {
+    const userId = parseInt(req.params.userId);
+    if (isNaN(userId)) {
+      return ApiResponse.error(res, 'ID de usuario inválido', 400);
+    }
+    const payments = await paymentService.getPaymentsByUserId(userId);
+    return ApiResponse.success(
+      res,
+      payments,
+      'Pagos obtenidos exitosamente'
+    );
+  } catch (error) {
+    console.error('Error al obtener pagos por ID de usuario:', error);
+    return ApiResponse.error(
+      res,
+      error instanceof Error ? error.message : 'Error al obtener pagos por ID de usuario',
+      500
+    );
+  }
+};
+
 // ========================================
 // CREAR NUEVO PAGO
 // ========================================
@@ -376,3 +403,5 @@ export const getPaymentsWithFilters = async (req: Request, res: Response) => {
     });
   }
 };
+
+

@@ -22,19 +22,21 @@ export interface Product {
   score?: number;
 }
 
+export interface Pagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+}
+
 export interface ProductApiResponse {
   success: boolean;
   data?: {
     productos?: Product[];
-    product?: Product; // Para endpoints que retornan un solo producto
-    pagination?: {
-      page: number;
-      limit: number;
-      total: number;
-      totalPages: number;
-      hasNext: boolean;
-      hasPrev: boolean;
-    };
+    product?: Product;
+    pagination?: Pagination;
   };
   message?: string;
 }

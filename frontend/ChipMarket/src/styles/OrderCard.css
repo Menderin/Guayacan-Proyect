@@ -154,6 +154,18 @@
   border: 1px solid #cbd5e1;
 }
 
+.order-card__badge--completed {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  color: #065f46;
+  border: 2px solid #34d399;
+}
+
+.order-card__badge--failed {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #991b1b;
+  border: 2px solid #f87171;
+}
+
 /* Content */
 .order-card__content {
   padding: 1.5rem;

@@ -247,6 +247,11 @@ export const UpdateOrderStatusPage: React.FC = () => {
                     <button 
                       className="edit-btn"
                       onClick={() => openEditModal(order)}
+                      disabled={order.status === 'Cancelled'}
+                      style={{
+                        opacity: order.status === 'Cancelled' ? 0.5 : 1,
+                        cursor: order.status === 'Cancelled' ? 'not-allowed' : 'pointer'
+                      }}
                     >
                       Editar
                     </button>

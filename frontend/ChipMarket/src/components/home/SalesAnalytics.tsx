@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { 
+  LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, 
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  ComposedChart 
+} from 'recharts';
 import { TrendingUp, TrendingDown, Package, Calendar } from 'lucide-react';
 
 interface OrderDetail {
@@ -36,6 +40,7 @@ interface ProductStats {
   name: string;
   quantity: number;
   revenue: number;
+  price: number; 
   category: string;
   procesator?: string;
   ram?: string;
@@ -178,40 +183,44 @@ export default function SalesAnalytics() {
     const productMap: { [sku: string]: { 
       quantity: number; 
       revenue: number;
+      price: number; 
       name: string;
       category: string;
     } } = {};
     
-    // ✅ Usar datos ya incluidos en la respuesta
     orders.forEach(order => {
       if (order.details && Array.isArray(order.details)) {
         order.details.forEach(detail => {
+          const rawPrice = detail.price || 0;
+          const price = typeof rawPrice === 'string' ? parseFloat(rawPrice) : rawPrice;
+
           if (!productMap[detail.product_sku]) {
             productMap[detail.product_sku] = { 
               quantity: 0, 
               revenue: 0,
+              price: price, 
               name: detail.product?.name || detail.product_sku,
               category: detail.product?.category || 'Sin categoría'
             };
           }
           
-          const price = typeof detail.price === 'string' 
-            ? parseFloat(detail.price) 
-            : detail.price;
-          
           productMap[detail.product_sku].quantity += detail.quantity;
           productMap[detail.product_sku].revenue += price * detail.quantity;
+          
+          if (price > 0) {
+            productMap[detail.product_sku].price = price;
+          }
         });
       }
     });
 
-    // Obtener información adicional de productos si es necesario
     const productStats: ProductStats[] = [];
     const API_BASE = 'http://localhost:3000';
     
     for (const [sku, stats] of Object.entries(productMap)) {
+      const safePrice = stats.price || 0; 
+
       try {
-        // Intentar obtener detalles completos del producto
         const response = await fetch(`${API_BASE}/api/search?sku=${sku}`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -224,11 +233,16 @@ export default function SalesAnalytics() {
           
           if (data.success && data.data.products && data.data.products.length > 0) {
             const product = data.data.products[0];
+            
+            const apiPrice = product.price ? (typeof product.price === 'string' ? parseFloat(product.price) : product.price) : 0;
+            const finalPrice = apiPrice > 0 ? apiPrice : safePrice;
+
             productStats.push({
               sku: product.sku,
               name: product.name,
               quantity: stats.quantity,
               revenue: stats.revenue,
+              price: finalPrice, 
               category: product.category,
               procesator: product.components?.procesator || 'N/A',
               ram: product.components?.ram || 'N/A',
@@ -239,12 +253,12 @@ export default function SalesAnalytics() {
           }
         }
         
-        // Si falla, usar datos básicos
         productStats.push({
           sku,
           name: stats.name,
           quantity: stats.quantity,
           revenue: stats.revenue,
+          price: safePrice, 
           category: stats.category,
           procesator: 'N/A',
           ram: 'N/A',
@@ -253,12 +267,12 @@ export default function SalesAnalytics() {
         });
       } catch (error) {
         console.error(`❌ Error al obtener producto ${sku}:`, error);
-        // Agregar con datos básicos
         productStats.push({
           sku,
           name: stats.name,
           quantity: stats.quantity,
           revenue: stats.revenue,
+          price: safePrice, 
           category: stats.category,
           procesator: 'N/A',
           ram: 'N/A',
@@ -483,72 +497,183 @@ export default function SalesAnalytics() {
       {/* Gráfico de Ventas Mensuales */}
       <div style={{ background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', marginBottom: '2rem' }}>
         <h2 style={{ margin: '0 0 1.5rem 0', fontSize: '1.5rem', fontWeight: 'bold', color: '#1e293b' }}>
-          📈 Ventas por Mes
+          📈 Ventas y Volumen de Órdenes
         </h2>
         {monthlySales.length > 0 ? (
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={monthlySales}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-              <XAxis dataKey="month" stroke="#64748b" />
-              <YAxis stroke="#64748b" tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`} />
-              <Tooltip 
-                formatter={(value: number) => formatCurrency(value)}
-                contentStyle={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '8px' }}
+          <ResponsiveContainer width="100%" height={350}>
+            <ComposedChart data={monthlySales}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+              <XAxis 
+                dataKey="month" 
+                stroke="#64748b" 
+                tick={{fill: '#64748b'}}
+                axisLine={false}
+                tickLine={false}
               />
-              <Legend />
-              <Line type="monotone" dataKey="ventas" stroke="#3b82f6" strokeWidth={3} name="Ventas" />
-              <Line type="monotone" dataKey="ordenes" stroke="#10b981" strokeWidth={3} name="Órdenes" />
-            </LineChart>
+              
+              {/* EJE IZQUIERDO: DINERO (Ventas) */}
+              <YAxis 
+                yAxisId="left"
+                orientation="left"
+                stroke="#3b82f6" 
+                tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                axisLine={false}
+                tickLine={false}
+              />
+              
+              {/* EJE DERECHO: CANTIDAD (Órdenes) */}
+              <YAxis 
+                yAxisId="right"
+                orientation="right"
+                stroke="#10b981"
+                axisLine={false}
+                tickLine={false}
+              />
+
+              <Tooltip 
+                contentStyle={{ background: 'white', border: 'none', borderRadius: '12px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
+                formatter={(value: number, name: string) => 
+                  name === 'Ventas' ? [formatCurrency(value), 'Ingresos'] : [value, 'Órdenes']
+                }
+              />
+              <Legend wrapperStyle={{ paddingTop: '20px' }}/>
+              
+              {/* Barras para el Dinero */}
+              <Bar 
+                yAxisId="left" 
+                dataKey="ventas" 
+                name="Ventas" 
+                barSize={40} 
+                fill="#3b82f6" 
+                radius={[6, 6, 0, 0]} 
+              />
+              
+              {/* Línea para la Cantidad */}
+              <Line 
+                yAxisId="right" 
+                type="monotone" 
+                dataKey="ordenes" 
+                name="Órdenes" 
+                stroke="#10b981" 
+                strokeWidth={3}
+                dot={{ r: 4, fill: "#10b981", strokeWidth: 2, stroke: "#fff" }}
+                activeDot={{ r: 6 }}
+              />
+            </ComposedChart>
           </ResponsiveContainer>
         ) : (
           <p style={{ textAlign: 'center', color: '#64748b', padding: '3rem' }}>No hay datos suficientes para mostrar</p>
         )}
       </div>
 
-      {/* Productos Más y Menos Vendidos */}
+      
       {topProducts.length > 0 && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '2rem', marginBottom: '2rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '2rem', marginBottom: '2rem' }}>
+          
           <div style={{ background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
             <h2 style={{ margin: '0 0 1.5rem 0', fontSize: '1.25rem', fontWeight: 'bold', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <TrendingUp size={20} color="#10b981" />
               Top 5 Productos Más Vendidos
             </h2>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={topProducts} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis type="number" stroke="#64748b" />
-                <YAxis dataKey="name" type="category" width={150} stroke="#64748b" style={{ fontSize: '0.75rem' }} />
-                <Tooltip 
-                  formatter={(value: number, name: string) => name === 'quantity' ? [`${value} unidades`, 'Cantidad'] : [formatCurrency(value), 'Ingresos']}
-                  contentStyle={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '8px' }}
-                />
-                <Bar dataKey="quantity" fill="#10b981" name="Cantidad" />
-              </BarChart>
-            </ResponsiveContainer>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {topProducts.map((product, index) => (
+                <div key={index} style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center',
+                  padding: '1rem',
+                  backgroundColor: '#f8fafc',
+                  borderRadius: '10px',
+                  borderLeft: '4px solid #10b981'
+                }}>
+                  
+                  <div style={{ 
+                    fontSize: '1.5rem', 
+                    fontWeight: 'bold', 
+                    color: '#10b981', 
+                    opacity: 0.6,
+                    width: '40px',
+                    textAlign: 'center',
+                    marginRight: '0.5rem'
+                  }}>
+                    {index + 1}°
+                  </div>
+
+                  <div style={{ flex: 1, marginRight: '1rem' }}>
+                    <p style={{ margin: '0 0 0.25rem 0', fontWeight: '600', color: '#334155', fontSize: '0.9rem' }}>
+                      {product.name}
+                    </p>
+                    <span style={{ fontSize: '0.75rem', color: '#64748b', background: '#e2e8f0', padding: '2px 8px', borderRadius: '4px' }}>
+                      {product.category}
+                    </span>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <p style={{ margin: '0 0 0.25rem 0', fontWeight: 'bold', color: '#10b981', fontSize: '1.1rem' }}>
+                      {product.quantity} <span style={{ fontSize: '0.8rem', fontWeight: 'normal' }}>unid.</span>
+                    </p>
+                    <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b' }}>
+                      {formatCurrency(product.price)} {/* <--- 5. CAMBIO AQUÍ (Top Products) */}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
+      
           <div style={{ background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
             <h2 style={{ margin: '0 0 1.5rem 0', fontSize: '1.25rem', fontWeight: 'bold', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <TrendingDown size={20} color="#ef4444" />
               Top 5 Productos Menos Vendidos
             </h2>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={worstProducts} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis type="number" stroke="#64748b" />
-                <YAxis dataKey="name" type="category" width={150} stroke="#64748b" style={{ fontSize: '0.75rem' }} />
-                <Tooltip 
-                  formatter={(value: number, name: string) => name === 'quantity' ? [`${value} unidades`, 'Cantidad'] : [formatCurrency(value), 'Ingresos']}
-                  contentStyle={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '8px' }}
-                />
-                <Bar dataKey="quantity" fill="#ef4444" name="Cantidad" />
-              </BarChart>
-            </ResponsiveContainer>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {worstProducts.map((product, index) => (
+                <div key={index} style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center',
+                  padding: '1rem',
+                  backgroundColor: '#fff1f2', 
+                  borderRadius: '10px',
+                  borderLeft: '4px solid #ef4444'
+                }}>
+                  
+                  <div style={{ 
+                    fontSize: '1.5rem', 
+                    fontWeight: 'bold', 
+                    color: '#ef4444', 
+                    opacity: 0.6,
+                    width: '40px',
+                    textAlign: 'center',
+                    marginRight: '0.5rem'
+                  }}>
+                    {index + 1}°
+                  </div>
+
+                  <div style={{ flex: 1, marginRight: '1rem' }}>
+                    <p style={{ margin: '0 0 0.25rem 0', fontWeight: '600', color: '#334155', fontSize: '0.9rem' }}>
+                      {product.name}
+                    </p>
+                    <span style={{ fontSize: '0.75rem', color: '#64748b', background: 'white', padding: '2px 8px', borderRadius: '4px', border: '1px solid #fecdd3' }}>
+                      {product.category}
+                    </span>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <p style={{ margin: '0 0 0.25rem 0', fontWeight: 'bold', color: '#ef4444', fontSize: '1.1rem' }}>
+                      {product.quantity} <span style={{ fontSize: '0.8rem', fontWeight: 'normal' }}>unid.</span>
+                    </p>
+                    <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b' }}>
+                      {formatCurrency(product.price)} 
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
 
-      {/* Ventas por Categoría con Filtros */}
+      
       <div style={{ background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
           <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold', color: '#1e293b' }}>
@@ -589,7 +714,6 @@ export default function SalesAnalytics() {
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                 outerRadius={100}
                 fill="#8884d8"
                 dataKey="value"

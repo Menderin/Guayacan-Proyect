@@ -1,5 +1,3 @@
-// src/pages/Admin/Orders/OrderDetailsPage.tsx
-
 import React, { useState, useEffect, useCallback } from 'react';
 import type { OrderWithDetails, OrderDetailsApiResponse } from '../../../types/order.types';
 import { authenticatedFetch } from '../../../utils/api.helper';
@@ -20,7 +18,7 @@ export const OrderDetailsPage: React.FC<OrderDetailsPageProps> = ({ orderId, onB
     setError(null);
 
     try {
-      console.log(`📋 Cargando detalles del pedido ${orderId}...`);
+      console.log(`Cargando detalles del pedido ${orderId}...`);
       
       const response = await authenticatedFetch(`/api/orders/${orderId}`);
 
@@ -29,16 +27,16 @@ export const OrderDetailsPage: React.FC<OrderDetailsPageProps> = ({ orderId, onB
       }
 
       const result: OrderDetailsApiResponse = await response.json();
-      console.log('📋 Respuesta:', result);
+      console.log('Respuesta:', result);
 
       if (result.success && result.data) {
         setOrder(result.data);
-        console.log('✅ Detalles cargados');
+        console.log('Detalles cargados');
       } else {
         throw new Error(result.message || 'Error al cargar detalles');
       }
     } catch (err) {
-      console.error('❌ Error:', err);
+      console.error('Error:', err);
       setError(err instanceof Error ? err.message : 'Error desconocido');
     } finally {
       setLoading(false);
@@ -69,17 +67,39 @@ export const OrderDetailsPage: React.FC<OrderDetailsPageProps> = ({ orderId, onB
   };
 
   const getStatusClass = (status: string) => {
+    const normalizedStatus = status.toLowerCase().trim();
     const classes: { [key: string]: string } = {
       pending: 'status-badge--pending',
+      pendiente: 'status-badge--pending',
       completed: 'status-badge--completed',
+      completado: 'status-badge--completed',
       cancelled: 'status-badge--cancelled',
+      cancelado: 'status-badge--cancelled',
       processing: 'status-badge--processing',
-      failed: 'status-badge--failed'
+      procesando: 'status-badge--processing',
+      failed: 'status-badge--failed',
+      fallido: 'status-badge--failed'
     };
-    return classes[status.toLowerCase()] || '';
+    return classes[normalizedStatus] || '';
   };
 
-  // ✅ NUEVA FUNCIÓN: Calcular el total real (solo pagos COMPLETED)
+  const translateStatus = (status: string) => {
+    const normalizedStatus = status.toLowerCase().trim();
+    const translations: { [key: string]: string } = {
+      pending: 'Pendiente',
+      pendiente: 'Pendiente',
+      completed: 'Completado',
+      completado: 'Completado',
+      cancelled: 'Cancelado',
+      cancelado: 'Cancelado',
+      processing: 'Procesando',
+      procesando: 'Procesando',
+      failed: 'Fallido',
+      fallido: 'Fallido'
+    };
+    return translations[normalizedStatus] || status;
+  };
+
   const calculateActualTotal = (order: OrderWithDetails): number => {
     if (!order.payments || order.payments.length === 0) {
       return typeof order.total_amount === 'string' 
@@ -87,9 +107,8 @@ export const OrderDetailsPage: React.FC<OrderDetailsPageProps> = ({ orderId, onB
         : order.total_amount;
     }
 
-    // Sumar solo pagos COMPLETED
     const completedTotal = order.payments
-      .filter(payment => payment.status.toUpperCase() === 'COMPLETED')
+      .filter(payment => payment.status.toUpperCase() === 'COMPLETED' || payment.status.toUpperCase() === 'COMPLETADO')
       .reduce((sum, payment) => {
         const amount = typeof payment.amount === 'string' 
           ? parseFloat(payment.amount) 
@@ -134,12 +153,10 @@ export const OrderDetailsPage: React.FC<OrderDetailsPageProps> = ({ orderId, onB
     );
   }
 
-  // ✅ CALCULAR TOTAL REAL
   const actualTotal = calculateActualTotal(order);
 
   return (
     <div className="order-details-layout">
-      {/* Header */}
       <div className="order-details-header">
         <button
           onClick={onBack}
@@ -151,11 +168,11 @@ export const OrderDetailsPage: React.FC<OrderDetailsPageProps> = ({ orderId, onB
         <div className="order-details-header__content">
           <div className="order-details-header__info">
             <h2>Pedido #{order.id_order}</h2>
-            <p>📅 {formatDate(order.order_date)}</p>
+            <p>{formatDate(order.order_date)}</p>
           </div>
           <div className="order-details-header__summary">
             <span className={`order-details-header__status ${getStatusClass(order.status)}`}>
-              {order.status}
+              {translateStatus(order.status)}
             </span>
             <p className="order-details-header__total">
               Total: {formatPrice(actualTotal)}
@@ -164,10 +181,9 @@ export const OrderDetailsPage: React.FC<OrderDetailsPageProps> = ({ orderId, onB
         </div>
       </div>
 
-      {/* Productos del pedido */}
       {order.details && order.details.length > 0 && (
         <div className="order-section-card">
-          <h3 className="order-section-card__title">🛍️ Productos del pedido</h3>
+          <h3 className="order-section-card__title">Productos del pedido</h3>
           <div className="products-table-container">
             <table className="products-table">
               <thead>
@@ -204,10 +220,9 @@ export const OrderDetailsPage: React.FC<OrderDetailsPageProps> = ({ orderId, onB
         </div>
       )}
 
-      {/* Información de envío */}
       {order.shipping && (
         <div className="order-section-card">
-          <h3 className="order-section-card__title">🚚 Información de envío</h3>
+          <h3 className="order-section-card__title">Información de envío</h3>
           <div className="shipping-grid">
             <div className="shipping-field">
               <span className="shipping-field__label">Dirección</span>
@@ -224,7 +239,7 @@ export const OrderDetailsPage: React.FC<OrderDetailsPageProps> = ({ orderId, onB
             <div className="shipping-field">
               <span className="shipping-field__label">Estado</span>
               <span className={`shipping-field__status ${getStatusClass(order.shipping.status)}`}>
-                {order.shipping.status}
+                {translateStatus(order.shipping.status)}
               </span>
             </div>
             <div className="shipping-field">
@@ -235,10 +250,9 @@ export const OrderDetailsPage: React.FC<OrderDetailsPageProps> = ({ orderId, onB
         </div>
       )}
 
-      {/* Pagos */}
       {order.payments && order.payments.length > 0 && (
         <div className="order-section-card">
-          <h3 className="order-section-card__title">💳 Información de pago</h3>
+          <h3 className="order-section-card__title">Información de pago</h3>
           <div className="payments-list">
             {order.payments.map((payment) => {
               const amount = typeof payment.amount === 'string' 
@@ -259,7 +273,7 @@ export const OrderDetailsPage: React.FC<OrderDetailsPageProps> = ({ orderId, onB
                     <div className="payment-card__summary">
                       <p className="payment-card__amount">{formatPrice(amount)}</p>
                       <span className={`payment-card__status ${getStatusClass(payment.status)}`}>
-                        {payment.status}
+                        {translateStatus(payment.status)}
                       </span>
                     </div>
                   </div>

@@ -37,7 +37,7 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
 
     if (Object.keys(formData.components).includes(name)) {
@@ -65,68 +65,172 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
       const data = await response.json();
 
       if (response.ok && data.success) {
-        setMessage('✅ Producto actualizado');
-        onSave(data.data); // Actualiza en la lista padre
+        setMessage('Producto actualizado exitosamente');
+        setTimeout(() => {
+          onSave(data.data);
+        }, 1000);
       } else {
-        setMessage(`⚠️ ${data.message || 'Error al actualizar producto'}`);
+        setMessage(`Error: ${data.message || 'No se pudo actualizar el producto'}`);
       }
     } catch (err) {
-      setMessage('❌ Error de conexión con el servidor');
+      setMessage('Error de conexión con el servidor');
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
+  const componentLabels: Record<string, string> = {
+    procesator: 'Procesador',
+    mother_board: 'Placa Madre',
+    ram: 'Memoria RAM',
+    storage: 'Almacenamiento',
+    gpu: 'Tarjeta Gráfica',
+    power_supply: 'Fuente de Poder',
+    cooling_system: 'Sistema de Enfriamiento',
+    case: 'Gabinete',
+    operative_system: 'Sistema Operativo'
+  };
+
   return (
     <div className="edit-product-modal">
       <div className="edit-product-modal__overlay" onClick={onClose} />
       <div className="edit-product-modal__content">
-        <button className="edit-product-modal__close" onClick={onClose}>
-          ✕
-        </button>
-        <h2>Editar Producto</h2>
-        {message && <p className="edit-product-modal__message">{message}</p>}
-        <form onSubmit={handleSubmit} className="edit-product-form">
-          <label>Nombre</label>
-          <input name="name" value={formData.name} onChange={handleChange} required />
+        <div className="edit-product-modal__header">
+          <h2>Editar Producto</h2>
+          <button className="edit-product-modal__close" onClick={onClose} type="button">
+            ✕
+          </button>
+        </div>
 
-          <label>SKU</label>
-          <input name="sku" value={formData.sku} onChange={handleChange} required />
+        <div className="edit-product-modal__body">
+          <form onSubmit={handleSubmit} className="edit-product-modal__form">
+            {/* Sección: Información Principal */}
+            <div className="edit-product-modal__section edit-product-modal__section--main">
+              <h3 className="edit-product-modal__section-title">Información Principal</h3>
+              
+              <div className="edit-product-modal__field edit-product-modal__field--full">
+                <label htmlFor="name">Nombre del Producto</label>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                />
+              </div>
 
-          <label>Precio</label>
-          <input name="price" type="number" value={formData.price} onChange={handleChange} required />
+              <div className="edit-product-modal__field">
+                <label htmlFor="sku">SKU</label>
+                <input
+                  id="sku"
+                  name="sku"
+                  type="text"
+                  value={formData.sku}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                />
+              </div>
 
-          <label>Stock</label>
-          <input name="stock" type="number" value={formData.stock} onChange={handleChange} required />
+              <div className="edit-product-modal__field">
+                <label htmlFor="category">Categoría</label>
+                <input
+                  id="category"
+                  name="category"
+                  type="text"
+                  value={formData.category}
+                  onChange={handleChange}
+                  disabled={loading}
+                />
+              </div>
 
-          <label>Categoría</label>
-          <input name="category" value={formData.category} onChange={handleChange} />
+              <div className="edit-product-modal__field">
+                <label htmlFor="price">Precio ($)</label>
+                <input
+                  id="price"
+                  name="price"
+                  type="number"
+                  value={formData.price}
+                  onChange={handleChange}
+                  required
+                  min="0"
+                  disabled={loading}
+                />
+              </div>
 
-          <h3>Componentes</h3>
-          {Object.keys(formData.components).map(key => (
-            <div key={key}>
-              <label>{key}</label>
-              <input
-                name={key}
-                value={formData.components[key as keyof typeof formData.components]}
-                onChange={handleChange}
-              />
+              <div className="edit-product-modal__field">
+                <label htmlFor="stock">Stock</label>
+                <input
+                  id="stock"
+                  name="stock"
+                  type="number"
+                  value={formData.stock}
+                  onChange={handleChange}
+                  required
+                  min="0"
+                  disabled={loading}
+                />
+              </div>
+
+              <div className="edit-product-modal__field edit-product-modal__field--full">
+                <label htmlFor="garantee">Garantía</label>
+                <input
+                  id="garantee"
+                  name="garantee"
+                  type="text"
+                  value={formData.garantee}
+                  onChange={handleChange}
+                  placeholder="Ej: 3 años"
+                  disabled={loading}
+                />
+              </div>
             </div>
-          ))}
 
-          <label>Garantía</label>
-          <input name="garantee" value={formData.garantee} onChange={handleChange} />
+            {/* Sección: Componentes */}
+            <div className="edit-product-modal__section edit-product-modal__section--components">
+              <h3 className="edit-product-modal__section-title">Componentes del Equipo</h3>
+              
+              <div className="edit-product-modal__components-grid">
+                {Object.keys(formData.components).map(key => (
+                  <div key={key} className="edit-product-modal__component-field">
+                    <label htmlFor={key}>
+                      {componentLabels[key] || key}
+                    </label>
+                    <input
+                      id={key}
+                      name={key}
+                      type="text"
+                      value={formData.components[key as keyof typeof formData.components]}
+                      onChange={handleChange}
+                      disabled={loading}
+                      placeholder={`Ingrese ${componentLabels[key]?.toLowerCase() || key}`}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
 
-          <div className="edit-product-modal__buttons">
-            <button type="button" onClick={onClose} disabled={loading}>
-              Cancelar
-            </button>
-            <button type="submit" disabled={loading}>
-              {loading ? 'Guardando...' : 'Guardar Cambios'}
-            </button>
-          </div>
-        </form>
+            {/* Mensaje de estado */}
+            {message && (
+              <div className="edit-product-modal__message">
+                {message}
+              </div>
+            )}
+
+            {/* Botones de acción */}
+            <div className="edit-product-modal__buttons">
+              <button type="button" onClick={onClose} disabled={loading}>
+                Cancelar
+              </button>
+              <button type="submit" disabled={loading}>
+                {loading ? 'Guardando...' : 'Guardar Cambios'}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

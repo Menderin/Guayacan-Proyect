@@ -1,5 +1,5 @@
 // src/pages/Admin/Product/AddProductPage.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAddProduct } from '../../../hooks/useAddProduct';
 import { ProductProvider, useProducts } from '../../../context/ProductContext';
 import '../../../styles/AddProductPage.css';
@@ -9,12 +9,97 @@ const AddProductForm: React.FC = () => {
   const { formData, handleChange, handleSubmit, loading, successMessage, errorMessage, errors } = useAddProduct();
 
   const [showComponents, setShowComponents] = useState(true);
+  const [isCheckingSKU, setIsCheckingSKU] = useState(false);
+  const [skuExists, setSkuExists] = useState(false);
+
+  // Función para generar SKU único (formato: SKU + 10 dígitos)
+  const generateSKU = (): string => {
+    // Usar últimos 6 dígitos del timestamp + 4 dígitos random = 10 dígitos total
+    const timestamp = Date.now().toString().slice(-6);
+    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+    return `SKU${timestamp}${random}`;
+  };
+
+  // Verificar si el SKU ya existe
+  const checkSKUExists = async (sku: string): Promise<boolean> => {
+    if (!sku || sku.trim() === '') return false;
+    
+    try {
+      // Obtener todos los productos y buscar el SKU manualmente
+      const response = await fetch(`/api/productos?limit=1000`);
+      const data = await response.json();
+      
+      if (data.success && data.data?.productos) {
+        // Buscar si algún producto tiene este SKU
+        const found = data.data.productos.some((p: any) => p.sku === sku);
+        return found;
+      }
+      return false;
+    } catch (err) {
+      console.error('Error verificando SKU:', err);
+      return false;
+    }
+  };
+
+  // Generar SKU automáticamente al montar el componente
+  useEffect(() => {
+    if (!formData.sku || formData.sku === '') {
+      const newSKU = generateSKU();
+      handleChange('sku', newSKU);
+    }
+  }, []); // Solo al montar
+
+  // Verificar SKU cuando cambie
+  useEffect(() => {
+    const verifySKU = async () => {
+      if (formData.sku && formData.sku.trim() !== '') {
+        setIsCheckingSKU(true);
+        const exists = await checkSKUExists(formData.sku);
+        setSkuExists(exists);
+        setIsCheckingSKU(false);
+      }
+    };
+
+    const timeoutId = setTimeout(verifySKU, 500); // Debounce de 500ms
+    return () => clearTimeout(timeoutId);
+  }, [formData.sku]);
+
+  // Manejar generación manual de nuevo SKU
+  const handleGenerateNewSKU = async () => {
+    let newSKU = generateSKU();
+    let attempts = 0;
+    const maxAttempts = 5;
+
+    // Intentar generar un SKU único
+    while (attempts < maxAttempts) {
+      const exists = await checkSKUExists(newSKU);
+      if (!exists) {
+        handleChange('sku', newSKU);
+        return;
+      }
+      newSKU = generateSKU();
+      attempts++;
+    }
+
+    // Si después de 5 intentos no se genera uno único, usar timestamp más largo
+    const uniqueSKU = `SKU${Date.now()}${Math.floor(Math.random() * 10000)}`;
+    handleChange('sku', uniqueSKU);
+  };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validar SKU antes de enviar
+    if (skuExists) {
+      alert('El SKU ya existe. Por favor genera uno nuevo.');
+      return;
+    }
+
     const success = await handleSubmit();
     if (success) {
       await fetchProducts();
+      // Generar nuevo SKU para el siguiente producto
+      handleGenerateNewSKU();
     }
   };
 
@@ -26,15 +111,82 @@ const AddProductForm: React.FC = () => {
         {/* Sección Información Básica */}
         <div className="form-section">
           <h3>Información Básica</h3>
+          
+          {/* Campo SKU con generación automática */}
           <div className="form-group">
             <label>SKU *</label>
-            <input
-              type="text"
-              value={formData.sku}
-              onChange={e => handleChange('sku', e.target.value)}
-              placeholder="Ej: 12345"
-            />
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+              <div style={{ flex: 1, position: 'relative' }}>
+                <input
+                  type="text"
+                  value={formData.sku}
+                  onChange={e => handleChange('sku', e.target.value)}
+                  placeholder="Ej: SKU12345678901"
+                  style={{
+                    width: '100%',
+                    borderColor: skuExists ? '#ef4444' : isCheckingSKU ? '#fbbf24' : undefined
+                  }}
+                />
+                {isCheckingSKU && (
+                  <span style={{
+                    position: 'absolute',
+                    right: '10px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    fontSize: '0.875rem',
+                    color: '#6b7280'
+                  }}>
+                    🔍 Verificando...
+                  </span>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={handleGenerateNewSKU}
+                style={{
+                  padding: '0.625rem 1rem',
+                  background: '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  whiteSpace: 'nowrap',
+                  transition: 'all 0.2s'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.background = '#2563eb'}
+                onMouseOut={(e) => e.currentTarget.style.background = '#3b82f6'}
+              >
+                🔄 Generar
+              </button>
+            </div>
             {errors.sku && <div className="error-message">{errors.sku}</div>}
+            {skuExists && (
+              <div className="error-message" style={{ 
+                background: '#fee2e2', 
+                color: '#991b1b',
+                padding: '0.5rem',
+                borderRadius: '6px',
+                marginTop: '0.5rem',
+                fontSize: '0.875rem'
+              }}>
+                ⚠️ Este SKU ya existe. Genera uno nuevo.
+              </div>
+            )}
+            {!skuExists && formData.sku && !isCheckingSKU && (
+              <div style={{ 
+                background: '#d1fae5', 
+                color: '#065f46',
+                padding: '0.5rem',
+                borderRadius: '6px',
+                marginTop: '0.5rem',
+                fontSize: '0.875rem',
+                fontWeight: 500
+              }}>
+                ✓ SKU disponible
+              </div>
+            )}
           </div>
 
           <div className="form-group">
@@ -206,7 +358,15 @@ const AddProductForm: React.FC = () => {
           )}
         </div>
 
-        <button type="submit" disabled={loading} className="submit-button">
+        <button 
+          type="submit" 
+          disabled={loading || skuExists} 
+          className="submit-button"
+          style={{
+            opacity: (loading || skuExists) ? 0.5 : 1,
+            cursor: (loading || skuExists) ? 'not-allowed' : 'pointer'
+          }}
+        >
           {loading ? 'Creando...' : 'Crear Producto'}
         </button>
 

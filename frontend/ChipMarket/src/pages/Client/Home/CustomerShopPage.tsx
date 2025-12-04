@@ -7,16 +7,19 @@ import { SearchHeader } from '../../../components/products/SearchHeader';
 import { FilterPanel } from '../../../components/products/FilterPanel';
 import { ProductGridWithCart } from '../../../components/products/ProductGridWithCart';
 import { useCart } from '../../../hooks/useCart';
-import '../../../styles/CustomerShop.css';
 import { useAuth } from '../../../context/AuthContext';
+import '../../../styles/CustomerShop.css';
 
-export const CustomerShopPage: React.FC = () => {
+interface CustomerShopPageProps {
+  onNavigateToProfile: () => void;
+}
+
+export const CustomerShopPage: React.FC<CustomerShopPageProps> = ({ onNavigateToProfile }) => {
   const [showFilters, setShowFilters] = useState(true);
   const [showCart, setShowCart] = useState(false);
-  const [showProfile, setShowProfile] = useState(false);
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
 
-  // Hook de búsqueda de productos (reutilizado)
+  // Hook de búsqueda de productos
   const {
     searchQuery,
     setSearchQuery,
@@ -70,28 +73,18 @@ export const CustomerShopPage: React.FC = () => {
     });
   };
 
-  const handleLogout = () => {
-    // Implementar logout
-    localStorage.removeItem('token');
-    window.location.href = '/login';
-  };
-
   return (
     <div className="customer-shop">
       {/* Header Superior */}
       <header className="customer-shop__header">
         <div className="customer-shop__header-content">
           <div className="customer-shop__logo">
-            <link rel="stylesheet" href="ChipMarket" />
-            <h1>ChipMarket</h1>
+            <h1>TechStore</h1>
           </div>
 
           <div className="customer-shop__actions">
             <button
-              onClick={() => {
-                setShowCart(true);
-                setShowProfile(false);
-              }}
+              onClick={() => setShowCart(true)}
               className="customer-shop__action-btn"
             >
               <ShoppingCart className="w-5 h-5" />
@@ -102,18 +95,19 @@ export const CustomerShopPage: React.FC = () => {
             </button>
 
             <button
-              onClick={() => {
-                setShowProfile(true);
-                setShowCart(false);
-              }}
+              onClick={onNavigateToProfile}
               className="customer-shop__action-btn"
             >
               <User className="w-5 h-5" />
               <span>Perfil</span>
             </button>
 
-            <button className="logout-confirm-btn" onClick={logout}>
-                    Cerrar Sesión
+            <button
+              onClick={logout}
+              className="customer-shop__action-btn customer-shop__action-btn--logout"
+            >
+              <LogOut className="w-5 h-5" />
+              <span>Salir</span>
             </button>
           </div>
         </div>
@@ -235,45 +229,6 @@ export const CustomerShopPage: React.FC = () => {
                     </div>
                   </>
                 )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Panel de Perfil (Slide-in) */}
-        {showProfile && (
-          <div className="profile-panel-overlay" onClick={() => setShowProfile(false)}>
-            <div className="profile-panel" onClick={(e) => e.stopPropagation()}>
-              <div className="profile-panel__header">
-                <h2>Mi Perfil</h2>
-                <button onClick={() => setShowProfile(false)} className="profile-panel__close">
-                  ✕
-                </button>
-              </div>
-
-              <div className="profile-panel__content">
-                <div className="profile-section">
-                  <h3>Información Personal</h3>
-                  <div className="profile-field">
-                    <label>Nombre</label>
-                    <p>{user.name}</p>
-                  </div>
-                  <div className="profile-field">
-                    <label>Email</label>
-                    <p>{user.email}</p>
-                  </div>
-                </div>
-
-                <div className="profile-section">
-                  <h3>Mis Pedidos</h3>
-                  <button className="profile-link-btn">Ver historial de pedidos</button>
-                </div>
-
-                <div className="profile-section">
-                  <h3>Configuración</h3>
-                  <button className="profile-link-btn">Cambiar contraseña</button>
-                  <button className="profile-link-btn">Editar dirección</button>
-                </div>
               </div>
             </div>
           </div>

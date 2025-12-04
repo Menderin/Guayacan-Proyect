@@ -1148,7 +1148,6 @@ export class OrderService {
       'Cancelled'
     ];
 
-    // Validar estado
     if (!validStatuses.includes(newStatus)) {
       return {
         success: false,
@@ -1159,7 +1158,6 @@ export class OrderService {
     const transaction = await sequelize.transaction();
 
     try {
-      // Buscar pedido con envío y pagos incluidos
       const order = await Order.findByPk(orderId, {
         include: [
           {
@@ -1186,9 +1184,7 @@ export class OrderService {
 
       const previousStatus = order.status;
 
-      // Validaciones de transiciones (si no es forzado)
       if (!force) {
-        // No permitir cambiar pedidos cancelados
         if (previousStatus === 'Cancelled' && newStatus !== 'Cancelled') {
           await transaction.rollback();
           return {
@@ -1197,7 +1193,6 @@ export class OrderService {
           };
         }
 
-        // Advertir si se intenta marcar como completado sin estar pagado
         const payments = order.get('payments') as any[];
         const totalPaid = payments
           .filter((p: any) => p.status === 'Completed')
@@ -1213,17 +1208,13 @@ export class OrderService {
         }
       }
 
-      // Actualizar estado del pedido
       await order.update({ status: newStatus }, { transaction });
 
+      const shipping = order.get('shipping') as any;
+      const payments = order.get('payments') as any[];
       let additionalMessage = '';
 
-      // Si el pedido se cancela
       if (newStatus === 'Cancelled') {
-        const shipping = order.get('shipping') as any;
-        const payments = order.get('payments') as any[];
-
-        // 1. Cancelar el envío
         if (shipping && shipping.status !== 'Cancelled') {
           await Shipping.update(
             { status: 'Cancelled' },
@@ -1232,14 +1223,11 @@ export class OrderService {
               transaction 
             }
           );
-          console.log(`Envío #${shipping.id_shipping} cancelado automáticamente`);
           additionalMessage += ' Envío cancelado.';
         }
 
-        // 2. Actualizar pagos según su estado actual
         let paymentsUpdated = 0;
         for (const payment of payments) {
-          // Si el pago estaba completado -> Refunded (ya se cobró)
           if (payment.status === 'Completed') {
             await Payment.update(
               { status: 'Refunded' },
@@ -1249,10 +1237,7 @@ export class OrderService {
               }
             );
             paymentsUpdated++;
-            console.log(`Pago #${payment.id_payment} marcado como Refunded`);
-          }
-          // Si el pago estaba pendiente -> Cancelled (nunca se procesó)
-          else if (payment.status === 'Pending') {
+          } else if (payment.status === 'Pending') {
             await Payment.update(
               { status: 'Cancelled' },
               { 
@@ -1261,7 +1246,6 @@ export class OrderService {
               }
             );
             paymentsUpdated++;
-            console.log(`Pago #${payment.id_payment} marcado como Cancelled`);
           }
         }
 
@@ -1270,7 +1254,45 @@ export class OrderService {
         }
       }
 
-      // Confirmar transacción
+      if (newStatus === 'Completed') {
+        if (shipping && shipping.status !== 'Delivered' && shipping.status !== 'Cancelled') {
+          await Shipping.update(
+            { status: 'Delivered' },
+            { 
+              where: { id_shipping: shipping.id_shipping },
+              transaction 
+            }
+          );
+          additionalMessage += ' Envío marcado como Entregado.';
+        }
+      }
+
+      if (newStatus === 'Shipped') {
+        if (shipping && shipping.status === 'Processing') {
+          await Shipping.update(
+            { status: 'Shipped' },
+            { 
+              where: { id_shipping: shipping.id_shipping },
+              transaction 
+            }
+          );
+          additionalMessage += ' Envío marcado como En tránsito.';
+        }
+      }
+
+      if (newStatus === 'Processing') {
+        if (shipping && shipping.status === 'Pending') {
+          await Shipping.update(
+            { status: 'Processing' },
+            { 
+              where: { id_shipping: shipping.id_shipping },
+              transaction 
+            }
+          );
+          additionalMessage += ' Envío marcado como Procesando.';
+        }
+      }
+
       await transaction.commit();
 
       return {

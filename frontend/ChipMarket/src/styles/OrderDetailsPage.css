@@ -1,18 +1,9 @@
-/* ===================================
-   ORDER DETAILS PAGE STYLES
-   =================================== */
-
-/* Container Principal */
 .order-details-layout {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
   animation: fadeIn 0.4s ease-out;
 }
-
-/* ===================================
-   HEADER CARD
-   =================================== */
 
 .order-details-header {
   background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
@@ -84,11 +75,6 @@
   gap: 0.5rem;
 }
 
-.order-details-header__info h2::before {
-  content: '📦';
-  font-size: 2.25rem;
-}
-
 .order-details-header__info p {
   color: #047857;
   font-size: 1rem;
@@ -122,10 +108,6 @@
   background-clip: text;
 }
 
-/* ===================================
-   STATUS BADGES
-   =================================== */
-
 .status-badge--pending {
   background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
   color: #92400e;
@@ -150,9 +132,11 @@
   border: 2px solid #60a5fa;
 }
 
-/* ===================================
-   SECTION CARDS
-   =================================== */
+.status-badge--failed {
+  background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+  color: #9f1239;
+  border: 2px solid #f472b6;
+}
 
 .order-section-card {
   background: white;
@@ -179,10 +163,6 @@
   padding-bottom: 1rem;
   border-bottom: 3px solid #e2e8f0;
 }
-
-/* ===================================
-   PRODUCTS TABLE
-   =================================== */
 
 .products-table-container {
   overflow-x: auto;
@@ -265,10 +245,6 @@
   text-align: right;
 }
 
-/* ===================================
-   SHIPPING INFO
-   =================================== */
-
 .shipping-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -313,9 +289,35 @@
   text-transform: uppercase;
 }
 
-/* ===================================
-   PAYMENTS
-   =================================== */
+.shipping-field__status.status-badge--pending {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+  border: 2px solid #fbbf24;
+}
+
+.shipping-field__status.status-badge--completed {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  color: #065f46;
+  border: 2px solid #34d399;
+}
+
+.shipping-field__status.status-badge--cancelled {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #991b1b;
+  border: 2px solid #f87171;
+}
+
+.shipping-field__status.status-badge--processing {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #1e40af;
+  border: 2px solid #60a5fa;
+}
+
+.shipping-field__status.status-badge--failed {
+  background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+  color: #9f1239;
+  border: 2px solid #f472b6;
+}
 
 .payments-list {
   display: flex;
@@ -331,15 +333,6 @@
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-}
-
-.payment-card::before {
-  content: '💳';
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  font-size: 3rem;
-  opacity: 0.2;
 }
 
 .payment-card:hover {
@@ -386,9 +379,35 @@
   text-transform: uppercase;
 }
 
-/* ===================================
-   ESTADOS: LOADING, ERROR
-   =================================== */
+.payment-card__status.status-badge--pending {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+  border: 2px solid #fbbf24;
+}
+
+.payment-card__status.status-badge--completed {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  color: #065f46;
+  border: 2px solid #34d399;
+}
+
+.payment-card__status.status-badge--cancelled {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #991b1b;
+  border: 2px solid #f87171;
+}
+
+.payment-card__status.status-badge--processing {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #1e40af;
+  border: 2px solid #60a5fa;
+}
+
+.payment-card__status.status-badge--failed {
+  background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+  color: #9f1239;
+  border: 2px solid #f472b6;
+}
 
 .order-details-state {
   background: white;
@@ -408,23 +427,9 @@
   color: #64748b;
 }
 
-.order-details-state__message--loading::before {
-  content: '⏳';
-  font-size: 3rem;
-  display: block;
-  margin-bottom: 1rem;
-}
-
 .order-details-state__message--error {
   color: #dc2626;
   font-weight: 600;
-}
-
-.order-details-state__message--error::before {
-  content: '❌';
-  font-size: 3rem;
-  display: block;
-  margin-bottom: 1rem;
 }
 
 .order-details-state__actions {
@@ -455,10 +460,6 @@
   box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
 }
 
-.order-details-state__btn--retry::before {
-  content: '🔄 ';
-}
-
 .order-details-state__btn--back {
   background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
   color: white;
@@ -469,14 +470,6 @@
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(107, 114, 128, 0.4);
 }
-
-.order-details-state__btn--back::before {
-  content: '← ';
-}
-
-/* ===================================
-   ANIMATIONS
-   =================================== */
 
 @keyframes fadeIn {
   from {
@@ -506,10 +499,6 @@
 .order-section-card:nth-child(2) { animation-delay: 0.2s; }
 .order-section-card:nth-child(3) { animation-delay: 0.3s; }
 .order-section-card:nth-child(4) { animation-delay: 0.4s; }
-
-/* ===================================
-   RESPONSIVE
-   =================================== */
 
 @media (max-width: 1024px) {
   .shipping-grid {

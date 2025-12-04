@@ -1,4 +1,4 @@
-// src/types/order.types.ts
+// frontend src/types/order.types.ts
 
 export interface User {
   id: number;

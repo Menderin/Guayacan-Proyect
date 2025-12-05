@@ -12,7 +12,7 @@ El proyecto utiliza una arquitectura de contenedores con Docker Compose que incl
 - **Backend**: Node.js + TypeScript + Express
 - **Base de Datos Relacional**: PostgreSQL 15
 - **Base de Datos NoSQL**: MongoDB 7
-- **Herramientas de Administración**: PgAdmin y Mongo Express (opcionales) [0-cite-0](#0-cite-0) 
+- **Herramientas de Administración**: PgAdmin y Mongo Express (opcionales)
 
 ## 🛠️ Tecnologías
 
@@ -22,7 +22,7 @@ El proyecto utiliza una arquitectura de contenedores con Docker Compose que incl
 - **ORMs**: Sequelize (PostgreSQL) y Mongoose (MongoDB)
 - **Autenticación**: JWT (jsonwebtoken)
 - **Seguridad**: bcryptjs para encriptación de contraseñas
-- **Validación**: CORS configurado [0-cite-1](#0-cite-1) 
+- **Validación**: CORS configurado
 
 ### Frontend
 - **Framework**: React 19
@@ -31,7 +31,7 @@ El proyecto utiliza una arquitectura de contenedores con Docker Compose que incl
 - **Estilos**: Tailwind CSS
 - **Routing**: React Router DOM
 - **Gráficos**: Chart.js, Recharts, D3.js
-- **Iconos**: Lucide React [0-cite-2](#0-cite-2) 
+- **Iconos**: Lucide React
 
 ## 📋 Requisitos Previos
 
@@ -83,7 +83,7 @@ docker-compose --profile tools up -d
 - **Frontend**: http://localhost:5173
 - **Backend API**: http://localhost:3000
 - **PgAdmin** (opcional): http://localhost:5050
-- **Mongo Express** (opcional): http://localhost:8081 [0-cite-4](#0-cite-4) [0-cite-5](#0-cite-5) 
+- **Mongo Express** (opcional): http://localhost:8081
 
 ## 📁 Estructura del Proyecto
 
@@ -117,37 +117,37 @@ El backend ofrece las siguientes APIs RESTful:
 ### 🔐 API AUTH
 - Autenticación y gestión de sesiones
 - Registro y login de usuarios
-- Obtención de información del usuario autenticado [0-cite-6](#0-cite-6) 
+- Obtención de información del usuario autenticado 
 
 ### 📦 API ORDER
 - Gestión completa de pedidos
 - Búsqueda avanzada con filtros
 - Estadísticas y resúmenes
-- Reembolsos completos y parciales [0-cite-7](#0-cite-7) 
+- Reembolsos completos y parciales
 
 ### 💳 API PAYMENT
 - Gestión de pagos
 - Búsqueda avanzada de transacciones
-- Filtrado por estado y método de pago [0-cite-8](#0-cite-8) 
+- Filtrado por estado y método de pago
 
 ### 🛍️ API PRODUCT
 - CRUD de productos
 - Búsqueda con filtros avanzados
 - Gestión de inventario
-- Alertas de bajo stock [0-cite-9](#0-cite-9) 
+- Alertas de bajo stock
 
 ### 🔍 API SEARCH
 - Búsqueda principal con múltiples filtros
 - Autocompletado y sugerencias
 - Productos relacionados
-- Filtros dinámicos por categoría [0-cite-10](#0-cite-10) 
+- Filtros dinámicos por categoría
 
 ### 👥 API USER
 - Gestión de usuarios
 - Perfiles y roles (Admin/Cliente)
-- Búsqueda y edición de usuarios [0-cite-11](#0-cite-11) 
+- Búsqueda y edición de usuarios
 
-Para documentación detallada de cada endpoint, consultar el archivo de documentación del backend. [0-cite-12](#0-cite-12) 
+Para documentación detallada de cada endpoint, consultar el archivo de documentación del backend.
 
 ## 🔒 Autenticación
 
@@ -155,22 +155,22 @@ La mayoría de las rutas requieren autenticación mediante JWT. El token debe in
 
 ```
 Authorization: Bearer {token}
-``` [0-cite-13](#0-cite-13) 
+``` 
 
 ## 👥 Roles de Usuario
 
 El sistema cuenta con dos roles principales:
 
 - **Administrador**: Acceso completo al sistema
-- **Cliente**: Acceso limitado a funcionalidades de usuario [0-cite-14](#0-cite-14) 
+- **Cliente**: Acceso limitado a funcionalidades de usuario
 
 ## 🗄️ Base de Datos
 
 ### PostgreSQL
-Se utiliza para datos estructurados como usuarios, pedidos y pagos. El script de inicialización se ejecuta automáticamente al levantar el contenedor. [0-cite-15](#0-cite-15) 
+Se utiliza para datos estructurados como usuarios, pedidos y pagos. El script de inicialización se ejecuta automáticamente al levantar el contenedor. 
 
 ### MongoDB
-Se utiliza para datos no estructurados como componentes de productos y configuraciones dinámicas. [0-cite-16](#0-cite-16) 
+Se utiliza para datos no estructurados como componentes de productos y configuraciones dinámicas.
 
 ## 🛠️ Comandos Útiles
 
@@ -194,11 +194,11 @@ docker-compose up -d --build
 docker-compose exec backend npm run dev
 ```
 
-## 📊 Códigos de Estado HTTP [0-cite-17](#0-cite-17) 
+## 📊 Códigos de Estado HTTP 
 
 ## 📝 Formato de Respuesta
 
-Todas las respuestas de la API siguen un formato estandarizado: [0-cite-18](#0-cite-18) 
+Todas las respuestas de la API siguen un formato estandarizado:
 
 ## 🤝 Contribución
 
@@ -222,7 +222,7 @@ Este README ha sido generado basándose en la estructura actual del proyecto. El
 
 ### Citations
 
-**File:** docker-compose.yml (L1-20)
+**File:** docker-compose.yml
 ```yaml
 services:
   # Frontend React + Vite (Modo Desarrollo)
@@ -246,13 +246,13 @@ services:
 
 ```
 
-**File:** docker-compose.yml (L28-29)
+**File:** docker-compose.yml
 ```yaml
     ports:
       - "3000:3000"
 ```
 
-**File:** docker-compose.yml (L30-47)
+**File:** docker-compose.yml
 ```yaml
     environment:
       NODE_ENV: development
@@ -274,7 +274,7 @@ services:
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
 ```
 
-**File:** docker-compose.yml (L60-80)
+**File:** docker-compose.yml
 ```yaml
   # PostgreSQL Database
   postgres:
@@ -299,7 +299,7 @@ services:
       - guayacan_network
 ```
 
-**File:** docker-compose.yml (L82-102)
+**File:** docker-compose.yml
 ```yaml
   # MongoDB Database
   mongodb:
@@ -324,7 +324,7 @@ services:
       - guayacan_network
 ```
 
-**File:** backend/package.json (L15-29)
+**File:** backend/package.json
 ```json
   "dependencies": {
     "bcryptjs": "^3.0.2",
@@ -343,7 +343,7 @@ services:
     "typeorm": "^0.3.27"
 ```
 
-**File:** frontend/ChipMarket/package.json (L12-22)
+**File:** frontend/ChipMarket/package.json
 ```json
   "dependencies": {
     "@types/d3": "^7.4.3",
@@ -358,7 +358,7 @@ services:
     "recharts": "^2.10.3"
 ```
 
-**File:** backend/Readme.md (L1-11)
+**File:** backend/Readme.md
 ```markdown
 # 🚀 Documentación de APIs
 
@@ -373,7 +373,7 @@ services:
 
 ```
 
-**File:** backend/Readme.md (L12-31)
+**File:** backend/Readme.md
 ```markdown
 ## 🔐 API AUTH
 
@@ -397,7 +397,7 @@ services:
 ```
 ```
 
-**File:** backend/Readme.md (L68-83)
+**File:** backend/Readme.md
 ```markdown
 ## 📦 API ORDER
 
@@ -417,7 +417,7 @@ services:
 
 ```
 
-**File:** backend/Readme.md (L372-393)
+**File:** backend/Readme.md
 ```markdown
 ## 💳 API PAYMENT
 
@@ -443,7 +443,7 @@ services:
 
 ```
 
-**File:** backend/Readme.md (L445-461)
+**File:** backend/Readme.md
 ```markdown
 ### 🛍️ API PRODUCT
 
@@ -464,7 +464,7 @@ services:
 
 ```
 
-**File:** backend/Readme.md (L531-555)
+**File:** backend/Readme.md
 ```markdown
 ## 🔍 API SEARCH
 
@@ -493,7 +493,7 @@ services:
 
 ```
 
-**File:** backend/Readme.md (L660-680)
+**File:** backend/Readme.md
 ```markdown
 ## 👥 API USER
 
@@ -518,7 +518,7 @@ services:
 ```
 ```
 
-**File:** backend/Readme.md (L748-751)
+**File:** backend/Readme.md
 ```markdown
 #### Autenticación
 La mayoría de las rutas requieren autenticación mediante JWT. El token debe incluirse en el header:
@@ -526,7 +526,7 @@ La mayoría de las rutas requieren autenticación mediante JWT. El token debe in
 ```Authorization: Bearer {token}```
 ```
 
-**File:** backend/Readme.md (L752-759)
+**File:** backend/Readme.md
 ```markdown
 
 - `200` - OK: Solicitud exitosa
@@ -538,7 +538,7 @@ La mayoría de las rutas requieren autenticación mediante JWT. El token debe in
 - `500` - Internal Server Error: Error del servidor
 ```
 
-**File:** backend/Readme.md (L761-769)
+**File:** backend/Readme.md
 ```markdown
 #### Formato de Respuesta
 Todas las respuestas siguen el formato:
@@ -551,7 +551,7 @@ Todas las respuestas siguen el formato:
 ```
 ```
 
-**File:** backend/Readme.md (L771-774)
+**File:** backend/Readme.md
 ```markdown
 #### Roles de Usuario
 

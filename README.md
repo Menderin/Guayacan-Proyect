@@ -66,7 +66,7 @@ MONGO_DB=guayacan_db
 # JWT
 JWT_SECRET=tu_secreto_jwt
 JWT_EXPIRES_IN=24h
-``` [0-cite-3](#0-cite-3) 
+``` 
 
 ### 3. Iniciar los servicios
 

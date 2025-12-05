@@ -539,7 +539,6 @@ La mayoría de las rutas requieren autenticación mediante JWT. El token debe in
 ```
 
 **File:** backend/Readme.md
-```markdown
 #### Formato de Respuesta
 Todas las respuestas siguen el formato:
 ```json
@@ -549,10 +548,10 @@ Todas las respuestas siguen el formato:
   "message": "Mensaje descriptivo"
 }
 ```
-```
+
 
 **File:** backend/Readme.md
-```markdown
+``` markdown
 #### Roles de Usuario
 
 - Administrador (acceso completo)

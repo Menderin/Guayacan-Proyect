@@ -36,7 +36,7 @@ interface Order {
   user_id: number;
   order_date: string;
   status: string;
-  total_amount: string | number; // ✅ Puede ser string o number según la API
+  total_amount: string | number; 
 }
 
 import type { Payment } from '../../types/payment.types';
@@ -75,29 +75,28 @@ export const Home: React.FC = () => {
     try {
       setLoading(true);
       
-      // ✅ CORREGIDO: Obtener pedidos Pending Y Processing
       const [
         productsResponse, 
         pendingOrdersResponse,
-        processingOrdersResponse, // ✅ NUEVO: Pedidos en procesamiento
+        processingOrdersResponse, 
         completedOrdersResponse,
         pendingPaymentsData,
-        processingPaymentsData // ✅ NUEVO: Pagos en procesamiento
+        processingPaymentsData 
       ] = await Promise.all([
         fetch('http://localhost:3000/api/productos'),
         fetch('http://localhost:3000/api/orders/status/Pending'),
-        fetch('http://localhost:3000/api/orders/status/Processing'), // ✅ NUEVO
+        fetch('http://localhost:3000/api/orders/status/Processing'), 
         fetch('http://localhost:3000/api/orders/status/Completed'),
         PaymentService.getPaymentsByStatus('Pending'),
-        PaymentService.getPaymentsByStatus('Processing') // ✅ NUEVO
+        PaymentService.getPaymentsByStatus('Processing') 
       ]);
 
       const productsData: ApiResponse = await productsResponse.json();
       const pendingOrdersData: OrdersApiResponse = await pendingOrdersResponse.json();
-      const processingOrdersData: OrdersApiResponse = await processingOrdersResponse.json(); // ✅ NUEVO
+      const processingOrdersData: OrdersApiResponse = await processingOrdersResponse.json(); 
       const completedData: OrdersApiResponse = await completedOrdersResponse.json();
       
-      // Calcular productos y stock bajo
+      
       let totalProducts = 0;
       let lowStock = 0;
       
@@ -107,12 +106,10 @@ export const Home: React.FC = () => {
         lowStock = products.filter((p: Product) => p.stock <= 5).length;
       }
 
-      // ✅ CORREGIDO: Sumar pedidos Pending + Processing
       const pendingCount = pendingOrdersData.success ? pendingOrdersData.data.length : 0;
       const processingCount = processingOrdersData.success ? processingOrdersData.data.length : 0;
       const pendingOrders = pendingCount + processingCount;
 
-      // Calcular ingresos totales (pedidos completados)
       let totalRevenue = 0;
       if (completedData.success) {
         totalRevenue = completedData.data.reduce(
@@ -121,7 +118,6 @@ export const Home: React.FC = () => {
         );
       }
 
-      // ✅ CORREGIDO: Sumar pagos Pending + Processing
       let pendingPayments = 0;
       let pendingPaymentsAmount = 0;
       

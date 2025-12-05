@@ -3,7 +3,7 @@
 import React from 'react';
 import { Loader2, User as UserIcon } from 'lucide-react';
 import { UserCard } from './UserCard';
-import { Pagination } from '../products/Pagination'; // Reutilizamos el componente de paginación
+import { Pagination } from '../products/Pagination'; 
 import type { User } from '../../types/user.types';
 import type { Pagination as PaginationType } from '../../types/user.types';
 

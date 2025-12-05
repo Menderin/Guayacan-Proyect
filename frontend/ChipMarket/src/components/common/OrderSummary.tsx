@@ -28,9 +28,8 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
 
     const itemCount = products.reduce((sum, product) => sum + product.quantity, 0);
 
-    // Puedes agregar cálculo de impuestos o envío aquí si es necesario
-    const tax = 0; // subtotal * 0.19 (IVA 19% en Chile)
-    const shipping = 0; // Costo de envío
+    const tax = 0;
+    const shipping = 0; 
 
     const total = subtotal + tax + shipping;
 

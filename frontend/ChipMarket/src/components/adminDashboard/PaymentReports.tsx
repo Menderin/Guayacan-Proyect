@@ -5,7 +5,7 @@ import { PaymentService } from '../../services/payment.service';
 import type { Payment } from '../../types/payment.types';
 import '../../styles/PaymentReports.css'; 
 import { PaymentsTable } from './PaymentsTable';
-import { PaymentCharts } from './PaymentCharts'; // <-- 1. AÑADIDA LA IMPORTACIÓN DEL GRÁFICO
+import { PaymentCharts } from './PaymentCharts'; 
 
 type PaymentStatusFilter = 'all' | 'Pending' | 'Completed' | 'Failed';
 
@@ -15,7 +15,6 @@ export const PaymentReports: React.FC = () => {
      const [error, setError] = useState<string | null>(null);
      const [activeFilter, setActiveFilter] = useState<PaymentStatusFilter>('all');
 
-    // --- (Todo tu código de useEffect, fetchPayments, handleFilterClick se queda igual) ---
      useEffect(() => {
          fetchPayments(activeFilter);
     }, [activeFilter]);
@@ -49,7 +48,6 @@ export const PaymentReports: React.FC = () => {
      };
 
      const handleExportCSV = () => {
-        // --- (Toda tu lógica de exportar CSV se queda igual) ---
         if (payments.length === 0) {
              alert("No hay datos para exportar.");
              return;

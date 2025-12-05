@@ -49,7 +49,6 @@ export const UserEditGrid: React.FC<UserEditGridProps> = ({
 
   const handleUserUpdated = (updatedUser: User) => {
     setSelectedUser(null);
-    // Aquí podrías actualizar la lista local o recargar
     window.location.reload(); // Recargar para ver cambios
   };
 

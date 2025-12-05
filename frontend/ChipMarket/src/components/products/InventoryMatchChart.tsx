@@ -6,27 +6,24 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 
 import '../../styles/ProductSearchPage.css';
 
-// 1. Registrar los elementos necesarios para el gráfico Doughnut/Pie
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 interface InventoryMatchChartProps {
-  filteredCount: number; // Productos que coinciden con los filtros (el numerador)
-  totalInStock: number; // Total de productos que están EN STOCK (el denominador)
+  filteredCount: number; 
+  totalInStock: number; 
 }
 
 export const InventoryMatchChart: React.FC<InventoryMatchChartProps> = ({ 
   filteredCount, 
   totalInStock 
 }) => {
-  // Manejo de casos límite
+ 
   if (totalInStock === 0) {
     return <p>No hay inventario en stock para analizar.</p>;
   }
   
-  // Calcular los dos segmentos del pastel
   const unmatchedCount = totalInStock - filteredCount;
 
-  // 2. Definición de los datos del gráfico
   const data = {
     labels: [
       `Coincidencia (${filteredCount})`,
@@ -36,8 +33,8 @@ export const InventoryMatchChart: React.FC<InventoryMatchChartProps> = ({
       {
         data: [filteredCount, unmatchedCount],
         backgroundColor: [
-          '#10B981', // Verde: Coincidencia
-          '#E5E7EB', // Gris: Stock No Filtrado
+          '#10B981', 
+          '#E5E7EB', 
         ],
         hoverBackgroundColor: [
           '#059669',
@@ -48,10 +45,10 @@ export const InventoryMatchChart: React.FC<InventoryMatchChartProps> = ({
     ],
   };
 
-  // 3. Definición de las opciones
+
   const options = {
     responsive: true,
-    maintainAspectRatio: false, // Permite que el gráfico use el tamaño del contenedor
+    maintainAspectRatio: false, 
     plugins: {
       legend: {
         position: 'bottom' as const,

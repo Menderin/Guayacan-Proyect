@@ -57,7 +57,6 @@ export const PaymentDetails: React.FC<PaymentDetailsProps> = ({ payments, totalA
     .filter(p => p.status === 'Pending')
     .reduce((sum, p) => sum + parseFloat(p.amount.toString()), 0);
 
-  // ✅ CORRECCIÓN: Por pagar = Total - Pagado (sin restar pendientes)
   const remainingToPay = Math.max(0, totalAmount - totalPaid);
 
   return (

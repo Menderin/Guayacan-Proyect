@@ -12,16 +12,14 @@ interface ToastProps {
 export const ToastNotification: React.FC<ToastProps> = ({ 
   message, 
   onClose, 
-  duration = 3000 // 3 segundos por defecto
+  duration = 3000 
 }) => {
 
-  // Efecto para cerrar el toast automáticamente
   useEffect(() => {
     const timer = setTimeout(() => {
       onClose();
     }, duration);
 
-    // Limpiar el timer si el componente se desmonta
     return () => clearTimeout(timer);
   }, [onClose, duration]);
 

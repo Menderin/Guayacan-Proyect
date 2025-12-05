@@ -2,16 +2,13 @@
 
 import React from 'react';
 import type { Payment } from '../../types/payment.types';
-import '../../styles/PaymentsTable.css'; // Crearemos este archivo ahora
+import '../../styles/PaymentsTable.css'; 
 
 interface PaymentsTableProps {
   payments: Payment[];
   loading: boolean;
 }
 
-// --- Funciones de Ayuda ---
-
-/** Formatea un número a peso chileno (CLP) */
 const formatCurrency = (amount: number | string) => {
   const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
   return new Intl.NumberFormat('es-CL', {
@@ -19,8 +16,6 @@ const formatCurrency = (amount: number | string) => {
     currency: 'CLP',
   }).format(numericAmount);
 };
-
-/** Formatea una fecha a un string legible */
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString('es-ES', {
     day: '2-digit',
@@ -30,8 +25,6 @@ const formatDate = (dateString: string) => {
     minute: '2-digit',
   });
 };
-
-/** Devuelve una clase CSS según el estado del pago */
 const getStatusClass = (status: string) => {
   switch (status) {
     case 'Pending':
@@ -49,7 +42,6 @@ const getStatusClass = (status: string) => {
 
 export const PaymentsTable: React.FC<PaymentsTableProps> = ({ payments, loading }) => {
   
-  // Contenido del cuerpo de la tabla
   const renderTableBody = () => {
     if (loading) {
       return (

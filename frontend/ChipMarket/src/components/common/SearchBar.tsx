@@ -11,7 +11,7 @@ interface SearchBarProps {
   showSuggestions?: boolean;
   setShowSuggestions?: (show: boolean) => void;
   onSuggestionClick?: (suggestion: string) => void;
-  placeholder?: string; // 👈 Prop adicional para personalizar
+  placeholder?: string; 
 }
 
 export const SearchBar: React.FC<SearchBarProps> = ({

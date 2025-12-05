@@ -24,12 +24,10 @@ export const UserSelector: React.FC<UserSelectorProps> = ({
   const { users, loading, searchUsers, getAllUsers } = useUsers();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Cargar todos los usuarios al montar el componente
   useEffect(() => {
     getAllUsers();
   }, [getAllUsers]);
 
-  // Buscar usuarios cuando cambia el query
   useEffect(() => {
     if (searchQuery.trim()) {
       searchUsers(searchQuery);
@@ -38,7 +36,6 @@ export const UserSelector: React.FC<UserSelectorProps> = ({
     }
   }, [searchQuery, searchUsers, getAllUsers]);
 
-  // Cerrar dropdown al hacer click fuera
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {

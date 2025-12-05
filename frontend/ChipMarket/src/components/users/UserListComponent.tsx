@@ -16,7 +16,7 @@ interface UserListProps {
   loading: boolean;
   error: string | null;
   onReload: () => void;
-  editMode?: boolean; // Nuevo prop para activar modo edición
+  editMode?: boolean; 
 }
 
 export const UserListComponent: React.FC<UserListProps> = ({ 

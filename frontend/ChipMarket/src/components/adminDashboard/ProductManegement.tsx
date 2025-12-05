@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-// Importa tus componentes reales aquí cuando los tengas
 // import { ProductListPage } from './ProductListPage';
 // import { AddProductPage } from './AddProductPage';
 
@@ -10,8 +9,7 @@ import { ProductListPage } from '../../pages/Admin/Product/ProductListPage';
 import {ProductSearchPage} from '../../pages/Admin/Product/ProductSearchPage';
 import { AnalyticsPage } from '../../pages/Admin/Product/AnalyticsPage';
 
-// Importa los estilos
-import '../../styles/AdminDashboard.css'; // Puedes reusar los estilos que ya creamos
+import '../../styles/AdminDashboard.css'; 
 import '../../styles/Management.css';
 import { AddProductPage } from '../../pages/Admin/Product/AddProductPage';
 import { EditProductPage } from '../../pages/Admin/Product/EditProductPage';
@@ -19,7 +17,6 @@ import { DeleteProductPage } from '../../pages/Admin/Product/DeleteProductPage';
 
 export const ProductManagement: React.FC = () => {
     const [activeProductTab, setActiveProductTab] = useState('list');
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { user } = useAuth(); // Lo mantenemos por si lo necesitas dentro de algún sub-componente
 
     const productTabs = [
@@ -53,7 +50,7 @@ export const ProductManagement: React.FC = () => {
 
             {/* --- 2. Contenido Principal Dinámico --- */}
             <main className="product-content">
-                {/* Aquí se renderiza el contenido según el tab activo */}
+                {}
                 {activeProductTab === 'list' && (
                     <ProductListPage />
                 )}

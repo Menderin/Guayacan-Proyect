@@ -26,7 +26,6 @@ export const UserCard: React.FC<UserCardProps> = ({ user, viewMode }) => {
     return 'card__badge--customer';
   };
 
-  // ✅ CORRECCIÓN: Manejar el modo 'list' ANTES del return principal
   if (viewMode === 'list') {
     return (
       <tr className="card card--list">
@@ -72,7 +71,7 @@ export const UserCard: React.FC<UserCardProps> = ({ user, viewMode }) => {
     );
   }
 
-  // ✅ Vista Grid (por defecto)
+  //  Vista Grid (por defecto)
   return (
     <div className="card">
       <div className="card__content">
